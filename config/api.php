@@ -16,7 +16,10 @@ return array
 
     'github' => array
     (
-        'api' => array('api_url' => 'https://github.com/api/v2/'),
+        'api' => array
+        (
+            'api_url' => 'https://github.com/api/v2/'
+        ),
         'auth' => array
         (
             'username' => 'XXXXXXXXXXXXXXXXXXXX',
@@ -34,6 +37,31 @@ return array
                 'remove'    => array(),
                 'add'       => array('X-Powered-By' => 'Me Make It'),
             )
+        ),
+    ),
+
+    'lastfm' => array
+    (
+        'api' => array
+        (
+            'api_url' => 'http://ws.audioscrobbler.com/2.0/'
+        ),
+        'auth' => array
+        (
+            'secret' => 'XXXXXXXXXXXXXXXXXXXX',
+        ),
+        'defaults' => array
+        (
+            'api_key' => 'XXXXXXXXXXXXXXXXXXXX',
+        ),
+    ),
+
+    'readernaut' => array
+    (
+        'api' => array
+        (
+            'api_url'   => 'http://readernaut.com/api/v1/',
+            'format'    => MMI_API::FORMAT_XML
         ),
     ),
 );
