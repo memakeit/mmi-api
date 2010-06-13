@@ -88,7 +88,7 @@ class Kohana_MMI_Curl_Response
      */
     public function body($value = NULL)
     {
-        return $this->_get_set('_body', $value, 'is_string');
+        return $this->_get_set('_body', $value);
     }
 
     /**
@@ -126,18 +126,6 @@ class Kohana_MMI_Curl_Response
     {
         return $this->_get_set('_http_headers', $value, 'is_array');
     }
-//
-//    /**
-//     * Get or set the HTTP method used to make the cURL request.
-//     * This method is chainable when setting a value.
-//     *
-//     * @param   string  the HTTP method
-//     * @return  mixed
-//     */
-//    public function http_method($value = NULL)
-//    {
-//        return $this->_get_set('_http_method', $value, 'is_string');
-//    }
 
     /**
      * Get or set the HTTP status code returned by cURL.
@@ -182,9 +170,14 @@ class Kohana_MMI_Curl_Response
      * @param   string  the name of the data verification method
      * @return  mixed
      */
-    protected function _get_set($name, $value = NULL, $verify_method = 'is_string')
+    protected function _get_set($name, $value = NULL, $verify_method = NULL)
     {
-        if ($verify_method($value))
+        if ( ! empty($verify_method) AND $verify_method($value))
+        {
+            $this->$name = $value;
+            return $this;
+        }
+        elseif ( ! empty($value))
         {
             $this->$name = $value;
             return $this;
