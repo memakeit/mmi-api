@@ -9,7 +9,11 @@
  */
 class Kohana_MMI_HTTP
 {
-	// Class constants
+    // Authorization type constants
+    const AUTH_BASIC = 'basic';
+    const AUTH_OAUTH = 'oauth';
+
+	// HTTP method constants
     const METHOD_DELETE = 'DELETE';
     const METHOD_GET = 'GET';
     const METHOD_HEAD = 'HEAD';
