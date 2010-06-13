@@ -19,6 +19,10 @@ abstract class Kohana_MMI_API
     const FORMAT_XML = 'xml';
     const FORMAT_YAML = 'yaml';
 
+    // Read write constants
+    const READ_ONLY = 'ro';
+    const READ_WRITE = 'rw';
+
     // Service name constants
     const SERVICE_DELICIOUS = 'delicious';
     const SERVICE_DIGG = 'digg';
@@ -40,7 +44,7 @@ abstract class Kohana_MMI_API
     protected static $_last_response;
 
     /**
-     * @var string the root API URL
+     * @var mixed the API URL (usually a string but an array can be used to specify a read-only URL and a read-write URL)
      **/
     protected $_api_url = '';
 
@@ -133,7 +137,7 @@ abstract class Kohana_MMI_API
         $this->_auth_config = Arr::get($service_config, 'auth', array());
         $this->_service_config = $service_config;
 
-        $api_defaults = Arr::get($config, 'api', array());
+        $api_global = Arr::get($config, 'api', array());
         $api_service = Arr::get($service_config, 'api', array());
         $settings = array
         (
@@ -148,23 +152,24 @@ abstract class Kohana_MMI_API
             'timeout',
             'useragent',
         );
-        foreach ($settings as $setting)
+        foreach ($settings as $name)
         {
-            $value = Arr::get($api_service, $setting, Arr::get($api_defaults, $setting));
-            $this->$setting($value);
+            $value = Arr::get($api_service, $name, Arr::get($api_global, $name));
+            $this->$name($value);
         }
     }
 
     /**
      * Get or set the API URL.
+     * The API URL is usually a string, but an array can be used to specify a read-only URL and a read-write URL.
      * This method is chainable when setting a value.
      *
-     * @param   string  the value to set
+     * @param   mixed  the API URL value(s)
      * @return  mixed
      */
     public function api_url($value = NULL)
     {
-        return $this->_get_set('_api_url', $value, 'is_string');
+        return $this->_get_set('_api_url', $value);
     }
 
     /**
@@ -478,14 +483,11 @@ abstract class Kohana_MMI_API
      */
     protected function _request($url, $parms, $method = MMI_HTTP::METHOD_GET)
     {
-        // Process URLs
-        if (strrpos($url, 'https://') !== 0 AND strrpos($url, 'http://') !== 0)
-        {
-            $url = $this->_build_url($url);
-        }
+        // Configure URL
+        $url = $this->_configure_url($url);
 
-        // Add default parameters that are included in every request
-        $parms = $this->_add_defaults($parms);
+        // Configure parameters
+        $parms = $this->_configure_parameters($parms);
 
         // Create and configure the cURL object
         $curl = new MMI_Curl;
@@ -523,17 +525,13 @@ abstract class Kohana_MMI_API
     {
         foreach ($requests as $id => $request)
         {
-            // Process URLs
+            // Configure URLs
             $url = Arr::get($request, 'url');
-            if (strrpos($url, 'https://') !== 0 AND strrpos($url, 'http://') !== 0)
-            {
-                $url = $this->_build_url($url);
-            }
-            $requests[$id]['url'] = $url;
+            $requests[$id]['url'] = $this->_configure_url($url);;
 
-            // Add default parameters that are included in every request
+            // Configure parameters
             $parms = Arr::get($request, 'parms');
-            $requests[$id]['parms'] = $this->_add_defaults($parms);
+            $requests[$id]['parms'] = $this->_configure_parameters($parms);
         }
 
         // Create and configure the cURL object
@@ -571,14 +569,42 @@ abstract class Kohana_MMI_API
     }
 
     /**
+     * Configure the request URL.
+     * If both a read-only and a read-write API URL are specified, the correct one is implemented.
+     *
+     * @param   string  the request URL
+     * @return  string
+     */
+    protected function _configure_url($url)
+    {
+        if (strrpos($url, 'https://') !== 0 AND strrpos($url, 'http://') !== 0)
+        {
+            $path = $url;
+            $url = $this->_api_url;
+            if (is_array($url) AND count($url) === 1)
+            {
+                $url = end($url);
+            }
+            elseif (is_array($url) AND count($url) > 1)
+            {
+                $key = ($this->_read_only) ? self::READ_ONLY : self::READ_WRITE;
+                $url = Arr::get($url, $key);
+            }
+            $url = $this->_build_url($url, $path);
+        }
+        return $url;
+    }
+
+    /**
      * Build the request URL.
      *
+     * @param   string  the base URL
      * @param   string  the path portion of the URL
      * @return  string
      */
-    protected function _build_url($path)
+    protected function _build_url($url, $path)
     {
-        return $this->_api_url.$path;
+        return $url.$path;
     }
 
     /**
@@ -594,21 +620,24 @@ abstract class Kohana_MMI_API
         $curl->add_curl_option(CURLOPT_USERAGENT, $this->_useragent);
         $curl->add_curl_option(CURLOPT_SSL_VERIFYPEER, $this->_ssl_verifypeer);
 
-        // Customize HTTP headers as specified in the configuration file
+        // Customize cURL options as specified in the configuration file
         $custom = Arr::path($this->_service_config, 'custom.curl_options', array());
         if (is_array($custom) AND count($custom) > 0)
         {
+            // Process defaults
+            $defaults = Arr::get($custom, 'defaults', FALSE);
+            if (is_array($defaults) AND count($defaults) > 0)
+            {
+                $curl->curl_options($defaults);
+            }
+
             // Process removals
             $remove = Arr::get($custom, 'remove', FALSE);
-            if (is_string($remove) AND strcasecmp($remove, 'all') === 0)
+            if (is_array($remove) AND count($remove) > 0)
             {
-                $curl->clear_curl_options();
-            }
-            elseif (is_array($remove) AND count($remove) > 0)
-            {
-                foreach ($remove as $item)
+                foreach ($remove as $name)
                 {
-                    $curl->remove_curl_option($item);
+                    $curl->remove_curl_option($name);
                 }
             }
 
@@ -616,39 +645,12 @@ abstract class Kohana_MMI_API
             $add = Arr::get($custom, 'add', FALSE);
             if (is_array($add) AND count($add) > 0)
             {
-                foreach ($add as $item => $value)
+                foreach ($add as $name => $value)
                 {
-                    $curl->add_curl_option($item, $value);
+                    $curl->add_curl_option($name, $value);
                 }
             }
         }
-    }
-
-    /**
-     * Add default parameters to the existing request parameters.
-     * If a default parameter has already been set, it will not be overwritten.
-     *
-     * @param   array   an associative array of request parameters
-     * @return  array
-     */
-    protected function _add_defaults($parms)
-    {
-        $defaults = Arr::get($this->_service_config, 'defaults', array());
-        if (is_array($defaults) AND count($defaults) > 0)
-        {
-            if ( ! is_array($parms))
-            {
-                $parms = array();
-            }
-            foreach ($defaults as $name => $value)
-            {
-                if ( ! array_key_exists($name, $parms))
-                {
-                    $parms[$name] = $value;
-                }
-            }
-        }
-        return $parms;
     }
 
     /**
@@ -664,17 +666,20 @@ abstract class Kohana_MMI_API
         $custom = Arr::path($this->_service_config, 'custom.http_headers', array());
         if (is_array($custom) AND count($custom) > 0)
         {
+            // Process defaults
+            $defaults = Arr::get($custom, 'defaults', FALSE);
+            if (is_array($defaults) AND count($defaults) > 0)
+            {
+                $curl->http_headers($defaults);
+            }
+
             // Process removals
             $remove = Arr::get($custom, 'remove', FALSE);
-            if (is_string($remove) AND strcasecmp($remove, 'all') === 0)
+            if (is_array($remove) AND count($remove) > 0)
             {
-                $curl->clear_http_headers();
-            }
-            elseif (is_array($remove) AND count($remove) > 0)
-            {
-                foreach ($remove as $item)
+                foreach ($remove as $name)
                 {
-                    $curl->remove_http_header($item);
+                    $curl->remove_http_header($name);
                 }
             }
 
@@ -682,9 +687,9 @@ abstract class Kohana_MMI_API
             $add = Arr::get($custom, 'add', FALSE);
             if (is_array($add) AND count($add) > 0)
             {
-                foreach ($add as $item => $value)
+                foreach ($add as $name=> $value)
                 {
-                    $curl->add_http_header($item, $value);
+                    $curl->add_http_header($name, $value);
                 }
             }
         }
@@ -693,12 +698,69 @@ abstract class Kohana_MMI_API
         $auth_config = $this->_auth_config;
         if (is_array($auth_config) AND count($auth_config) > 0)
         {
-            $auth = $this->_get_auth_string();
-            if ( ! empty($auth))
+            if ( ! $this->_read_only OR ($this->_read_only AND $this->_sign_read_only))
             {
-                $curl->add_http_header('Authorization', $auth);
+                $auth = $this->_get_auth_string();
+                if ( ! empty($auth))
+                {
+                    $curl->add_http_header('Authorization', $auth);
+                }
             }
         }
+    }
+
+    /**
+     * Configure the request parameters as specified in the configuration file.
+     * When processing additions, if a parameter value exists, it will not be overwritten.
+     *
+     * @param   array   an associative array of request parameters
+     * @return  array
+     */
+    protected function _configure_parameters($parms)
+    {
+        $custom = Arr::path($this->_service_config, 'custom.parms', array());
+        if (is_array($custom) AND count($custom) > 0)
+        {
+            // Process removals
+            $remove = Arr::get($custom, 'remove', FALSE);
+            if (is_array($remove) AND count($remove) > 0)
+            {
+                foreach ($remove as $name)
+                {
+                    if (array_key_exists($name, $parms))
+                    {
+                        unset($parms[$name]);
+                    }
+                }
+            }
+
+            // Process additions
+            $add = Arr::get($custom, 'add', FALSE);
+            if (is_array($add) AND count($add) > 0)
+            {
+                foreach ($add as $name => $value)
+                {
+                    if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+                    {
+                        $parms[$name] = $value;
+                    }
+                }
+            }
+        }
+
+        // Configure authentication parameters (that are passed as request parameters instead of HTTP authorization headers)
+        return $this->_configure_auth_parms($parms);
+    }
+
+    /**
+     * Configure authentication parameters that are passed as request parameters instead of HTTP authorization headers.
+     *
+     * @param   array   an associative array of request parameters
+     * @return  array
+     */
+    protected function _configure_auth_parms($parms)
+    {
+        return $parms;
     }
 
     /**
