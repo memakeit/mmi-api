@@ -53,11 +53,6 @@ class Kohana_MMI_Curl
     protected $_requests = array();
 
     /**
-     * @var string the user agent sent by the cURL request
-     **/
-    protected $_useragent;
-
-    /**
      * Configure debugging (using the Request instance).
      *
      * @return  void
@@ -88,18 +83,6 @@ class Kohana_MMI_Curl
             $value = parse_url($value);
         }
         return $this->_get_set('_proxy', $value, 'is_array');
-    }
-
-    /**
-     * Get or set the user agent sent by the cURL request.
-     * This method is chainable when setting a value.
-     *
-     * @param   string  the user agent
-     * @return  mixed
-     */
-    public function useragent($value = NULL)
-    {
-        return $this->_get_set('_useragent', $value, 'is_string');
     }
 
     /**
@@ -473,8 +456,9 @@ class Kohana_MMI_Curl
         {
             if (intval(curl_errno($handle)) === CURLE_OK)
             {
-                $url = Arr::path($requests, $id.'.url');
-                $parms = Arr::path($requests, $id.'.parms');
+                $request = $requests[$id];
+                $url = Arr::get($request, 'url');
+                $parms = Arr::get($request, 'parms');
                 $responses[$id] = $this->_process_response($handle, curl_multi_getcontent($handle), $url, $parms);
             }
             else
@@ -524,10 +508,9 @@ class Kohana_MMI_Curl
         // Configure the cURL URL and user agent
         $options = $this->_curl_options;
         $options[CURLOPT_URL] = $url;
-        $options[CURLOPT_REFERER] = $url;
-        if ( ! empty($this->_useragent))
+        if ( ! array_key_exists(CURLOPT_REFERER, $options) OR (array_key_exists(CURLOPT_REFERER, $options) AND empty($options[CURLOPT_REFERER])))
         {
-            $options[CURLOPT_USERAGENT] = $this->_useragent;
+            $options[CURLOPT_REFERER] = $url;
         }
 
         // Configure the proxy connection, if requested
