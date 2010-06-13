@@ -10,7 +10,7 @@
 abstract class Kohana_MMI_API_Basic extends MMI_API
 {
     /**
-     * Get the string to be sent in the authorization header.
+     * Get the string to be sent via the authorization header.
      *
      * @return  string
      */

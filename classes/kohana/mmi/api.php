@@ -748,12 +748,12 @@ abstract class Kohana_MMI_API
             }
         }
 
-        // Configure authentication parameters (that are passed as request parameters instead of HTTP authorization headers)
+        // Configure authentication parameters (that are passed as request parameters instead of via HTTP authorization headers)
         return $this->_configure_auth_parms($parms);
     }
 
     /**
-     * Configure authentication parameters that are passed as request parameters instead of HTTP authorization headers.
+     * Configure authentication parameters that are passed as request parameters instead of via HTTP authorization headers.
      *
      * @param   array   an associative array of request parameters
      * @return  array
@@ -792,7 +792,7 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Get the string to be sent in the authorization header.
+     * Get the string to be sent via the authorization header.
      *
      * @return  string
      */
