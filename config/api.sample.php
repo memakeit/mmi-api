@@ -29,13 +29,20 @@ return array
         (
             'curl_options'  => array
             (
+                'defaults'  => array(),
                 'remove'    => array(),
                 'add'       => array(),
             ),
             'http_headers'  => array
             (
+                'defaults'  => array(),
                 'remove'    => array(),
-                'add'       => array('X-Powered-By' => 'Me Make It'),
+                'add'       => array(),
+            ),
+            'parms'  => array
+            (
+                'remove'    => array(),
+                'add'       => array(),
             )
         ),
     ),
