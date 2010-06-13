@@ -1,19 +1,14 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * Perform GitHub API calls.
+ * Make GitHub API calls.
  *
  * @package     MMI API
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
  */
-class Kohana_MMI_API_GitHub extends MMI_API
+class Kohana_MMI_API_GitHub extends MMI_API_Basic
 {
-    /**
-     * @var string the root API URL
-     **/
-    protected $_api_url = 'https://github.com/api/v2/';
-
     /**
      * @var string the service name
      */
