@@ -43,19 +43,14 @@ class Kohana_MMI_Curl
     protected $_http_headers = array();
 
     /**
-     * @var MMI_Curl_Request the last cURL request
-     **/
-    protected $_last_request;
-//
-//    /**
-//     * @var MMI_Curl_Response the response received from the last cURL request
-//     **/
-//    protected $_last_response;
-
-    /**
      * @var array an associative array of proxy settings
      **/
     protected $_proxy;
+
+    /**
+     * @var array an associative array for mapping requests to responses (used for debugging)
+     **/
+    protected $_requests = array();
 
     /**
      * @var string the user agent sent by the cURL request
@@ -77,26 +72,6 @@ class Kohana_MMI_Curl
         $this->_http_headers = Arr::get($config, 'http_headers', array());
         unset($config);
     }
-
-//    /**
-//     * Get the last cURL request.
-//     *
-//     * @return  MMI_Curl_Request
-//     */
-//    public function last_request()
-//    {
-//        return $this->_get_set('_last_request');
-//    }
-//
-//    /**
-//     * Get the response received from the last cURL request.
-//     *
-//     * @return  MMI_Curl_Response
-//     */
-//    public function last_response()
-//    {
-//        return $this->_get_set('_last_response');
-//    }
 
     /**
      * Get or set the proxy details used by cURL requests.
@@ -154,6 +129,18 @@ class Kohana_MMI_Curl
         {
             unset($this->_curl_options[$name]);
         }
+        return $this;
+    }
+
+    /**
+     * Remove all the cURL options.
+     * This method is chainable.
+     *
+     * @return  MMI_Remote
+     */
+    public function clear_curl_options()
+    {
+        $this->_curl_options = array();
         return $this;
     }
 
@@ -226,6 +213,18 @@ class Kohana_MMI_Curl
     }
 
     /**
+     * Remove all the HTTP headers.
+     * This method is chainable.
+     *
+     * @return  MMI_Remote
+     */
+    public function clear_http_headers()
+    {
+        $this->_http_headers = array();
+        return $this;
+    }
+
+    /**
      * Get or set the HTTP headers for the cURL request. Set operations overwrite the existing HTTP headers.
      * This method is chainable when setting a value.
      *
@@ -237,27 +236,11 @@ class Kohana_MMI_Curl
         return $this->_get_set('_http_headers', $options, 'is_array');
     }
 
-//
-//    /**
-//     * Set the user credentials for the cURL request.
-//     * This method is chainable.
-//     *
-//     * @param  string   the authentication username
-//     * @param  string   the authentication password
-//     * @return  MMI_Remote
-//     */
-//    public function set_credentials($username = NULL, $password = NULL)
-//    {
-//        $this->_username = $username;
-//        $this->_password = $password;
-//        return $this;
-//    }
-
     /**
-     * Perform a DELETE request.
+     * Make a DELETE request.
      *
      * @param   string  the URL
-     * @param   array   the request parameters
+     * @param   array   an associative array of request parameters
      * @return  MMI_Curl_Response
      */
     public function delete($url, $parms = NULL)
@@ -266,10 +249,10 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform a GET request.
+     * Make a GET request.
      *
      * @param   string  the URL
-     * @param   array   the request parameters
+     * @param   array   an associative array of request parameters
      * @return  MMI_Curl_Response
      */
     public function get($url, $parms = NULL)
@@ -278,10 +261,10 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform a HEAD request.
+     * Make a HEAD request.
      *
      * @param   string  the URL
-     * @param   array   the request parameters
+     * @param   array   an associative array of request parameters
      * @return  MMI_Curl_Response
      */
     public function head($url, $parms = NULL)
@@ -290,10 +273,10 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform a POST request.
+     * Make a POST request.
      *
      * @param   string  the URL
-     * @param   array   the request parameters
+     * @param   array   an associative array of request parameters
      * @return  MMI_Curl_Response
      */
 	public function post($url, $parms = NULL)
@@ -302,10 +285,10 @@ class Kohana_MMI_Curl
 	}
 
     /**
-     * Perform a PUT request.
+     * Make a PUT request.
      *
      * @param   string  the URL
-     * @param   array   the request parameters
+     * @param   array   an associative array of request parameters
      * @return  MMI_Curl_Response
      */
     public function put($url, $parms = NULL)
@@ -314,22 +297,10 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform multiple DELETE requests.
-     * Each request is an associative array containing a URL and request parameters.
-     * The requests array can be associative (recommended for easier extraction of results):
-     *      $requests = array
-     *      (
-     *          'memakeit' => array('url' => 'user/show/memakeit'),
-     *          'shadowhand' => array('url' => 'user/show/shadowhand'),
-     *      );
+     * Make multiple DELETE requests.
+     * See the mget method for the format of the requests data.
      *
-     * Or the requests array can be non-associative:
-     *      $requests = array
-     *      (
-     *          array('url' => 'user/show/memakeit'),
-     *          array('url' => 'user/show/shadowhand'),
-     *      );
-     *
+     * @see     mget
      * @param   array   the requests
      * @return  array
      */
@@ -339,23 +310,23 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform multiple GET requests.
-     * Each request is an associative array containing a URL and request parameters.
-     * The requests array can be associative (recommended for easier extraction of results):
+     * Make multiple GET requests.
+     * Each request is an associative array containing a URL (key = 'url') and optional request parameters (key = 'parms').
+     * Each request can be associated with a key (recommended for easier extraction of results):
      *      $requests = array
      *      (
      *          'memakeit' => array('url' => 'user/show/memakeit'),
      *          'shadowhand' => array('url' => 'user/show/shadowhand'),
      *      );
      *
-     * Or the requests array can be non-associative:
+     * or the keys can be ommited:
      *      $requests = array
      *      (
      *          array('url' => 'user/show/memakeit'),
      *          array('url' => 'user/show/shadowhand'),
      *      );
      *
-     * @param   array   the requests
+     * @param   array   the request details (URL and parameters)
      * @return  array
      */
     public function mget($requests)
@@ -364,22 +335,10 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform multiple HEAD requests.
-     * Each request is an associative array containing a URLand request parameters.
-     * The requests array can be associative (recommended for easier extraction of results):
-     *      $requests = array
-     *      (
-     *          'memakeit' => array('url' => 'user/show/memakeit'),
-     *          'shadowhand' => array('url' => 'user/show/shadowhand'),
-     *      );
+     * Make multiple HEAD requests.
+     * See the mget method for the format of the requests data.
      *
-     * Or the requests array can be non-associative:
-     *      $requests = array
-     *      (
-     *          array('url' => 'user/show/memakeit'),
-     *          array('url' => 'user/show/shadowhand'),
-     *      );
-     *
+     * @see     mget
      * @param   array   the requests
      * @return  array
      */
@@ -389,22 +348,10 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform multiple POST requests.
-     * Each request is an associative array containing a URL and request parameters.
-     * The requests array can be associative (recommended for easier extraction of the results):
-     *      $requests = array
-     *      (
-     *          'memakeit' => array('url' => 'user/show/memakeit'),
-     *          'shadowhand' => array('url' => 'user/show/shadowhand'),
-     *      );
+     * Make multiple POST requests.
+     * See the mget method for the format of the requests data.
      *
-     * Or the requests array can be non-associative:
-     *      $requests = array
-     *      (
-     *          array('url' => 'user/show/memakeit'),
-     *          array('url' => 'user/show/shadowhand'),
-     *      );
-     *
+     * @see     mget
      * @param   array   the requests
      * @return  array
      */
@@ -414,22 +361,10 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform multiple PUT requests.
-     * Each request is an associative array containing a URL and and request parameters.
-     * The requests array can be associative (recommended for easier extraction of results):
-     *      $requests = array
-     *      (
-     *          'memakeit' => array('url' => 'user/show/memakeit'),
-     *          'shadowhand' => array('url' => 'user/show/shadowhand'),
-     *      );
+     * Make multiple PUT requests.
+     * See the mget method for the format of the requests data.
      *
-     * Or the requests array can be non-associative:
-     *      $requests = array
-     *      (
-     *          array('url' => 'user/show/memakeit'),
-     *          array('url' => 'user/show/shadowhand'),
-     *      );
-     *
+     * @see     mget
      * @param   array   the requests
      * @return  array
      */
@@ -439,23 +374,23 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Perform multiple HTTP requests.
-     * Each request is an associative array containing an HTTP method, URL, and request parameters.
-     * The requests array can be associative (recommended for easier extraction of results):
+     * Make multiple HTTP requests.
+     * Each request is an associative array containing an HTTP method (key = 'method'), URL (key = 'url'), and optional request parameters (key = 'parms').
+     * Each request can be associated with a key (recommended for easier extraction of results):
      *      $requests = array
      *      (
      *          'memakeit' => array('method' => 'GET', 'url' => 'user/show/memakeit'),
-     *          'shadowhand' => array('method' => 'GET', 'url' => 'user/show/shadowhand'),
+     *          'shadowhand' => array('method' => 'POST', 'url' => 'user/show/shadowhand'),
      *      );
      *
-     * Or the requests array can be non-associative:
+     * or the keys can be ommited:
      *      $requests = array
      *      (
      *          array('method' => 'GET', 'url' => 'user/show/memakeit'),
-     *          array('method' => 'GET', 'url' => 'user/show/shadowhand'),
+     *          array('method' => 'POST', 'url' => 'user/show/shadowhand'),
      *      );
      *
-     * @param   array   the requests
+     * @param   array   the request details (HTTP method, URL, and parameters)
      * @return  array
      */
     public function mexec($requests)
@@ -478,13 +413,10 @@ class Kohana_MMI_Curl
 
         // Execute the request
         $response = curl_exec($ch);
-		$response = $this->_process_response($ch, $response, $url);
+		$response = $this->_process_response($ch, $response, $url, $parms);
 
 		// Close the cURL handle
 		curl_close($ch);
-
-		// Save the last response
-		$this->_last_response = $response;
 
 		// Return response
 		return $response;
@@ -500,7 +432,7 @@ class Kohana_MMI_Curl
      */
     protected function _mexec($requests, $http_method = NULL)
     {
-        if ( ! empty($method))
+        if ( ! empty($http_method))
         {
             foreach ($requests as $id => $request)
             {
@@ -539,10 +471,11 @@ class Kohana_MMI_Curl
         $responses = array();
         foreach ($handles as $id => $handle)
         {
-            $url = Arr::get($handle, 'url');
             if (intval(curl_errno($handle)) === CURLE_OK)
             {
-                $responses[$id] = $this->_process_response($handle, curl_multi_getcontent($handle), $url);
+                $url = Arr::path($requests, $id.'.url');
+                $parms = Arr::path($requests, $id.'.parms');
+                $responses[$id] = $this->_process_response($handle, curl_multi_getcontent($handle), $url, $parms);
             }
             else
             {
@@ -556,12 +489,6 @@ class Kohana_MMI_Curl
 
         // Close the cURL multi handle
         curl_multi_close($multi);
-
-        // Save the last response
-        if (is_array($responses))
-        {
-            $this->_last_response = end($responses);
-        }
 
         // Return the responses
         return $responses;
@@ -577,6 +504,17 @@ class Kohana_MMI_Curl
      */
     protected function _init_curl($url, $parms = array(), $http_method = MMI_HTTP::METHOD_GET)
     {
+        // Create a cURL handle
+        $ch = curl_init();
+
+        // Save the request details for debugging
+        $request = array();
+        if ($this->_debug)
+        {
+            $request['url'] = $url;
+            $request['parms'] = $parms;
+        }
+
         // Encode the request parameters
         if (is_array($parms) AND count($parms) > 0 AND Arr::is_assoc($parms))
         {
@@ -637,10 +575,10 @@ class Kohana_MMI_Curl
                 {
                     if (strpos($url, '?') === FALSE)
                     {
-                        $url .= '?'.$parms;
+                        $get_url = $url.'?'.$parms;
                     }
-                    $options[CURLOPT_URL] = $url;
-                    $options[CURLOPT_REFERER] = $url;
+                    $options[CURLOPT_URL] = $get_url;
+                    $options[CURLOPT_REFERER] = $get_url;
                 }
                 break;
 
@@ -655,29 +593,21 @@ class Kohana_MMI_Curl
                 break;
         }
 
-        // Create a cURL handle
-        $ch = curl_init();
-
         // Set the cURL options
         foreach ($options as $name => $value)
         {
             curl_setopt($ch, $name, $value);
         }
 
-        // Debugging
+        // Save the request details for debugging
         if ($this->_debug)
         {
-            MMI_Debug::dump($http_headers, '$http_headers');
-            MMI_Debug::dump($http_method, '$http_method');
-            MMI_Debug::dump(self::debug_curl_options($options), '$options');
+            // Save the request details for debugging
+            $request_id = md5(serialize($url.$parms));
+            $request['http_method'] = $http_method;
+            $request['curl_options'] = self::debug_curl_options($options);
+            $this->_requests[$request_id] = $request;
         }
-
-        // Save the last request
-        $this->_last_request['url'] = $url;
-        $this->_last_request['parms'] = $parms;
-        $this->_last_request['http_method'] = $http_method;
-        $this->_last_request['http_headers'] = $http_headers;
-        $this->_last_request['curl_options'] = self::debug_curl_options($options);
 
         // Return the cURL handle
         return $ch;
@@ -689,9 +619,10 @@ class Kohana_MMI_Curl
      * @param   resource    the cURL handle
      * @param   string      the cURL response
      * @param   string      the request URL
+     * @param   array       an associative array of request parameters
      * @return  mixed
      */
-    protected function _process_response($ch, $response, $url)
+    protected function _process_response($ch, $response, $url, $parms = array())
     {
         if ( ! is_resource($ch))
         {
@@ -705,20 +636,8 @@ class Kohana_MMI_Curl
         $http_headers = substr($response, 0, $header_size);
         $body = substr($response, $header_size);
 
-        if ($this->_debug)
-        {
-            MMI_Debug::dump($curl_info, '$curl_info');
-            MMI_Debug::dump($header_size, '$header_size');
-            MMI_Debug::dump($http_headers, '$http_headers');
-            MMI_Debug::dump($body, '$body');
-        }
-
         // Parse the HTTP headers
         $http_headers = $this->_parse_headers($http_headers);
-        if ($this->_debug)
-        {
-            MMI_Debug::dump($http_headers, 'parsed $http_headers');
-        }
 
         if ($response === FALSE)
         {
@@ -741,8 +660,23 @@ class Kohana_MMI_Curl
                 ->error_msg(curl_error($ch))
                 ->error_num(curl_errno($ch))
                 ->http_headers($http_headers)
-                ->http_status_code(intval(Arr::get($curl_info, 'http_code')))
-                ->request($this->_last_request);
+                ->http_status_code(intval(Arr::get($curl_info, 'http_code')));
+
+            // Save the request details for debugging
+            if ($this->_debug)
+            {
+                if (is_array($parms) AND count($parms) > 0 AND Arr::is_assoc($parms))
+                {
+                    $parms = http_build_query($parms);
+                }
+                $request_id = md5(serialize($url.$parms));
+                $request = Arr::get($this->_requests, $request_id);
+                if (array_key_exists($request_id, $this->_requests))
+                {
+                    unset($this->_requests[$request_id]);
+                }
+                $response->request($request);
+            }
         }
         return $response;
     }
@@ -779,9 +713,14 @@ class Kohana_MMI_Curl
      * @param   string  the name of the data verification method
      * @return  mixed
      */
-    protected function _get_set($name, $value = NULL, $verify_method = 'is_string')
+    protected function _get_set($name, $value = NULL, $verify_method = NULL)
     {
-        if ($verify_method($value))
+        if ( ! empty($verify_method) AND $verify_method($value))
+        {
+            $this->$name = $value;
+            return $this;
+        }
+        elseif ( ! empty($value))
         {
             $this->$name = $value;
             return $this;
@@ -805,13 +744,8 @@ class Kohana_MMI_Curl
      * @param   array   the cURL options to debug
      * @return  array
      */
-    public static function debug_curl_options($options = NULL)
+    public static function debug_curl_options($options)
     {
-        if (empty($options) OR ! (is_array($options) AND Arr::is_assoc($options)))
-        {
-            $options = $this->_curl_options;
-        }
-
         $curl_options = array();
         $curl_constants_map = self::get_curl_constants_map();
         $option_name;
