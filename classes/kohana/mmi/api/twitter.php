@@ -1,13 +1,13 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * Perform Delicious API calls (using OAuth authentication).
+ * Make Twitter API calls.
  *
  * @package     MMI API
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
  */
-class Kohana_MMI_API_OAuth_Delicious extends MMI_API_OAuth
+class Kohana_MMI_API_Twitter extends MMI_API_OAuth
 {
     /**
      * @var string the access token URL
@@ -37,5 +37,5 @@ class Kohana_MMI_API_OAuth_Delicious extends MMI_API_OAuth
     /**
      * @var string the service name
      */
-    protected $_service = MMI_API::SERVICE_DELICIOUS;
-} // End Kohana_MMI_API_OAuth_Delicious
+    protected $_service = MMI_API::SERVICE_TWITTER;
+} // End Kohana_MMI_API_Twitter
