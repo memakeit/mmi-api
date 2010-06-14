@@ -10,31 +10,6 @@
 class Kohana_MMI_API_Twitter extends MMI_API_OAuth
 {
     /**
-     * @var string the access token URL
-     **/
-    protected $_access_token_url = '';
-
-    /**
-     * @var string the authentication URL
-     **/
-    protected $_authenticate_url = '';
-
-    /**
-     * @var string the authorization URL
-     **/
-    protected $_authorize_url = '';
-
-    /**
-     * @var string the OAuth realm
-     **/
-    protected $_realm = '';
-
-    /**
-     * @var string the request token URL
-     **/
-    protected $_request_token_url = '';
-
-    /**
      * @var string the service name
      */
     protected $_service = MMI_API::SERVICE_TWITTER;
