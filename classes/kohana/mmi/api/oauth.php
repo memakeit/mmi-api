@@ -167,7 +167,6 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         // Set OAuth realm
         $this->_realm = Arr::get($auth_config, 'realm');
-        MMI_Debug::dead($this);
     }
 
     /**
