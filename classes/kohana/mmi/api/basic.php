@@ -14,7 +14,7 @@ abstract class Kohana_MMI_API_Basic extends MMI_API
      *
      * @return  string
      */
-    protected function _get_auth_string()
+    protected function _get_auth_header()
     {
         $auth_config = $this->_auth_config;
         $username = Arr::get($auth_config, 'username');
