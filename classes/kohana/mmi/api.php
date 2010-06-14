@@ -492,6 +492,7 @@ abstract class Kohana_MMI_API
         // Create and configure the cURL object
         $curl = new MMI_Curl;
         $this->_configure_curl_options($curl);
+        $this->_configure_auth_header($curl);
         $this->_configure_http_headers($curl);
 
         // Execute the cURL request
@@ -608,108 +609,6 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Configure the cURL options as specified in the configuration file.
-     *
-     * @param   MMI_Curl    the cURL object instance
-     * @return  void
-     */
-    protected function _configure_curl_options($curl)
-    {
-        $curl->add_curl_option(CURLOPT_CONNECTTIMEOUT, $this->_connect_timeout);
-        $curl->add_curl_option(CURLOPT_TIMEOUT, $this->_timeout);
-        $curl->add_curl_option(CURLOPT_USERAGENT, $this->_useragent);
-        $curl->add_curl_option(CURLOPT_SSL_VERIFYPEER, $this->_ssl_verifypeer);
-
-        // Customize cURL options as specified in the configuration file
-        $custom = Arr::path($this->_service_config, 'custom.curl_options', array());
-        if (is_array($custom) AND count($custom) > 0)
-        {
-            // Process defaults
-            $defaults = Arr::get($custom, 'defaults', FALSE);
-            if (is_array($defaults) AND count($defaults) > 0)
-            {
-                $curl->curl_options($defaults);
-            }
-
-            // Process removals
-            $remove = Arr::get($custom, 'remove', FALSE);
-            if (is_array($remove) AND count($remove) > 0)
-            {
-                foreach ($remove as $name)
-                {
-                    $curl->remove_curl_option($name);
-                }
-            }
-
-            // Process additions
-            $add = Arr::get($custom, 'add', FALSE);
-            if (is_array($add) AND count($add) > 0)
-            {
-                foreach ($add as $name => $value)
-                {
-                    $curl->add_curl_option($name, $value);
-                }
-            }
-        }
-    }
-
-    /**
-     * Configure the HTTP headers sent via cURL as specified in the configuration file.
-     * If specified, an authorization header is also added.
-     *
-     * @param   MMI_Curl    the cURL object instance
-     * @return  void
-     */
-    protected function _configure_http_headers($curl)
-    {
-        // Customize HTTP headers as specified in the configuration file
-        $custom = Arr::path($this->_service_config, 'custom.http_headers', array());
-        if (is_array($custom) AND count($custom) > 0)
-        {
-            // Process defaults
-            $defaults = Arr::get($custom, 'defaults', FALSE);
-            if (is_array($defaults) AND count($defaults) > 0)
-            {
-                $curl->http_headers($defaults);
-            }
-
-            // Process removals
-            $remove = Arr::get($custom, 'remove', FALSE);
-            if (is_array($remove) AND count($remove) > 0)
-            {
-                foreach ($remove as $name)
-                {
-                    $curl->remove_http_header($name);
-                }
-            }
-
-            // Process additions
-            $add = Arr::get($custom, 'add', FALSE);
-            if (is_array($add) AND count($add) > 0)
-            {
-                foreach ($add as $name=> $value)
-                {
-                    $curl->add_http_header($name, $value);
-                }
-            }
-        }
-
-        // Set an auth header, if necessary
-        $auth_config = $this->_auth_config;
-        if (is_array($auth_config) AND count($auth_config) > 0)
-        {
-            if ( ! $this->_read_only OR ($this->_read_only AND $this->_sign_read_only))
-            {
-                $auth = $this->_get_auth_string();
-                if ( ! empty($auth))
-                {
-                    $curl->add_http_header('Authorization', $auth);
-                }
-            }
-        }
-    }
-
-    /**
      * Configure the request parameters as specified in the configuration file.
      * When processing additions, if a parameter value exists, it will not be overwritten.
      *
@@ -764,6 +663,116 @@ abstract class Kohana_MMI_API
     }
 
     /**
+     * Configure the cURL options.
+     *
+     * @param   MMI_Curl    the cURL object instance
+     * @return  void
+     */
+    protected function _configure_curl_options($curl)
+    {
+        $curl->add_curl_option(CURLOPT_CONNECTTIMEOUT, $this->_connect_timeout);
+        $curl->add_curl_option(CURLOPT_TIMEOUT, $this->_timeout);
+        $curl->add_curl_option(CURLOPT_USERAGENT, $this->_useragent);
+        $curl->add_curl_option(CURLOPT_SSL_VERIFYPEER, $this->_ssl_verifypeer);
+
+        // Customize cURL options as specified in the configuration file
+        $custom = Arr::path($this->_service_config, 'custom.curl_options', array());
+        if (is_array($custom) AND count($custom) > 0)
+        {
+            // Process defaults
+            $defaults = Arr::get($custom, 'defaults', FALSE);
+            if (is_array($defaults) AND count($defaults) > 0)
+            {
+                $curl->curl_options($defaults);
+            }
+
+            // Process removals
+            $remove = Arr::get($custom, 'remove', FALSE);
+            if (is_array($remove) AND count($remove) > 0)
+            {
+                foreach ($remove as $name)
+                {
+                    $curl->remove_curl_option($name);
+                }
+            }
+
+            // Process additions
+            $add = Arr::get($custom, 'add', FALSE);
+            if (is_array($add) AND count($add) > 0)
+            {
+                foreach ($add as $name => $value)
+                {
+                    $curl->add_curl_option($name, $value);
+                }
+            }
+        }
+    }
+
+    /**
+     * Configure the HTTP headers sent via cURL.
+     *
+     * @param   MMI_Curl    the cURL object instance
+     * @return  void
+     */
+    protected function _configure_http_headers($curl)
+    {
+        // Customize HTTP headers as specified in the configuration file
+        $custom = Arr::path($this->_service_config, 'custom.http_headers', array());
+        if (is_array($custom) AND count($custom) > 0)
+        {
+            // Process defaults
+            $defaults = Arr::get($custom, 'defaults', FALSE);
+            if (is_array($defaults) AND count($defaults) > 0)
+            {
+                $curl->http_headers($defaults);
+            }
+
+            // Process removals
+            $remove = Arr::get($custom, 'remove', FALSE);
+            if (is_array($remove) AND count($remove) > 0)
+            {
+                foreach ($remove as $name)
+                {
+                    $curl->remove_http_header($name);
+                }
+            }
+
+            // Process additions
+            $add = Arr::get($custom, 'add', FALSE);
+            if (is_array($add) AND count($add) > 0)
+            {
+                foreach ($add as $name=> $value)
+                {
+                    $curl->add_http_header($name, $value);
+                }
+            }
+        }
+    }
+
+    /**
+     * Configure the HTTP authorization header sent via cURL.
+     *
+     * @param   MMI_Curl    the cURL object instance
+     * @return  void
+     */
+    protected function _configure_auth_header($curl)
+    {
+        // Set an auth header, if necessary
+        $auth_config = $this->_auth_config;
+        if (is_array($auth_config) AND count($auth_config) > 0)
+        {
+            if ( ! $this->_read_only OR ($this->_read_only AND $this->_sign_read_only))
+            {
+                $auth = $this->_get_auth_header();
+                if ( ! empty($auth))
+                {
+                    $curl->add_http_header('Authorization', $auth);
+                }
+            }
+        }
+    }
+
+    /**
      * Decode a JSON response.
      *
      * @param   string  the response string
@@ -796,7 +805,7 @@ abstract class Kohana_MMI_API
      *
      * @return  string
      */
-    protected function _get_auth_string()
+    protected function _get_auth_header()
     {
         return '';
     }
