@@ -12,6 +12,11 @@
  */
 abstract class Kohana_MMI_API_OAuth extends MMI_API
 {
+    // Signature constants
+    const SIGN_HMAC_SHA1 = 'HMAC-SHA1';
+    const SIGN_PLAINTEXT = 'PLAINTEXT';
+    const SIGN_RSA_SHA1 = 'RSA-SHA1';
+
     /**
      * @var string the access token URL
      **/
@@ -56,6 +61,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      * @var OAuthToken the OAuth token object
      **/
     protected $_token;
+
+
+    protected $_auth_callback_url;
+
+
 
     /**
      * Get or set the authentication URL.
@@ -106,45 +116,58 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     }
 
     /**
-     * Get or set whether to send an OAUTH HTTP header.
-     * This method is chainable when setting a value.
-     *
-     * @param   boolean the value to set
-     * @return  mixed
-     */
-    public function send_auth_header($value = NULL)
-    {
-        return $this->_get_set('_send_auth_header', $value, 'is_bool');
-    }
-
-    /**
      * Include the OAuth vendor files.
      * Create the signature, consumer, and token objects.
      *
      * @return  void
      */
-    public function __construct($consumer_key, $consumer_secret, $oauth_token = NULL, $oauth_token_secret = NULL, $signature_type = 'HMAC_SHA1')
+    public function __construct()
     {
         parent::__construct();
         require_once Kohana::find_file('vendor', 'oauth/oauth_required');
+        $auth_config = $this->_auth_config;
+
+        // Configure URLs
+        $settings = array('access_token_url', 'auth_callback_url', 'authorize_url', 'request_token_url');
+        foreach ($settings as $setting)
+        {
+            $var = '_'.$setting;
+            $this->$var = Arr::get($auth_config, $setting);
+        }
 
         // Set the signature method
-        if (strcasecmp($signature_type, 'HMAC_SHA1') === 0)
+        $signature_method = Arr::get($auth_config, 'signature_method');
+        switch($signature_method)
         {
-            $this->_signature_method = new OAuthSignatureMethod_HMAC_SHA1;
-        }
-        else
-        {
-            $this->_signature_method = new OAuthSignatureMethod_PLAINTEXT;
+            case self::SIGN_HMAC_SHA1:
+                $this->_signature_method = new OAuthSignatureMethod_HMAC_SHA1;
+                break;
+
+            case self::SIGN_PLAINTEXT:
+                $this->_signature_method = new OAuthSignatureMethod_PLAINTEXT;
+                break;
+
+            case self::SIGN_RSA_SHA1:
+                // Not supported
+                break;
         }
 
         // Create the consumer and token objects
+        $consumer_key = Arr::get($auth_config, 'consumer_key');
+        $consumer_secret = Arr::get($auth_config, 'consumer_secret');
         $this->_consumer = new OAuthConsumer($consumer_key, $consumer_secret);
+
+        $token_key = Arr::get($auth_config, 'token_key');
+        $token_secret = Arr::get($auth_config, 'token_secret');
         $this->_token = NULL;
-        if ( ! empty($oauth_token) AND ! empty($oauth_token_secret))
+        if ( ! empty($token_key) AND ! empty($token_secret))
         {
-            $this->_token = new OAuthToken($oauth_token, $oauth_token_secret);
+            $this->_token = new OAuthToken($token_key, $token_secret);
         }
+
+        // Set OAuth realm
+        $this->_realm = Arr::get($auth_config, 'realm');
+        MMI_Debug::dead($this);
     }
 
     /**
@@ -226,51 +249,178 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     }
 
     /**
-     * Execute the API call.
+     * Make an API call.
      *
-     * @param   string  the HTTP method
      * @param   string  the URL
-     * @param   array   the query string parameters
+     * @param   array   an associative array of request parameters
+     * @param   string  the HTTP method
      * @return  mixed
      */
-    protected function _request($method, $url, $parms)
+    protected function _request($url, $parms, $method = MMI_HTTP::METHOD_GET)
     {
-        if (strrpos($url, 'https://') !== 0 AND strrpos($url, 'http://') !== 0)
-        {
-            $url = $this->_api_url.$url;
-        }
+        // Configure URL
+        $url = $this->_configure_url($url);
+
+        // Configure parameters
+        $parms = $this->_configure_parameters($parms);
 
         // Sign the request
         $request = OAuthRequest::from_consumer_and_token($this->_consumer, $this->_token, $method, $url, $parms);
         $request->sign_request($this->_signature_method, $this->_consumer, $this->_token);
-
-        // Generate the HTTP authentication header, if necessary
-        $auth_header = array();
-        if ($this->_send_auth_header)
-        {
-            $auth_header = $request->to_header($this->_realm);
-            $temp = explode(': ', $auth_header);
-            $auth_header = array($temp[0] => $temp[1]);
-        }
-
-        // Make the API call
-        $response;
         switch ($method)
         {
-            case 'GET':
-                MMI_Debug::dump($request->to_url());
-                $response = $this->_http($request->to_url(), 'GET', NULL, $auth_header);
+            case MMI_HTTP::METHOD_GET:
+                $url = $request->to_url();
+                $parms = NULL;
 
             default:
-                $response = $this->_http($request->get_normalized_http_url(), $method, $request->to_postdata(), $auth_header);
+                $url = $request->get_normalized_http_url();
+                $parms = $request->to_postdata();
         }
 
-        // Format and return the results
-        if ($this->_format === self::FORMAT_JSON AND $this->_decode_json)
+        // Create and configure the cURL object
+        $curl = new MMI_Curl;
+        $this->_configure_curl_options($curl);
+        $this->_configure_auth_header($curl, $request);
+        $this->_configure_http_headers($curl);
+
+        // Execute the cURL request
+        $method = strtolower($method);
+        $response = $curl->$method($url, $parms);
+        unset($curl);
+
+        // Format and return the response
+        if ( ! empty($response) AND $this->_decode)
         {
-            $response = json_decode($response, TRUE);
+            $method  = '_decode_'.$this->_format;
+            if (method_exists($this, $method))
+            {
+                $decoded = $this->$method($response->body());
+                $response->body($decoded);
+            }
         }
+
+        self::$_last_response = $response;
         return $response;
+    }
+
+    /**
+     * Make multiple API calls.
+     *
+     * @param   array   an associative array containing the request details (URL and parameters)
+     * @param   string  the HTTP method
+     * @return  array
+     */
+    protected function _mrequest($requests, $method = MMI_HTTP::METHOD_GET)
+    {
+        foreach ($requests as $id => $request)
+        {
+            // Configure URLs
+            $url = Arr::get($request, 'url');
+            $url = $this->_configure_url($url);
+
+            // Configure parameters
+            $parms = Arr::get($request, 'parms');
+            $parms = $this->_configure_parameters($parms);
+
+            // Sign the request
+            $request = OAuthRequest::from_consumer_and_token($this->_consumer, $this->_token, $method, $url, $parms);
+            $request->sign_request($this->_signature_method, $this->_consumer, $this->_token);
+            switch ($method)
+            {
+                case MMI_HTTP::METHOD_GET:
+                    $url = $request->to_url();
+                    $parms = NULL;
+
+                default:
+                    $url = $request->get_normalized_http_url();
+                    $parms = $request->to_postdata();
+            }
+
+            // Get the HTTP authorization header
+            $auth = $this->_get_auth_header($request);
+            if ( ! empty($auth))
+            {
+                $requests[$id]['http_headers'] = array('Authorization', $auth);
+            }
+
+            $requests[$id]['url'] = $url;
+            $requests[$id]['parms'] = $parms;
+
+        }
+
+        // Create and configure the cURL object
+        $curl = new MMI_Curl;
+        $this->_configure_curl_options($curl);
+        $this->_configure_http_headers($curl);
+
+        // Execute the cURL request
+        $method = 'm'.strtolower($method);
+        $responses = $curl->$method($requests);
+        unset($curl);
+
+        // Format and return the response
+        if ( ! empty($responses) AND is_array($responses) AND count($responses) > 0)
+        {
+            if ($this->_decode)
+            {
+                foreach ($responses as $id => $response)
+                {
+                    $method  = '_decode_'.$this->_format;
+                    if (method_exists($this, $method))
+                    {
+                        $decoded = $this->$method($response->body());
+                        $responses[$id]->body($decoded);
+                    }
+                }
+            }
+        }
+
+        if (is_array($responses))
+        {
+            self::$_last_response = end($responses);
+        }
+        return $responses;
+    }
+
+
+    /**
+     * Configure the HTTP authorization header sent via cURL.
+     *
+     * @param   MMI_Curl    the cURL object instance
+     * @return  void
+     */
+    protected function _configure_auth_header($curl)
+    {
+        if (func_num_args() < 2)
+        {
+            return;
+        }
+        $request = func_get_arg(1);
+
+        // Set an auth header, if necessary
+        $auth = $this->_get_auth_header($request);
+        if ( ! empty($auth))
+        {
+            $curl->add_http_header('Authorization', $auth);
+        }
+    }
+
+    /**
+     * Get the string to be sent via the authorization header.
+     *
+     * @return  string
+     */
+    protected function _get_auth_header()
+    {
+        if (func_num_args() !== 1)
+        {
+            return;
+        }
+        $request = func_get_arg(0);
+        $auth_header = $request->to_header($this->_realm);
+        $temp = explode(': ', $auth_header);
+        return $temp[1];
     }
 
     /**
