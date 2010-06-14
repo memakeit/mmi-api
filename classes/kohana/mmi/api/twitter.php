@@ -27,7 +27,7 @@ class Kohana_MMI_API_Twitter extends MMI_API_OAuth
     /**
      * @var string the OAuth realm
      **/
-    protected $_realm = 'yahooapis.com';
+    protected $_realm = '';
 
     /**
      * @var string the request token URL
@@ -38,4 +38,27 @@ class Kohana_MMI_API_Twitter extends MMI_API_OAuth
      * @var string the service name
      */
     protected $_service = MMI_API::SERVICE_TWITTER;
+
+    /**
+     * Build the request URL.
+     *
+     * @param   string  the base URL
+     * @param   string  the path portion of the URL
+     * @return  string
+     */
+    protected function _build_url($url, $path)
+    {
+        return "$url$path.{$this->_format}";
+    }
+
+    /**
+     * Configure the HTTP authorization header sent via cURL.
+     *
+     * @param   MMI_Curl    the cURL object instance
+     * @return  void
+     */
+    protected function _configure_auth_header($curl)
+    {
+        return;
+    }
 } // End Kohana_MMI_API_Twitter
