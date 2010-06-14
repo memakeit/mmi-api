@@ -136,7 +136,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
 
         // Set the signature method
-        $signature_method = Arr::get($auth_config, 'signature_method');
+        $signature_method = Arr::get($auth_config, 'signature_method', MMI_API_OAuth::SIGN_HMAC_SHA1);
         switch($signature_method)
         {
             case self::SIGN_HMAC_SHA1:
