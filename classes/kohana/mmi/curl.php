@@ -427,11 +427,11 @@ class Kohana_MMI_Curl
         $handles = array();
         foreach ($requests as $id => $request)
         {
-            foreach (array('url', 'parms', 'method') as $var)
+            foreach (array('url', 'parms', 'method', 'http_headers') as $var)
             {
                 $$var = Arr::get($request, $var);
             }
-            $handles[$id] = $this->_init_curl($url, $parms, $method);
+            $handles[$id] = $this->_init_curl($url, $parms, $method, $http_headers);
         }
 
         // Create a cURL multi handle
@@ -484,9 +484,10 @@ class Kohana_MMI_Curl
      * @param   string  the URL
      * @param   array   an associative array of request parameters
      * @param   string  the HTTP method
+     * @param   array   an associative array of custom HTTP headers (to be merged with the defaults)
      * @return  resource
      */
-    protected function _init_curl($url, $parms = array(), $http_method = MMI_HTTP::METHOD_GET)
+    protected function _init_curl($url, $parms = array(), $http_method = MMI_HTTP::METHOD_GET, $http_headers = array())
     {
         // Create a cURL handle
         $ch = curl_init();
@@ -496,7 +497,12 @@ class Kohana_MMI_Curl
         if ($this->_debug)
         {
             $request['url'] = $url;
-            $request['parms'] = $parms;
+            $temp = $parms;
+            if ( ! is_array($parms))
+            {
+                parse_str($parms, $temp);
+            }
+            $request['parms'] = $temp;
         }
 
         // Encode the request parameters
@@ -505,7 +511,7 @@ class Kohana_MMI_Curl
             $parms = http_build_query($parms);
         }
 
-        // Configure the cURL URL and user agent
+        // Configure the cURL URL and referrer
         $options = $this->_curl_options;
         $options[CURLOPT_URL] = $url;
         if ( ! array_key_exists(CURLOPT_REFERER, $options) OR (array_key_exists(CURLOPT_REFERER, $options) AND empty($options[CURLOPT_REFERER])))
@@ -534,7 +540,11 @@ class Kohana_MMI_Curl
         }
 
         // Configure the HTTP headers
-        $http_headers = $this->_http_headers;
+        if ( ! is_array($http_headers))
+        {
+            $http_headers = array();
+        }
+        $http_headers = Arr::merge($this->_http_headers, $http_headers);
         if (isset($http_headers) AND count($http_headers) > 0)
         {
             $headers = array();
