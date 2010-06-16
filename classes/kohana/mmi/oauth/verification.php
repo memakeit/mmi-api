@@ -92,7 +92,7 @@ abstract class Kohana_MMI_OAuth_Verification
             // Get an access token
             $auth_config['token_key'] = $model->token_key;
             $auth_config['token_secret'] = Encrypt::instance()->decode($model->token_secret);
-            $token = MMI_API_OAuth::get_access_token($model->oauth_verifier, $auth_config);
+            $token = MMI_API::factory($this->_service)->get_access_token($model->oauth_verifier, $auth_config);
 
             // Save access token in the database
             if ( ! empty($token) AND ! empty($token->key) AND ! empty($token->secret))
