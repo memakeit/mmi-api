@@ -1,8 +1,8 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * Process OAuth authorization.
+ * Verify OAuth authorization.
  *
- * @package     MMI Social
+ * @package     MMI API
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
@@ -15,17 +15,27 @@ abstract class Kohana_MMI_OAuth_Verification
     protected $_debug;
 
     /**
+     * @var string the key used to locate the OAuth token
+     **/
+    protected $_key_token = 'oauth_token';
+
+    /**
+     * @var string the key used to locate the OAuth verifier
+     **/
+    protected $_key_verifier = 'oauth_verifier';
+
+    /**
      * @var string service name
      */
     protected $_service = '?';
 
     /**
-     * @var array OAuth configuration options
+     * @var array an associative array of OAuth configuration options
      **/
-    protected $_oauth_config = array();
+    protected $_auth_config = array();
 
     /**
-     * @var array service configuration options
+     * @var array an associative array of service-specific configuration options
      **/
     protected $_service_config = array();
 
@@ -36,11 +46,12 @@ abstract class Kohana_MMI_OAuth_Verification
      */
     public function __construct()
     {
+        require_once Kohana::find_file('vendor', 'oauth/oauth_required');
+
         $this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
-        $config = MMI_Social::get_config(TRUE);
-        $service_config = Arr::path($config, 'services.'.$this->_service, array());
-        $this->_oauth_config = Arr::get($service_config, 'oauth', array());
-        $this->_service_config = $service_config;
+        $config = MMI_API::get_config(TRUE);
+        $this->_service_config = Arr::get($config, $this->_service, array());
+        $this->_auth_config = Arr::get($this->_service_config, 'auth', array());
     }
 
     /**
@@ -50,15 +61,54 @@ abstract class Kohana_MMI_OAuth_Verification
      */
     public function insert_verification()
     {
-        $oauth_config = Arr::get($this->_service_config, 'oauth', array());
-        $consumer_key = Arr::get($oauth_config, 'consumer_key');
-        $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($consumer_key, FALSE);
-        $model->oauth_token = Arr::get($_GET, 'oauth_token');
-        $model->oauth_verifier = Arr::get($_GET, 'oauth_verifier');
-        $success = MMI_Jelly::save($model, $errors);
-        if ( ! $success AND $this->_debug)
+        $oauth_verifier = Arr::get($_GET, $this->_key_verifier);
+        $token_key = Arr::get($_GET, $this->_key_token);
+        if (empty($oauth_verifier) OR empty($token_key))
         {
-            MM_Debug::dead($errors);
+            return FALSE;
+        }
+
+        $success = FALSE;
+        $auth_config = $this->_auth_config;
+
+        // Load existing data from the database
+        $consumer_key = Arr::get($auth_config, 'consumer_key');
+        $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($consumer_key, FALSE);
+        if ($model->loaded())
+        {
+            $model->token_key = $token_key;
+            $model->oauth_verifier = $oauth_verifier;
+            $success = MMI_Jelly::save($model, $errors);
+            if ( ! $success AND $this->_debug)
+            {
+                MMI_Debug::dead($errors);
+            }
+        }
+
+        if ($success)
+        {
+            $success = FALSE;
+
+            // Get an access token
+            $auth_config['token_key'] = $model->token_key;
+            $auth_config['token_secret'] = Encrypt::instance()->decode($model->token_secret);
+            $token = MMI_API_OAuth::get_access_token($model->oauth_verifier, $auth_config);
+
+            // Save access token in the database
+            if ( ! empty($token) AND ! empty($token->key) AND ! empty($token->secret))
+            {
+                $model->token_key = $token->key;
+                $model->token_secret = Encrypt::instance()->encode($token->secret);
+                if ( ! empty($token->attributes))
+                {
+                    $model->attributes = $token->attributes;
+                }
+                $success = MMI_Jelly::save($model, $errors);
+                if ( ! $success AND $this->_debug)
+                {
+                    MMI_Debug::dead($errors);
+                }
+            }
         }
         return $success;
     }
