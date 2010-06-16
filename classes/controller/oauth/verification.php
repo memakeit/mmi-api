@@ -1,10 +1,27 @@
 <?php defined('SYSPATH') or die('No direct script access.');
-
+/**
+ * Controller to process OAuth verifications.
+ *
+ * @package     MMI API
+ * @author      Me Make It
+ * @copyright   (c) 2010 Me Make It
+ * @license     http://www.memakeit.com/license
+ */
 class Controller_OAuth_Verification extends Controller
 {
+    /**
+     * @var string configure the cache type
+     **/
+    public $cache_type = MMI_Cache::CACHE_TYPE_NONE;
+
+    /**
+     * Process the verification.
+     *
+     * @return  void
+     */
     public function action_index()
     {
-        // Process verification
+        // Process the verification
         $service = $this->request->param('service');
         $success = FALSE;
         if ( ! empty($service))
@@ -12,7 +29,7 @@ class Controller_OAuth_Verification extends Controller
             $success = MMI_OAuth_Verification::factory($service)->insert_verification();
         }
 
-        // Send response
+        // Send the response
         $this->request->headers['Content-Type'] = File::mime_by_ext('txt');
         if ($success)
         {
