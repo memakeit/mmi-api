@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make API calls using OAuth authentication.
- * This class is an attempt to generalize Abraham Williams Twitter OAuth class (http://github.com/abraham/twitteroauth).
+ * This class is an attempt to generalize Abraham Williams Twitter OAuth class.
  *
  * @package     MMI API
  * @author      Me Make It
@@ -23,9 +23,9 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     protected $_access_token_url;
 
     /**
-     * @var string the authentication URL
+     * @var string the authorization callback URL
      **/
-    protected $_authenticate_url;
+    protected $_auth_callback_url;
 
     /**
      * @var string the authorization URL
@@ -48,12 +48,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     protected $_request_token_url;
 
     /**
-     * @var boolean send an OAuth HTTP header?
+     * @var boolean send the OAuth data as part of the request (instead via an HTTP header)
      **/
-    protected $_send_auth_header = FALSE;
+    protected $_send_auth_as_data = FALSE;
 
     /**
-     * @var OAuthSignatureMethod the signature object used to sign the request
+     * @var OAuthSignatureMethod the signature object (used to sign the request)
      **/
     protected $_signature_method;
 
@@ -62,21 +62,66 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      **/
     protected $_token;
 
-
-    protected $_auth_callback_url;
-
-
+    /**
+     * @var string the OAuth version
+     **/
+    protected $_version = '1.0';
 
     /**
-     * Get or set the authentication URL.
+     * Include the OAuth vendor files.  Load configuration settings.
+     * Create the signature, consumer, and token objects.
+     *
+     * @return  void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        require_once Kohana::find_file('vendor', 'oauth/oauth_required');
+        $auth_config = $this->_auth_config;
+
+        // Configure the auth URLs
+        $settings = array('access_token_url', 'auth_callback_url', 'authorize_url', 'request_token_url');
+        foreach ($settings as $setting)
+        {
+            $var = '_'.$setting;
+            $this->$var = Arr::get($auth_config, $setting);
+        }
+
+        // Create the consumer, token, and signature method objects
+        $this->_consumer = self::_get_consumer($auth_config);
+        $this->_token = self::_get_token($auth_config);
+        $this->_signature_method = self::_get_signature_method($auth_config);
+
+        // Configure other OAuth settings
+        $this->_realm = Arr::get($auth_config, 'realm');
+        $this->_send_auth_as_data = Arr::get($auth_config, 'send_auth_as_data', FALSE);
+
+        // Check access token
+        $this->_check_access_token();
+    }
+
+    /**
+     * Get or set the access token URL.
      * This method is chainable when setting a value.
      *
      * @param   string  the value to set
      * @return  mixed
      */
-    public function authenticate_url($value = NULL)
+    public function access_token_url($value = NULL)
     {
-        return $this->_get_set('_authenticate_url', $value, 'is_string');
+        return $this->_get_set('_access_token_url', $value, 'is_string');
+    }
+
+    /**
+     * Get or set the authorization callback URL.
+     * This method is chainable when setting a value.
+     *
+     * @param   string  the value to set
+     * @return  mixed
+     */
+    public function auth_callback_url($value = NULL)
+    {
+        return $this->_get_set('_auth_callback_url', $value, 'is_string');
     }
 
     /**
@@ -116,116 +161,103 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     }
 
     /**
-     * Include the OAuth vendor files.
-     * Create the signature, consumer, and token objects.
+     * Get or set whether to send the OAuth data as part of the request (instead via an HTTP header).
+     * This method is chainable when setting a value.
      *
-     * @return  void
+     * @param   boolean  the value to set
+     * @return  mixed
      */
-    public function __construct()
+    public function send_auth_as_data($value = NULL)
     {
-        parent::__construct();
-        require_once Kohana::find_file('vendor', 'oauth/oauth_required');
-        $auth_config = $this->_auth_config;
-
-        // Configure URLs
-        $settings = array('access_token_url', 'auth_callback_url', 'authorize_url', 'request_token_url');
-        foreach ($settings as $setting)
-        {
-            $var = '_'.$setting;
-            $this->$var = Arr::get($auth_config, $setting);
-        }
-
-        // Set the signature method
-        $signature_method = Arr::get($auth_config, 'signature_method', MMI_API_OAuth::SIGN_HMAC_SHA1);
-        switch($signature_method)
-        {
-            case self::SIGN_HMAC_SHA1:
-                $this->_signature_method = new OAuthSignatureMethod_HMAC_SHA1;
-                break;
-
-            case self::SIGN_PLAINTEXT:
-                $this->_signature_method = new OAuthSignatureMethod_PLAINTEXT;
-                break;
-
-            case self::SIGN_RSA_SHA1:
-                // Not supported
-                break;
-        }
-
-        // Create the consumer and token objects
-        $consumer_key = Arr::get($auth_config, 'consumer_key');
-        $consumer_secret = Arr::get($auth_config, 'consumer_secret');
-        $this->_consumer = new OAuthConsumer($consumer_key, $consumer_secret);
-
-        $token_key = Arr::get($auth_config, 'token_key');
-        $token_secret = Arr::get($auth_config, 'token_secret');
-        $this->_token = NULL;
-        if ( ! empty($token_key) AND ! empty($token_secret))
-        {
-            $this->_token = new OAuthToken($token_key, $token_secret);
-        }
-
-        // Set OAuth realm
-        $this->_realm = Arr::get($auth_config, 'realm');
+      return $this->_get_set('_send_auth_as_data', $value, 'is_bool');
     }
 
     /**
-     * Get a request_token.
+     * Get or set the OAuth version.
+     * This method is chainable when setting a value.
+     *
+     * @param   string  the value to set
+     * @return  mixed
+     */
+    public function version($value = NULL)
+    {
+        return $this->_get_set('_version', $value, 'is_string');
+    }
+
+    /**
+     * Get a request token.
      *
      * @param   string  the callback URL
+     * @param   array   an associative array of auth settings
      * @return  OAuthToken
      */
-    public function get_request_token($oauth_callback = NULL)
+    public function get_request_token($oauth_callback = NULL, $auth_config = array())
     {
+        // Configure the auth settings
+        if ( ! is_array($auth_config))
+        {
+            $auth_config = array();
+        }
+        $auth_config = Arr::merge($this->_auth_config, $auth_config);
+
+        // Configure the request parameters
         $parms = array();
         if ( ! empty($oauth_callback))
         {
             $parms['oauth_callback'] = $oauth_callback;
         }
-        $response = $this->_request('GET', $this->_request_token_url, $parms);
-        $token = OAuthUtil::parse_parameters($response);
-        $this->_token = new OAuthToken($token['oauth_token'], $token['oauth_token_secret']);
-        return $token;
-    }
 
-//    /**
-//    * Get the authorization URL.
-//    *
-//    * @returns a string
-//    */
-//    function get_authorize_url($token, $sign_in_with_twitter = TRUE)
-//    {
-//        if (is_array($token))
-//        {
-//            $token = $token['oauth_token'];
-//        }
-//        if (empty($sign_in_with_twitter))
-//        {
-//            return $this->_authorize_url."?oauth_token={$token}";
-//        }
-//        else
-//        {
-//            return $this->_authenticate_url."?oauth_token={$token}";
-//        }
-//    }
+        // Configure the HTTP method and URL
+        $method = MMI_HTTP::METHOD_GET;
+        $url = $this->_request_token_url;
+        if (empty($url))
+        {
+            $msg = 'Request token URL not configured for '.$this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
+            throw new Kohana_Exception($msg);
+        }
+
+        // Make the request and extract the token
+        $response = $this->_isolated_request($auth_config, $method, $url, $parms);
+        return $this->_extract_token($response);
+    }
 
     /**
      * Exchange the request token for an access token.
      *
      * @param   string  the verification code
+     * @param   array   an associative array of auth settings
      * @return  OAuthToken
      */
-    public function get_access_token($oauth_verifier = NULL)
+    public function get_access_token($oauth_verifier = NULL, $auth_config = array())
     {
+        // Configure the auth settings
+        if ( ! is_array($auth_config))
+        {
+            $auth_config = array();
+        }
+        $auth_config = Arr::merge($this->_auth_config, $auth_config);
+
+        // Configure the request parameters
         $parms = array();
         if ( ! empty($oauth_verifier))
         {
             $parms['oauth_verifier'] = $oauth_verifier;
         }
-        $response = $this->_request('GET', $this->_access_token_url, $parms);
-        $token = OAuthUtil::parse_parameters($response);
-        $this->_token = new OAuthToken($token['oauth_token'], $token['oauth_token_secret']);
-        return $token;
+
+        // Configure the HTTP method and URL
+        $method = MMI_HTTP::METHOD_GET;
+        $url = $this->_access_token_url;
+        if (empty($url))
+        {
+            $msg = 'Access token URL not configured for '.$this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
+            throw new Kohana_Exception($msg);
+        }
+
+        // Make the request and extract the token
+        $response = $this->_isolated_request($auth_config, $method, $url, $parms);
+        return $this->_extract_token($response);
     }
 
     /**
@@ -233,18 +265,39 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      *
      * @param   string  the username
      * @param   string  the password
+     * @param   array   an associative array of auth settings
      * @return  OAuthToken
      */
-    public function get_xauth_token($username, $password)
+    public function get_xauth_token($username, $password, $auth_config = array())
     {
-        $parms = array();
-        $parms['x_auth_username'] = $username;
-        $parms['x_auth_password'] = $password;
-        $parms['x_auth_mode'] = 'client_auth';
-        $response = $this->_request('POST', $this->_access_token_url, $parms);
-        $token = OAuthUtil::parse_parameters($response);
-        $this->_token = new OAuthToken($token['oauth_token'], $token['oauth_token_secret']);
-        return $token;
+        // Configure the auth settings
+        if ( ! is_array($auth_config))
+        {
+            $auth_config = array();
+        }
+        $auth_config = Arr::merge($this->_auth_config, $auth_config);
+
+        // Configure the request parameters
+        $parms = array
+        (
+            'x_auth_username'   => $username,
+            'x_auth_password'   => $password,
+            'x_auth_mode'       => 'client_auth',
+        );
+
+        // Configure the HTTP method and URL
+        $method = MMI_HTTP::METHOD_POST;
+        $url = $this->_access_token_url;
+        if (empty($url))
+        {
+            $msg = 'Access token URL not configured for '.$this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
+            throw new Kohana_Exception($msg);
+        }
+
+        // Make the request and extract the token
+        $response = $this->_isolated_request($auth_config, $method, $url, $parms);
+        return $this->_extract_token($response);
     }
 
     /**
@@ -266,15 +319,23 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         // Sign the request
         $request = OAuthRequest::from_consumer_and_token($this->_consumer, $this->_token, $method, $url, $parms);
         $request->sign_request($this->_signature_method, $this->_consumer, $this->_token);
-        switch ($method)
-        {
-            case MMI_HTTP::METHOD_GET:
-                $url = $request->to_url();
-                $parms = NULL;
+        $url = $request->get_normalized_http_url();
 
-            default:
-                $url = $request->get_normalized_http_url();
-                $parms = $request->to_postdata();
+        // Send the OAuth parameters as part of the request?
+        if ($this->_send_auth_as_data)
+        {
+            switch ($method)
+            {
+                case MMI_HTTP::METHOD_GET:
+                    $url = $request->to_url();
+                    $parms = NULL;
+                    break;
+
+                default:
+                    $url = $request->get_normalized_http_url();
+                    $parms = $request->to_postdata();
+                    break;
+            }
         }
 
         // Create and configure the cURL object
@@ -282,6 +343,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $this->_configure_curl_options($curl);
         $this->_configure_auth_header($curl, $request);
         $this->_configure_http_headers($curl);
+        unset($request);
 
         // Execute the cURL request
         $method = strtolower($method);
@@ -289,7 +351,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         unset($curl);
 
         // Format and return the response
-        if ( ! empty($response) AND $this->_decode)
+        if ($this->_decode AND $response instanceof MMI_Curl_Response)
         {
             $method  = '_decode_'.$this->_format;
             if (method_exists($this, $method))
@@ -306,7 +368,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * Make multiple API calls.
      *
-     * @param   array   an associative array containing the request details (URL and parameters)
+     * @param   array   an associative array containing the request details (URL, request parameters, HTTP headers, and cURL options)
      * @param   string  the HTTP method
      * @return  array
      */
@@ -325,15 +387,23 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             // Sign the request
             $request = OAuthRequest::from_consumer_and_token($this->_consumer, $this->_token, $method, $url, $parms);
             $request->sign_request($this->_signature_method, $this->_consumer, $this->_token);
-            switch ($method)
-            {
-                case MMI_HTTP::METHOD_GET:
-                    $url = $request->to_url();
-                    $parms = NULL;
+            $url = $request->get_normalized_http_url();
 
-                default:
-                    $url = $request->get_normalized_http_url();
-                    $parms = $request->to_postdata();
+            // Send the OAuth parameters as part of the request?
+            if ($this->_send_auth_as_data)
+            {
+                switch ($method)
+                {
+                    case MMI_HTTP::METHOD_GET:
+                        $url = $request->to_url();
+                        $parms = NULL;
+                        break;
+
+                    default:
+                        $url = $request->get_normalized_http_url();
+                        $parms = $request->to_postdata();
+                        break;
+                }
             }
 
             // Get the HTTP authorization header
@@ -345,7 +415,6 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
             $requests[$id]['url'] = $url;
             $requests[$id]['parms'] = $parms;
-
         }
 
         // Create and configure the cURL object
@@ -358,15 +427,15 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $responses = $curl->$method($requests);
         unset($curl);
 
-        // Format and return the response
-        if ( ! empty($responses) AND is_array($responses) AND count($responses) > 0)
+        // Format the response
+        if ($this->_decode AND is_array($responses) AND count($responses) > 0)
         {
-            if ($this->_decode)
+            $method  = '_decode_'.$this->_format;
+            if (method_exists($this, $method))
             {
                 foreach ($responses as $id => $response)
                 {
-                    $method  = '_decode_'.$this->_format;
-                    if (method_exists($this, $method))
+                    if ($response instanceof MMI_Curl_Response)
                     {
                         $decoded = $this->$method($response->body());
                         $responses[$id]->body($decoded);
@@ -382,6 +451,90 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         return $responses;
     }
 
+    /**
+     * Ensure there is a valid access token.
+     * If the token is missing credentials, the database is queried.
+     * If no token credentials are found in the database, an API call is made to obtain a new request token.
+     *
+     * @return  void
+     */
+    protected function _check_access_token()
+    {
+        if ( ! $this->_is_token_set())
+        {
+            // Load existing data from the database
+            $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($this->_consumer->key, FALSE);
+            if ($model->loaded())
+            {
+                $this->_token = new OAuthToken($model->token_key, Encrypt::instance()->decode($model->token_secret));
+            }
+
+            if ( ! $this->_is_token_set())
+            {
+                // Initialize the model
+                if ( ! $model->loaded())
+                {
+                    $this->_init_model($model);
+                }
+
+                // Get a request token
+                $token = $this->get_request_token($this->_auth_callback_url, $this->_auth_config);
+                if ($this->_is_token_set($token))
+                {
+                    $this->_token = $token;
+                    $model->token_key = $token->key;
+                    $model->token_secret = Encrypt::instance()->encode($token->secret);
+                    $success = MMI_Jelly::save($model, $errors);
+
+                    // Get the redirect URL
+                    $xoauth_request_auth_url = Arr::get($token->attributes, 'xoauth_request_auth_url');
+                    unset($this->_token->attributes);
+                    if ($success AND ! empty($xoauth_request_auth_url))
+                    {
+                        // Redirect to authorization URL
+                        Request::$instance->redirect($xoauth_request_auth_url);
+                    }
+                    elseif ($this->_debug)
+                    {
+                        MMI_Debug::dead($errors);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Ensure the token has a key and secret.
+     *
+     * @return  boolean
+     */
+    protected function _is_token_set($token = NULL)
+    {
+        if ( ! ($token instanceof OAuthToken))
+        {
+            $token = $this->_token;
+        }
+        return ( ! empty($token->key) AND ! empty($token->secret));
+    }
+
+    /**
+     * Initialize the OAuth token data model.
+     *
+     * @return  boolean
+     */
+    protected function _init_model( & $model)
+    {
+        $consumer = $this->_consumer;
+        $model->service = $this->_service;
+        $model->consumer_key = $consumer->key;
+        $model->consumer_secret = Encrypt::instance()->encode($consumer->secret);
+        $model->oauth_version = $this->_version;
+        $success = MMI_Jelly::save($model, $errors);
+        if ( ! $success AND $this->_debug)
+        {
+            MMI_Debug::dead($errors);
+        }
+    }
 
     /**
      * Configure the HTTP authorization header sent via cURL.
@@ -391,13 +544,13 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      */
     protected function _configure_auth_header($curl)
     {
-        if (func_num_args() < 2)
+        if ($this->_send_auth_as_data OR func_num_args() < 2)
         {
             return;
         }
-        $request = func_get_arg(1);
 
         // Set an auth header, if necessary
+        $request = func_get_arg(1);
         $auth = $this->_get_auth_header($request);
         if ( ! empty($auth))
         {
@@ -412,10 +565,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      */
     protected function _get_auth_header()
     {
-        if (func_num_args() !== 1)
+        if ($this->_send_auth_as_data OR func_num_args() !== 1)
         {
             return;
         }
+
         $request = func_get_arg(0);
         $auth_header = $request->to_header($this->_realm);
         $temp = explode(': ', $auth_header);
@@ -423,23 +577,123 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     }
 
     /**
-     * Create an API instance that implements OAuth.
+     * Perform an isolated cURL request.
      *
-     * @param   string  the service name
-     * @return  MMI_API_OAuth
+     * @param   array   an associative array of auth settings
+     * @param   string  the HTTP request method
+     * @param   string  the URL
+     * @param   array   an associative array of request parameters
+     * @return  MMI_Curl_Response
      */
-    public static function factory($driver)
+    protected function _isolated_request($auth_config, $method, $url, $parms = array())
     {
-        $class = 'MMI_API_OAuth_'.ucfirst($driver);
-        if ( ! class_exists($class))
+        // Create the consumer, token, and signature method objects
+        $consumer = self::_get_consumer($auth_config);
+        $token = self::_get_token($auth_config);
+        $signature_method = self::_get_signature_method($auth_config);
+
+        // Prepare and sign the OAuth request
+        $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $url, $parms);
+        $request->sign_request($signature_method, $consumer, $token);
+        $url = $request->to_url();
+        unset($consumer, $token, $signature_method, $request);
+
+        // Execute the cURL request
+        $curl = new MMI_Curl;
+        $method = strtolower($method);
+        $response = $curl->$method($url, $parms);
+        unset($curl);
+
+        return $response;
+    }
+
+    /**
+     * Extract token data from a MMI_Curl_Response object and create a OAuthToken object.
+     *
+     * @param   MMI_Curl_Response   the response object
+     * @return  OAuthToken
+     */
+    protected function _extract_token($response)
+    {
+        if ( ! $response instanceof MMI_Curl_Response)
         {
-            MMI_Log::log_error(__METHOD__, __LINE__, $class.' class does not exist');
-            throw new Kohana_Exception(':class class does not exist in :method.', array
-            (
-                ':class'    => $class,
-                ':method'   => __METHOD__
-            ));
+            return NULL;
         }
-        return new $class;
+
+        $token = NULL;
+        if (intval($response->http_status_code()) === 200)
+        {
+            $body = $response->body();
+            if ( ! empty($body))
+            {
+                $parms = OAuthUtil::parse_parameters($body);
+                if ( ! empty($parms['oauth_token']) AND ! empty($parms['oauth_token_secret']))
+                {
+                    $token = new OAuthToken($parms['oauth_token'], $parms['oauth_token_secret']);
+                    unset($parms['oauth_token'], $parms['oauth_token_secret']);
+                    $token->attributes = $parms;
+                }
+            }
+        }
+        return $token;
+    }
+
+    /**
+     * Create an OAuth consumer object using the auth config settings.
+     *
+     * @param   array   an associative array of auth settings
+     * @return  OAuthConsumer
+     */
+    protected static function _get_consumer($auth_config)
+    {
+        $consumer_key = Arr::get($auth_config, 'consumer_key');
+        $consumer_secret = Arr::get($auth_config, 'consumer_secret');
+        $auth_callback_url = Arr::get($auth_config, 'auth_callback_url');
+        return new OAuthConsumer($consumer_key, $consumer_secret, $auth_callback_url);
+    }
+
+    /**
+     * Create an OAuth token object using the auth config settings.
+     *
+     * @param   array   an associative array of auth settings
+     * @return  OAuthToken
+     */
+    protected static function _get_token($auth_config)
+    {
+        $token_key = Arr::get($auth_config, 'token_key');
+        $token_secret = Arr::get($auth_config, 'token_secret');
+        $token = NULL;
+        if ( ! empty($token_key))
+        {
+            $token = new OAuthToken($token_key, $token_secret);
+        }
+        return $token;
+    }
+
+    /**
+     * Create an OAuth signature object using the auth config settings.
+     *
+     * @param   array   an associative array of auth settings
+     * @return  OAuthSignatureMethod
+     */
+    protected static function _get_signature_method($auth_config)
+    {
+        $type = Arr::get($auth_config, 'signature_method', MMI_API_OAuth::SIGN_HMAC_SHA1);
+        $signature_method = NULL;
+        switch($type)
+        {
+            case self::SIGN_HMAC_SHA1:
+                $signature_method = new OAuthSignatureMethod_HMAC_SHA1;
+                break;
+
+            case self::SIGN_PLAINTEXT:
+                $signature_method = new OAuthSignatureMethod_PLAINTEXT;
+                break;
+
+            case self::SIGN_RSA_SHA1:
+                // Not supported
+                break;
+        }
+        return $signature_method;
     }
 } // End Kohana_MMI_API_OAuth
