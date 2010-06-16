@@ -25,7 +25,7 @@ abstract class Kohana_MMI_OAuth_Verification
     protected $_key_verifier = 'oauth_verifier';
 
     /**
-     * @var string service name
+     * @var string the service name
      */
     protected $_service = '?';
 
