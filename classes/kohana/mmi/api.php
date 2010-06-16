@@ -1,12 +1,14 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make API calls to 3rd-party services.
- * This class is an attempt to generalize Abraham Williams Twitter OAuth class (http://github.com/abraham/twitteroauth).
+ * This class is an attempt to generalize Abraham Williams Twitter OAuth class.
  *
  * @package     MMI API
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
+ * @copyright   (c) 2009 Abraham Williams
  * @license     http://www.memakeit.com/license
+ * @link        http://github.com/abraham/twitteroauth
  */
 abstract class Kohana_MMI_API
 {
@@ -30,6 +32,7 @@ abstract class Kohana_MMI_API
     const SERVICE_FLICKR = 'flickr';
     const SERVICE_GITHUB = 'github';
     const SERVICE_LASTFM = 'lastfm';
+    const SERVICE_LINKEDIN = 'linkedin';
     const SERVICE_READERNAUT = 'readernaut';
     const SERVICE_TWITTER = 'twitter';
 
@@ -56,7 +59,7 @@ abstract class Kohana_MMI_API
     /**
      * @var integer the cURL connection timeout
      **/
-    protected $_connect_timeout = 10;
+    protected $_connect_timeout = 5;
 
     /**
      * @var boolean turn debugging on?
@@ -64,7 +67,7 @@ abstract class Kohana_MMI_API
     protected $_debug;
 
     /**
-     * @var boolean decode results?
+     * @var boolean decode the results?
      **/
     protected $_decode = TRUE;
 
@@ -79,17 +82,7 @@ abstract class Kohana_MMI_API
     protected $_format = self::FORMAT_JSON;
 
     /**
-     * @var array an associative array of the HTTP headers returned by cURL
-     **/
-    protected $_http_headers;
-
-    /**
-     * @var integer the last HTTP status code returned by cURL
-     **/
-    protected $_http_status;
-
-    /**
-     * @var boolean the api mode is read-only?
+     * @var boolean the API mode is read-only?
      **/
     protected $_read_only = TRUE;
 
@@ -99,7 +92,7 @@ abstract class Kohana_MMI_API
     protected $_service = '?';
 
     /**
-     * @var array san associative array of service-specific settings
+     * @var array an associative array of service-specific settings
      */
     protected $_service_config;
 
@@ -164,7 +157,7 @@ abstract class Kohana_MMI_API
      * The API URL is usually a string, but an array can be used to specify a read-only URL and a read-write URL.
      * This method is chainable when setting a value.
      *
-     * @param   mixed  the API URL value(s)
+     * @param   mixed  the value to set
      * @return  mixed
      */
     public function api_url($value = NULL)
@@ -185,7 +178,7 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Get or set whether to decode results.
+     * Get or set whether to decode the results.
      * This method is chainable when setting a value.
      *
      * @param   boolean the value to set
@@ -221,27 +214,7 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Get an associative array of the HTTP headers returned by cURL.
-     *
-     * @return  array
-     */
-    public function http_headers()
-    {
-        return $this->_get_set('_http_headers');
-    }
-
-    /**
-     * Get the last HTTP status code returned by cURL.
-     *
-     * @return  integer
-     */
-    public function http_status()
-    {
-        return intval($this->_http_status);
-    }
-
-    /**
-     * Get or set whether the api mode is read-only.
+     * Get or set whether the API mode is read-only.
      * This method is chainable when setting a value.
      *
      * @param   boolean the value to set
@@ -259,7 +232,7 @@ abstract class Kohana_MMI_API
      */
     public function service()
     {
-        return $this->_service;
+        return $this->_get_set('_service');
     }
 
     /**
@@ -299,7 +272,7 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Get or set the useragent sent by cURL requests.
+     * Get or set the user-agent sent by cURL requests.
      * This method is chainable when setting a value.
      *
      * @param   string  the value to set
@@ -315,7 +288,7 @@ abstract class Kohana_MMI_API
      *
      * @param   string  the URL
      * @param   array   an associative array of request parameters
-     * @return  string
+     * @return  MMI_Curl_Response
      */
     public function delete($url, $parms = array())
     {
@@ -327,7 +300,7 @@ abstract class Kohana_MMI_API
      *
      * @param   string  the URL
      * @param   array   an associative array of request parameters
-     * @return  string
+     * @return  MMI_Curl_Response
      */
     public function get($url, $parms = array())
     {
@@ -339,7 +312,7 @@ abstract class Kohana_MMI_API
      *
      * @param   string  the URL
      * @param   array   an associative array of request parameters
-     * @return  string
+     * @return  MMI_Curl_Response
      */
     public function head($url, $parms = array())
     {
@@ -351,7 +324,7 @@ abstract class Kohana_MMI_API
      *
      * @param   string  the URL
      * @param   array   an associative array of request parameters
-     * @return  string
+     * @return  MMI_Curl_Response
      */
     public function post($url, $parms = array())
     {
@@ -363,7 +336,7 @@ abstract class Kohana_MMI_API
      *
      * @param   string  the URL
      * @param   array   an associative array of request parameters
-     * @return  string
+     * @return  MMI_Curl_Response
      */
     public function put($url, $parms = array())
     {
@@ -372,10 +345,10 @@ abstract class Kohana_MMI_API
 
     /**
      * Make multiple DELETE requests.
-     * See the mget method for the format of the requests data.
+     * See the mget method for the format of the request data.
      *
      * @see     mget
-     * @param   array   the request details (URL and parameters)
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mdelete($requests)
@@ -385,10 +358,10 @@ abstract class Kohana_MMI_API
 
     /**
      * Make multiple HEAD requests.
-     * See the mget method for the format of the requests data.
+     * See the mget method for the format of the request data.
      *
      * @see     mget
-     * @param   array   the request details (URL and parameters)
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mhead($requests)
@@ -398,8 +371,8 @@ abstract class Kohana_MMI_API
 
     /**
      * Make multiple GET requests.
-     * Each request is an associative array containing a URL (key = 'url') and optional request parameters (key = 'parms').
-     * Each request can be associated with a key (recommended for easier extraction of results):
+     * Each request is an associative array containing a URL (key = url) and optional request parameters, HTTP headers and cURL options (keys = parms, http_headers, curl_options).
+     * Each array of request settings can be associated with a key (recommended for easier extraction of results):
      *      $requests = array
      *      (
      *          'memakeit' => array('url' => 'user/show/memakeit'),
@@ -413,7 +386,7 @@ abstract class Kohana_MMI_API
      *          array('url' => 'user/show/shadowhand'),
      *      );
      *
-     * @param   array   the request details (URL and parameters)
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mget($requests)
@@ -423,10 +396,10 @@ abstract class Kohana_MMI_API
 
     /**
      * Make multiple POST requests.
-     * See the mget method for the format of the requests data.
+     * See the mget method for the format of the request data.
      *
      * @see     mget
-     * @param   array   the request details (URL and parameters)
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mpost($requests)
@@ -436,10 +409,10 @@ abstract class Kohana_MMI_API
 
     /**
      * Make multiple PUT requests.
-     * See the mget method for the format of the requests data.
+     * See the mget method for the format of the request data.
      *
      * @see     mget
-     * @param   array   the request details (URL and parameters)
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mput($requests)
@@ -449,23 +422,22 @@ abstract class Kohana_MMI_API
 
     /**
      * Make multiple requests.
-     *
-     * Each request is an associative array containing an HTTP method (key = 'method'), URL (key = 'url'), and optional request parameters (key = 'parms').
-     * Each request can be associated with a key (recommended for easier extraction of results):
+     * Each request is an associative array containing an HTTP method (key = method), a URL (key = url) and optional request parameters, HTTP headers and cURL options (keys = parms, http_headers, curl_options).
+     * Each array of request settings can be associated with a key (recommended for easier extraction of results):
      *      $requests = array
      *      (
      *          'memakeit' => array('method' => 'GET', 'url' => 'user/show/memakeit'),
-     *          'shadowhand' => array('method' => 'POST', 'url' => 'user/show/shadowhand'),
+     *          'shadowhand' => array('method' => 'GET', 'url' => 'user/show/shadowhand'),
      *      );
      *
      * or the keys can be ommited:
      *      $requests = array
      *      (
      *          array('method' => 'GET', 'url' => 'user/show/memakeit'),
-     *          array('method' => 'POST', 'url' => 'user/show/shadowhand'),
+     *          array('method' => 'GET', 'url' => 'user/show/shadowhand'),
      *      );
      *
-     * @param   array   the request details (HTTP method, URL, and parameters)
+     * @param   array   the request details (HTTP method, URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mexec($requests)
@@ -479,14 +451,14 @@ abstract class Kohana_MMI_API
      * @param   string  the URL
      * @param   array   an associative array of request parameters
      * @param   string  the HTTP method
-     * @return  mixed
+     * @return  MMI_Curl_Response
      */
     protected function _request($url, $parms, $method = MMI_HTTP::METHOD_GET)
     {
-        // Configure URL
+        // Configure the URL
         $url = $this->_configure_url($url);
 
-        // Configure parameters
+        // Configure the request parameters
         $parms = $this->_configure_parameters($parms);
 
         // Create and configure the cURL object
@@ -500,8 +472,8 @@ abstract class Kohana_MMI_API
         $response = $curl->$method($url, $parms);
         unset($curl);
 
-        // Format and return the response
-        if ( ! empty($response) AND $this->_decode)
+        // Format the response
+        if ($this->_decode AND $response instanceof MMI_Curl_Response)
         {
             $method  = '_decode_'.$this->_format;
             if (method_exists($this, $method))
@@ -518,7 +490,7 @@ abstract class Kohana_MMI_API
     /**
      * Make multiple API calls.
      *
-     * @param   array   an associative array containing the request details (URL and parameters)
+     * @param   array   an associative array containing the request details (URL, request parameters, HTTP headers, and cURL options)
      * @param   string  the HTTP method
      * @return  array
      */
@@ -526,11 +498,11 @@ abstract class Kohana_MMI_API
     {
         foreach ($requests as $id => $request)
         {
-            // Configure URLs
+            // Configure the URLs
             $url = Arr::get($request, 'url');
             $requests[$id]['url'] = $this->_configure_url($url);;
 
-            // Configure parameters
+            // Configure the request parameters
             $parms = Arr::get($request, 'parms');
             $requests[$id]['parms'] = $this->_configure_parameters($parms);
         }
@@ -538,6 +510,7 @@ abstract class Kohana_MMI_API
         // Create and configure the cURL object
         $curl = new MMI_Curl;
         $this->_configure_curl_options($curl);
+        $this->_configure_auth_header($curl);
         $this->_configure_http_headers($curl);
 
         // Execute the cURL request
@@ -546,14 +519,14 @@ abstract class Kohana_MMI_API
         unset($curl);
 
         // Format and return the response
-        if ( ! empty($responses) AND is_array($responses) AND count($responses) > 0)
+        if ($this->_decode AND is_array($responses) AND count($responses) > 0)
         {
-            if ($this->_decode)
+            $method  = '_decode_'.$this->_format;
+            if (method_exists($this, $method))
             {
                 foreach ($responses as $id => $response)
                 {
-                    $method  = '_decode_'.$this->_format;
-                    if (method_exists($this, $method))
+                    if ($response instanceof MMI_Curl_Response)
                     {
                         $decoded = $this->$method($response->body());
                         $responses[$id]->body($decoded);
@@ -571,7 +544,7 @@ abstract class Kohana_MMI_API
 
     /**
      * Configure the request URL.
-     * If both a read-only and a read-write API URL are specified, the correct one is implemented.
+     * If both a read-only and a read-write API URL are specified, the select the correct one.
      *
      * @param   string  the request URL
      * @return  string
@@ -581,6 +554,7 @@ abstract class Kohana_MMI_API
         if (strrpos($url, 'https://') !== 0 AND strrpos($url, 'http://') !== 0)
         {
             $path = $url;
+
             $url = $this->_api_url;
             if (is_array($url) AND count($url) === 1)
             {
@@ -589,7 +563,7 @@ abstract class Kohana_MMI_API
             elseif (is_array($url) AND count($url) > 1)
             {
                 $key = ($this->_read_only) ? self::READ_ONLY : self::READ_WRITE;
-                $url = Arr::get($url, $key);
+                $url = Arr::get($url, $key, end($url));
             }
             $url = $this->_build_url($url, $path);
         }
@@ -647,12 +621,12 @@ abstract class Kohana_MMI_API
             }
         }
 
-        // Configure authentication parameters (that are passed as request parameters instead of via HTTP authorization headers)
+        // Configure authentication parameters (that are passed as request parameters instead of via HTTP headers)
         return $this->_configure_auth_parms($parms);
     }
 
     /**
-     * Configure authentication parameters that are passed as request parameters instead of via HTTP authorization headers.
+     * Configure authentication parameters that are passed as request parameters instead of via HTTP headers.
      *
      * @param   array   an associative array of request parameters
      * @return  array
@@ -671,9 +645,9 @@ abstract class Kohana_MMI_API
     protected function _configure_curl_options($curl)
     {
         $curl->add_curl_option(CURLOPT_CONNECTTIMEOUT, $this->_connect_timeout);
+        $curl->add_curl_option(CURLOPT_SSL_VERIFYPEER, $this->_ssl_verifypeer);
         $curl->add_curl_option(CURLOPT_TIMEOUT, $this->_timeout);
         $curl->add_curl_option(CURLOPT_USERAGENT, $this->_useragent);
-        $curl->add_curl_option(CURLOPT_SSL_VERIFYPEER, $this->_ssl_verifypeer);
 
         // Customize cURL options as specified in the configuration file
         $custom = Arr::path($this->_service_config, 'custom.curl_options', array());
@@ -773,6 +747,16 @@ abstract class Kohana_MMI_API
     }
 
     /**
+     * Get the string to be sent via the authorization header.
+     *
+     * @return  string
+     */
+    protected function _get_auth_header()
+    {
+        return '';
+    }
+
+    /**
      * Decode a JSON response.
      *
      * @param   string  the response string
@@ -801,16 +785,6 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Get the string to be sent via the authorization header.
-     *
-     * @return  string
-     */
-    protected function _get_auth_header()
-    {
-        return '';
-    }
-
-    /**
      * Get or set a class property.
      * This method is chainable when setting a value.
      *
@@ -826,7 +800,7 @@ abstract class Kohana_MMI_API
             $this->$name = $value;
             return $this;
         }
-        elseif ( ! empty($value))
+        elseif (isset($value))
         {
             $this->$name = $value;
             return $this;

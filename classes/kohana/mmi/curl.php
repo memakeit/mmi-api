@@ -72,9 +72,9 @@ class Kohana_MMI_Curl
      * Get or set the proxy details used by cURL requests.
      * This method is chainable when setting a value.
      *
-     * @param  mixed    an associative array of proxy settings or
+     * @param   mixed   an associative array of proxy settings or
      *                  a proxy url string in the following format: 'proxy://user:pass@hostname:port'
-     * @return  MMI_Remote
+     * @return  mixed
      */
     public function proxy($value = NULL)
     {
@@ -89,9 +89,9 @@ class Kohana_MMI_Curl
      * Add a custom cURL option.
      * This method is chainable.
      *
-     * @param   string  the custom cURL option name
-     * @param   mixed   the custom cURL option value
-     * @return  MMI_Remote
+     * @param   string  the option name
+     * @param   mixed   the option value
+     * @return  MMI_Curl
      */
     public function add_curl_option($name, $value)
     {
@@ -103,8 +103,8 @@ class Kohana_MMI_Curl
      * Remove a custom cURL option.
      * This method is chainable.
      *
-     * @param   string  the custom cURL option name
-     * @return  MMI_Remote
+     * @param   string  the option name
+     * @return  MMI_Curl
      */
     public function remove_curl_option($name)
     {
@@ -119,7 +119,7 @@ class Kohana_MMI_Curl
      * Remove all the cURL options.
      * This method is chainable.
      *
-     * @return  MMI_Remote
+     * @return  MMI_Curl
      */
     public function clear_curl_options()
     {
@@ -131,7 +131,7 @@ class Kohana_MMI_Curl
      * Reset the cURL options to the configuration defaults.
      * This method is chainable.
      *
-     * @return  MMI_Remote
+     * @return  MMI_Curl
      */
     public function reset_curl_options()
     {
@@ -156,9 +156,9 @@ class Kohana_MMI_Curl
      * Add a custom HTTP header to the cURL request.
      * This method is chainable.
      *
-     * @param   string  the custom HTTP header name
-     * @param   mixed   the custom HTTP header value
-     * @return  MMI_Remote
+     * @param   string  the header name
+     * @param   mixed   the header value
+     * @return  MMI_Curl
      */
     public function add_http_header($name, $value)
     {
@@ -170,8 +170,8 @@ class Kohana_MMI_Curl
      * Remove a custom HTTP header from the cURL request.
      * This method is chainable.
      *
-     * @param   string  the custom HTTP header name
-     * @return  MMI_Remote
+     * @param   string  the header name
+     * @return  MMI_Curl
      */
     public function remove_http_header($name)
     {
@@ -183,27 +183,27 @@ class Kohana_MMI_Curl
     }
 
     /**
+     * Remove all the HTTP headers.
+     * This method is chainable.
+     *
+     * @return  MMI_Curl
+     */
+    public function clear_http_headers()
+    {
+        $this->_http_headers = array();
+        return $this;
+    }
+
+    /**
      * Reset the HTTP headers to the configuration defaults.
      * This method is chainable.
      *
-     * @return  MMI_Remote
+     * @return  MMI_Curl
      */
     public function reset_http_headers()
     {
         $config = self::get_config(TRUE);
         $this->_curl_options = Arr::get($config, 'http_headers', array());
-        return $this;
-    }
-
-    /**
-     * Remove all the HTTP headers.
-     * This method is chainable.
-     *
-     * @return  MMI_Remote
-     */
-    public function clear_http_headers()
-    {
-        $this->_http_headers = array();
         return $this;
     }
 
@@ -284,7 +284,7 @@ class Kohana_MMI_Curl
      * See the mget method for the format of the requests data.
      *
      * @see     mget
-     * @param   array   the requests
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mdelete($requests)
@@ -294,8 +294,8 @@ class Kohana_MMI_Curl
 
     /**
      * Make multiple GET requests.
-     * Each request is an associative array containing a URL (key = 'url') and optional request parameters (key = 'parms').
-     * Each request can be associated with a key (recommended for easier extraction of results):
+     * Each request is an associative array containing a URL (key = url) and optional request parameters, HTTP headers and cURL options (keys = parms, http_headers, curl_options).
+     * Each array of request settings can be associated with a key (recommended for easier extraction of results):
      *      $requests = array
      *      (
      *          'memakeit' => array('url' => 'user/show/memakeit'),
@@ -309,7 +309,7 @@ class Kohana_MMI_Curl
      *          array('url' => 'user/show/shadowhand'),
      *      );
      *
-     * @param   array   the request details (URL and parameters)
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mget($requests)
@@ -322,7 +322,7 @@ class Kohana_MMI_Curl
      * See the mget method for the format of the requests data.
      *
      * @see     mget
-     * @param   array   the requests
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mhead($requests)
@@ -335,7 +335,7 @@ class Kohana_MMI_Curl
      * See the mget method for the format of the requests data.
      *
      * @see     mget
-     * @param   array   the requests
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mpost($requests)
@@ -348,7 +348,7 @@ class Kohana_MMI_Curl
      * See the mget method for the format of the requests data.
      *
      * @see     mget
-     * @param   array   the requests
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mput($requests)
@@ -358,22 +358,22 @@ class Kohana_MMI_Curl
 
     /**
      * Make multiple HTTP requests.
-     * Each request is an associative array containing an HTTP method (key = 'method'), URL (key = 'url'), and optional request parameters (key = 'parms').
-     * Each request can be associated with a key (recommended for easier extraction of results):
+     * Each request is an associative array containing an HTTP method (key = method), a URL (key = url) and optional request parameters, HTTP headers and cURL options (keys = parms, http_headers, curl_options).
+     * Each array of request settings can be associated with a key (recommended for easier extraction of results):
      *      $requests = array
      *      (
      *          'memakeit' => array('method' => 'GET', 'url' => 'user/show/memakeit'),
-     *          'shadowhand' => array('method' => 'POST', 'url' => 'user/show/shadowhand'),
+     *          'shadowhand' => array('method' => 'GET', 'url' => 'user/show/shadowhand'),
      *      );
      *
      * or the keys can be ommited:
      *      $requests = array
      *      (
      *          array('method' => 'GET', 'url' => 'user/show/memakeit'),
-     *          array('method' => 'POST', 'url' => 'user/show/shadowhand'),
+     *          array('method' => 'GET', 'url' => 'user/show/shadowhand'),
      *      );
      *
-     * @param   array   the request details (HTTP method, URL, and parameters)
+     * @param   array   the request details (HTTP method, URL, request parameters, HTTP headers, and cURL options)
      * @return  array
      */
     public function mexec($requests)
@@ -387,21 +387,22 @@ class Kohana_MMI_Curl
      * @param   string  the URL
      * @param   array   the request parameters
      * @param   string  the HTTP method
-     * @return  void
+     * @return  MMI_Curl_Response
      */
 	protected function _exec($url, $parms = array(), $http_method = MMI_HTTP::METHOD_GET)
 	{
         // Init cURL and set options
         $ch = $this->_init_curl($url, $parms, $http_method);
 
-        // Execute the request
+        // Execute the request and process the response
         $response = curl_exec($ch);
 		$response = $this->_process_response($ch, $response, $url, $parms);
 
 		// Close the cURL handle
 		curl_close($ch);
+		unset($ch);
 
-		// Return response
+		// Return the response
 		return $response;
 	}
 
@@ -409,12 +410,13 @@ class Kohana_MMI_Curl
      * Execute multiple cURL requests in parallel.
      *
      * @param   string  the URL
-     * @param   array   the request parameters
+     * @param   array   the request details (URL, request parameters, HTTP headers, and cURL options)
      * @param   string  the HTTP method
-     * @return  void
+     * @return  array
      */
     protected function _mexec($requests, $http_method = NULL)
     {
+        // configure the HTTP method
         if ( ! empty($http_method))
         {
             foreach ($requests as $id => $request)
@@ -427,18 +429,16 @@ class Kohana_MMI_Curl
         $handles = array();
         foreach ($requests as $id => $request)
         {
-            foreach (array('url', 'parms', 'method', 'http_headers') as $var)
+            foreach (array('url', 'parms', 'method', 'http_headers', 'curl_options') as $var)
             {
                 $$var = Arr::get($request, $var);
             }
-            $handles[$id] = $this->_init_curl($url, $parms, $method, $http_headers);
+            $handles[$id] = $this->_init_curl($url, $parms, $method, $http_headers, $curl_options);
         }
 
-        // Create a cURL multi handle
+        // Create a cURL multi-handle and add the cURL handles to the multi-handle
         $multi = curl_multi_init();
-
-        // Add the cURL handles and to the multi-cURL request.
-        foreach ($handles as $id => $handle)
+        foreach ($handles as $handle)
         {
             curl_multi_add_handle($multi, $handle);
         }
@@ -454,16 +454,17 @@ class Kohana_MMI_Curl
         $responses = array();
         foreach ($handles as $id => $handle)
         {
+            $url = Arr::get($request, 'url');
             if (intval(curl_errno($handle)) === CURLE_OK)
             {
+                // Process the response
                 $request = $requests[$id];
-                $url = Arr::get($request, 'url');
                 $parms = Arr::get($request, 'parms');
                 $responses[$id] = $this->_process_response($handle, curl_multi_getcontent($handle), $url, $parms);
             }
             else
             {
-                MMI_Log::log_error(__METHOD__, __LINE__, 'Multi cURL error for URL:'.$url.'. Error number: '.curl_errno($handle).'. Error message:'.curl_error($handle));
+                MMI_Log::log_error(__METHOD__, __LINE__, 'Multi cURL error for URL:'.$url.'. Error number: '.curl_errno($handle).'. Error message: '.curl_error($handle));
             }
 
             // Close each cURL handle
@@ -473,6 +474,7 @@ class Kohana_MMI_Curl
 
         // Close the cURL multi handle
         curl_multi_close($multi);
+        unset($multi);
 
         // Return the responses
         return $responses;
@@ -485,9 +487,10 @@ class Kohana_MMI_Curl
      * @param   array   an associative array of request parameters
      * @param   string  the HTTP method
      * @param   array   an associative array of custom HTTP headers (to be merged with the defaults)
+     * @param   array   an associative array of custom cURL options (to be merged with the defaults)
      * @return  resource
      */
-    protected function _init_curl($url, $parms = array(), $http_method = MMI_HTTP::METHOD_GET, $http_headers = array())
+    protected function _init_curl($url, $parms = array(), $http_method = MMI_HTTP::METHOD_GET, $http_headers = array(), $curl_options = array())
     {
         // Create a cURL handle
         $ch = curl_init();
@@ -511,21 +514,21 @@ class Kohana_MMI_Curl
             $parms = http_build_query($parms);
         }
 
-        // Configure the cURL URL and referrer
-        $options = $this->_curl_options;
-        $options[CURLOPT_URL] = $url;
-        if ( ! array_key_exists(CURLOPT_REFERER, $options) OR (array_key_exists(CURLOPT_REFERER, $options) AND empty($options[CURLOPT_REFERER])))
+        // Configure the cURL options
+        if ( ! is_array($curl_options))
         {
-            $options[CURLOPT_REFERER] = $url;
+            $curl_options = array();
         }
+        $options = Arr::merge($this->_curl_options, $curl_options);
+        $options[CURLOPT_URL] = $url;
 
-        // Configure the proxy connection, if requested
+        // Configure the proxy connection, if necessary
         $proxy = $this->_proxy;
-        if (is_array($proxy) AND count($proxy))
+        if (is_array($proxy) AND count($proxy) > 0)
         {
             $options[CURLOPT_HTTPPROXYTUNNEL] = TRUE;
             $host = $proxy['host'];
-            $host .= (isset($proxy['port'])) ?  ':'.$proxy['port'] : '';
+            $host .= (isset($proxy['port'])) ?  (':'.$proxy['port']) : '';
             $options[CURLOPT_PROXY] = $host;
             if (isset($proxy['user']) AND isset($proxy['pass']))
             {
@@ -564,14 +567,9 @@ class Kohana_MMI_Curl
                 break;
 
             case MMI_HTTP::METHOD_GET:
-                if ( ! empty($parms))
+                if ( ! empty($parms) AND strpos($url, '?') === FALSE)
                 {
-                    if (strpos($url, '?') === FALSE)
-                    {
-                        $get_url = $url.'?'.$parms;
-                    }
-                    $options[CURLOPT_URL] = $get_url;
-                    $options[CURLOPT_REFERER] = $get_url;
+                    $options[CURLOPT_URL] = $url.'?'.$parms;
                 }
                 break;
 
@@ -607,7 +605,7 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Process and parse the cURL response.
+     * Process the cURL response.
      *
      * @param   resource    the cURL handle
      * @param   string      the cURL response
@@ -623,15 +621,6 @@ class Kohana_MMI_Curl
             return FALSE;
         }
 
-        // Process HTTP headers and response body
-        $curl_info = curl_getinfo($ch);
-        $header_size = intval(Arr::get($curl_info, 'header_size'));
-        $http_headers = substr($response, 0, $header_size);
-        $body = substr($response, $header_size);
-
-        // Parse the HTTP headers
-        $http_headers = $this->_parse_headers($http_headers);
-
         if ($response === FALSE)
         {
             // Cannot connect
@@ -646,6 +635,13 @@ class Kohana_MMI_Curl
         }
         else
         {
+            // Process the HTTP headers and response body
+            $curl_info = curl_getinfo($ch);
+            $header_size = intval(Arr::get($curl_info, 'header_size'));
+            $http_headers = substr($response, 0, $header_size);
+            $body = substr($response, $header_size);
+            $http_headers = $this->_parse_headers($http_headers);
+
             // Create the cURL response object
             $response = MMI_Curl_Response::factory()
                 ->body($body)
@@ -713,7 +709,7 @@ class Kohana_MMI_Curl
             $this->$name = $value;
             return $this;
         }
-        elseif ( ! empty($value))
+        elseif (isset($value))
         {
             $this->$name = $value;
             return $this;
@@ -722,43 +718,13 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Create a Remote instance.
+     * Create a cURL instance.
      *
-     * @return  MMI_Remote
+     * @return  MMI_Curl
      */
     public static function factory()
     {
-        return new MMI_Remote;
-    }
-
-    /**
-     * Debug the cURL options by replacing the cURL numeric constants with their 'CURLOPT_' constant names.
-     *
-     * @param   array   the cURL options to debug
-     * @return  array
-     */
-    public static function debug_curl_options($options)
-    {
-        $curl_options = array();
-        $curl_constants_map = self::get_curl_constants_map();
-        $option_name;
-        foreach ($options as $name => $value)
-        {
-            $option_name = Arr::get($curl_constants_map, $name, 'UNKNOWN');
-            switch ($name)
-            {
-                case CURLOPT_HEADERFUNCTION:
-                case CURLOPT_READFUNCTION:
-                case CURLOPT_WRITEFUNCTION:
-                    if (is_array($value) AND count($value) > 1)
-                    {
-                        $value = $value[1];
-                    }
-                    break;
-            }
-            $curl_options[$option_name] = $value;
-        }
-        return $curl_options;
+        return new MMI_Curl;
     }
 
     /**
@@ -779,6 +745,37 @@ class Kohana_MMI_Curl
     }
 
     /**
+     * Debug the cURL options by replacing the cURL numeric constants with their 'CURLOPT_' constant names.
+     *
+     * @param   array   the cURL options to debug
+     * @return  array
+     */
+    public static function debug_curl_options($options)
+    {
+        $curl_options = array();
+        $curl_constants_map = self::get_curl_constants_map();
+        $option_name;
+        foreach ($options as $name => $value)
+        {
+            $option_name = Arr::get($curl_constants_map, $name, $name);
+            switch ($name)
+            {
+                case CURLOPT_HEADERFUNCTION:
+//                case CURLOPT_PASSWDFUNCTION:
+                case CURLOPT_READFUNCTION:
+                case CURLOPT_WRITEFUNCTION:
+                    if (is_array($value) AND count($value) > 1)
+                    {
+                        $value = $value[1];
+                    }
+                    break;
+            }
+            $curl_options[$option_name] = $value;
+        }
+        return $curl_options;
+    }
+
+    /**
      * Get an associative array mapping each cURL constant to a string representation of its name.
      *
      * @return  array
@@ -787,46 +784,6 @@ class Kohana_MMI_Curl
     {
         (self::$_curl_constants_map === NULL) AND self::$_curl_constants_map = self::_get_curl_constants_map();
         return self::$_curl_constants_map;
-    }
-
-    /**
-     * Get the cURL version information.
-     * If a key is specified, the corresponding setting is returned.  Otherwise an associative array of all version information is returned.
-     *
-     * @param   string  the key used to retrieve an individual
-     * @return  mixed
-     */
-    public static function get_version_info($key = NULL)
-    {
-        (self::$_version_info === NULL) AND self::$_version_info = curl_version();
-        $info = self::$_version_info;
-        if ( ! empty($key) AND array_key_exists($key, $info))
-        {
-            $info = Arr::get($info, $key);
-        }
-        return $info;
-    }
-
-    /**
-     * Reset the cURL options to the configuration defaults.
-     *
-     * @return  void
-     */
-    protected static function _reset_curl_options()
-    {
-        $config = self::get_config(TRUE);
-        $this->_curl_options = Arr::get($config, 'curl_options', array());
-    }
-
-    /**
-     * Reset the HTTP headers to the configuration defaults.
-     *
-     * @return  void
-     */
-    protected static function _reset_http_headers()
-    {
-        $config = self::get_config(TRUE);
-        $this->_http_headers = Arr::get($config, 'http_headers', array());
     }
 
     /**
@@ -949,4 +906,22 @@ class Kohana_MMI_Curl
             CURLOPT_WRITEFUNCTION => 'CURLOPT_WRITEFUNCTION'
         );
     }
-} // End Kohana_MMI_Remote
+
+    /**
+     * Get the cURL version information.
+     * If a key is specified, the corresponding value is returned.  Otherwise an associative array of all version information is returned.
+     *
+     * @param   string  the key used to retrieve an individual value
+     * @return  mixed
+     */
+    public static function get_version_info($key = NULL)
+    {
+        (self::$_version_info === NULL) AND self::$_version_info = curl_version();
+        $info = self::$_version_info;
+        if ( ! empty($key) AND array_key_exists($key, $info))
+        {
+            $info = Arr::get($info, $key);
+        }
+        return $info;
+    }
+} // End Kohana_MMI_Curl
