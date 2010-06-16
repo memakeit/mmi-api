@@ -25,15 +25,4 @@ class Kohana_MMI_API_Twitter extends MMI_API_OAuth
     {
         return "$url$path.{$this->_format}";
     }
-
-    /**
-     * Configure the HTTP authorization header sent via cURL.
-     *
-     * @param   MMI_Curl    the cURL object instance
-     * @return  void
-     */
-    protected function _configure_auth_header($curl)
-    {
-        return;
-    }
 } // End Kohana_MMI_API_Twitter
