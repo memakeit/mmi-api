@@ -177,7 +177,7 @@ class Kohana_MMI_Curl_Response
             $this->$name = $value;
             return $this;
         }
-        elseif ( ! empty($value))
+        elseif (isset($value))
         {
             $this->$name = $value;
             return $this;
