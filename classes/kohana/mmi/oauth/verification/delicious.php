@@ -1,8 +1,8 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * Process Delicious authorization.
+ * Verify Delicious authorization.
  *
- * @package     MMI Social
+ * @package     MMI API
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
