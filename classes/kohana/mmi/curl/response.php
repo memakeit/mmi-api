@@ -13,12 +13,12 @@
 class Kohana_MMI_Curl_Response
 {
     /**
-     * @var mixed response body returned by cURL
+     * @var mixed the response body returned by cURL
      **/
     protected $_body;
 
     /**
-     * @var array the options returned by cURL
+     * @var array an associative array of the options returned by cURL
      **/
     protected $_curl_info;
 
@@ -42,18 +42,13 @@ class Kohana_MMI_Curl_Response
      **/
     protected $_http_headers;
 
-//    /**
-//     * @var string the HTTP method used to make the cURL request
-//     **/
-//    protected $_http_method;
-
     /**
      * @var integer the HTTP status code returned by cURL
      **/
     protected $_http_status_code;
 
     /**
-     * @var array the request settings
+     * @var array an associative array containing details of the last cURL request
      **/
     protected $_request;
 
@@ -68,7 +63,19 @@ class Kohana_MMI_Curl_Response
     }
 
     /**
-     * Get or set the options returned by cURL.
+     * Get or set the response body returned by cURL.
+     * This method is chainable when setting a value.
+     *
+     * @param   mixed   the response body
+     * @return  mixed
+     */
+    public function body($value = NULL)
+    {
+        return $this->_get_set('_body', $value);
+    }
+
+    /**
+     * Get or set an associative array of the options returned by cURL.
      * This method is chainable when setting a value.
      *
      * @param   array   an associative array of cURL options
@@ -77,18 +84,6 @@ class Kohana_MMI_Curl_Response
     public function curl_info($value = NULL)
     {
         return $this->_get_set('_curl_info', $value, 'is_array');
-    }
-
-    /**
-     * Get or set the response body returned by cURL.
-     * This method is chainable when setting a value.
-     *
-     * @param   string  the response body
-     * @return  mixed
-     */
-    public function body($value = NULL)
-    {
-        return $this->_get_set('_body', $value);
     }
 
     /**
@@ -140,10 +135,10 @@ class Kohana_MMI_Curl_Response
     }
 
     /**
-     * Get or set the request settings.
+     * Get or set an associative array containing details of the last cURL request
      * This method is chainable when setting a value.
      *
-     * @param   array   the request settings
+     * @param   array   an associative array of request details
      * @return  mixed
      */
     public function request($value = NULL)
