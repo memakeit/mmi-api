@@ -518,7 +518,7 @@ abstract class Kohana_MMI_API
         $responses = $curl->$method($requests);
         unset($curl);
 
-        // Format and return the response
+        // Format the response
         if ($this->_decode AND is_array($responses) AND count($responses) > 0)
         {
             $method  = '_decode_'.$this->_format;

@@ -66,7 +66,7 @@ class Kohana_MMI_Curl_Response
      * Get or set the response body returned by cURL.
      * This method is chainable when setting a value.
      *
-     * @param   mixed   the response body
+     * @param   mixed   the value to set
      * @return  mixed
      */
     public function body($value = NULL)
@@ -78,7 +78,7 @@ class Kohana_MMI_Curl_Response
      * Get or set an associative array of the options returned by cURL.
      * This method is chainable when setting a value.
      *
-     * @param   array   an associative array of cURL options
+     * @param   array   the value to set
      * @return  mixed
      */
     public function curl_info($value = NULL)
@@ -90,7 +90,7 @@ class Kohana_MMI_Curl_Response
      * Get or set the error message returned by cURL.
      * This method is chainable when setting a value.
      *
-     * @param   string  the error message
+     * @param   string  the value to set
      * @return  mixed
      */
     public function error_msg($value = NULL)
@@ -102,7 +102,7 @@ class Kohana_MMI_Curl_Response
      * Get or set the error number returned by cURL.
      * This method is chainable when setting a value.
      *
-     * @param   integer the error number
+     * @param   integer the value to set
      * @return  mixed
      */
     public function error_num($value = NULL)
@@ -114,7 +114,7 @@ class Kohana_MMI_Curl_Response
      * Get or set the HTTP headers returned by cURL.
      * This method is chainable when setting a value.
      *
-     * @param   array   an associative array of HTTP headers
+     * @param   array   the value to set
      * @return  mixed
      */
     public function http_headers($value = NULL)
@@ -126,7 +126,7 @@ class Kohana_MMI_Curl_Response
      * Get or set the HTTP status code returned by cURL.
      * This method is chainable when setting a value.
      *
-     * @param   integer the HTTP status code
+     * @param   integer the value to set
      * @return  mixed
      */
     public function http_status_code($value = NULL)
@@ -138,7 +138,7 @@ class Kohana_MMI_Curl_Response
      * Get or set an associative array containing details of the last cURL request
      * This method is chainable when setting a value.
      *
-     * @param   array   an associative array of request details
+     * @param   array   the value to set
      * @return  mixed
      */
     public function request($value = NULL)
