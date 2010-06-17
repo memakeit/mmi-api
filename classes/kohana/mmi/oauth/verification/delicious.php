@@ -12,5 +12,5 @@ class Kohana_MMI_OAuth_Verification_Delicious extends MMI_OAuth_Verification
     /**
      * @var string the service name
      */
-    protected $_service = MMI_Social::DELICIOUS;
+    protected $_service = MMI_API::SERVICE_DELICIOUS;
 } // End Kohana_MMI_OAuth_Verification_Delicious

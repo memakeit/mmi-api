@@ -12,5 +12,5 @@ class Kohana_MMI_OAuth_Verification_Digg extends MMI_OAuth_Verification
     /**
      * @var string the service name
      */
-    protected $_service = MMI_Social::DIGG;
+    protected $_service = MMI_API::SERVICE_DIGG;
 } // End Kohana_MMI_OAuth_Verification_Digg
