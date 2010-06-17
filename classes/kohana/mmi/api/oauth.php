@@ -530,7 +530,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
                 unset($this->_token->attributes);
 
                 // Process the redirect
-                if (empty($redirect))
+                if (empty($redirect) OR ! $this->_is_valid_redirect($redirect))
                 {
                     $redirect = $this->authenticate_url();
                 }
@@ -544,6 +544,23 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
                 }
             }
         }
+    }
+
+    /**
+     * ensure the redirect URL contains an oauth_token parameter
+     *
+     * @param   string  the redirect URL
+     * @return  boolean
+     */
+    protected function _is_valid_redirect($url)
+    {
+        if (empty($url))
+        {
+            return FALSE;
+        }
+        parse_str(parse_url($url, PHP_URL_QUERY), $parms);
+        $oauth_token = Arr::get($parms, 'oauth_token');
+        return ( ! empty($oauth_token));
     }
 
     /**
