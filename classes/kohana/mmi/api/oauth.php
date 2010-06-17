@@ -28,7 +28,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     protected $_auth_callback_url;
 
     /**
-     * @var string the authorization URL
+     * @var string the authentication URL
+     **/
+    protected $_authenticate_url;
+
+    /**
+     * @var string the authorization URL (where the user will be forced to login)
      **/
     protected $_authorize_url;
 
@@ -80,7 +85,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $auth_config = $this->_auth_config;
 
         // Configure the auth URLs
-        $settings = array('access_token_url', 'auth_callback_url', 'authorize_url', 'request_token_url');
+        $settings = array('access_token_url', 'auth_callback_url', 'authenticate_url', 'authorize_url', 'request_token_url');
         foreach ($settings as $setting)
         {
             $var = '_'.$setting;
@@ -125,7 +130,28 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     }
 
     /**
-     * Get or set the authorization URL.
+     * Get or set the authentication URL.
+     * This method is chainable when setting a value.
+     *
+     * @param   string  the value to set
+     * @return  mixed
+     */
+    public function authenticate_url($value = NULL)
+    {
+        if (is_string($value))
+        {
+            $this->_authenticate_url = $value;
+            return $this;
+        }
+        else
+        {
+            $token = isset($this->_token) ? $this->_token->key : '';
+            return $this->_authenticate_url.'?oauth_token='.$token;
+        }
+    }
+
+    /**
+     * Get or set the authorization URL (where the user will be forced to login).
      * This method is chainable when setting a value.
      *
      * @param   string  the value to set
@@ -133,7 +159,16 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      */
     public function authorize_url($value = NULL)
     {
-        return $this->_get_set('_authorize_url', $value, 'is_string');
+        if (is_string($value))
+        {
+            $this->_authorize_url = $value;
+            return $this;
+        }
+        else
+        {
+            $token = isset($this->_token) ? $this->_token->key : '';
+            return $this->_authorize_url.'?oauth_token='.$token;
+        }
     }
 
     /**
@@ -200,15 +235,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
         $auth_config = Arr::merge($this->_auth_config, $auth_config);
 
-        // Configure the request parameters
-        $parms = array();
-        if ( ! empty($oauth_callback))
-        {
-            $parms['oauth_callback'] = $oauth_callback;
-        }
-
-        // Configure the HTTP method and URL
-        $method = MMI_HTTP::METHOD_GET;
+        // Configure the HTTP method and the URL
+        $http_method = Arr::get($auth_config, 'request_token_http_method', MMI_HTTP::METHOD_POST);
         $url = $this->_request_token_url;
         if (empty($url))
         {
@@ -217,8 +245,15 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             throw new Kohana_Exception($msg);
         }
 
+        // Configure the request parameters
+        $parms = array();
+        if ( ! empty($oauth_callback))
+        {
+            $parms['oauth_callback'] = $oauth_callback;
+        }
+
         // Make the request and extract the token
-        $response = $this->_isolated_request($auth_config, $method, $url, $parms);
+        $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
         return $this->_extract_token($response);
     }
 
@@ -238,15 +273,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
         $auth_config = Arr::merge($this->_auth_config, $auth_config);
 
-        // Configure the request parameters
-        $parms = array();
-        if ( ! empty($oauth_verifier))
-        {
-            $parms['oauth_verifier'] = $oauth_verifier;
-        }
-
-        // Configure the HTTP method and URL
-        $method = MMI_HTTP::METHOD_GET;
+        // Configure the HTTP method and the URL
+        $http_method = Arr::get($auth_config, 'access_token_http_method', MMI_HTTP::METHOD_POST);
         $url = $this->_access_token_url;
         if (empty($url))
         {
@@ -255,8 +283,15 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             throw new Kohana_Exception($msg);
         }
 
+        // Configure the request parameters
+        $parms = array();
+        if ( ! empty($oauth_verifier))
+        {
+            $parms['oauth_verifier'] = $oauth_verifier;
+        }
+
         // Make the request and extract the token
-        $response = $this->_isolated_request($auth_config, $method, $url, $parms);
+        $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
         return $this->_extract_token($response);
     }
 
@@ -277,16 +312,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
         $auth_config = Arr::merge($this->_auth_config, $auth_config);
 
-        // Configure the request parameters
-        $parms = array
-        (
-            'x_auth_username'   => $username,
-            'x_auth_password'   => $password,
-            'x_auth_mode'       => 'client_auth',
-        );
-
-        // Configure the HTTP method and URL
-        $method = MMI_HTTP::METHOD_POST;
+        // Configure the HTTP method and the URL
+        $http_method = Arr::get($auth_config, 'xauth_token_http_method', MMI_HTTP::METHOD_POST);
         $url = $this->_access_token_url;
         if (empty($url))
         {
@@ -295,8 +322,16 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             throw new Kohana_Exception($msg);
         }
 
+        // Configure the request parameters
+        $parms = array
+        (
+            'x_auth_username'   => $username,
+            'x_auth_password'   => $password,
+            'x_auth_mode'       => 'client_auth',
+        );
+
         // Make the request and extract the token
-        $response = $this->_isolated_request($auth_config, $method, $url, $parms);
+        $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
         return $this->_extract_token($response);
     }
 
@@ -410,7 +445,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             $auth = $this->_get_auth_header($request);
             if ( ! empty($auth))
             {
-                $requests[$id]['http_headers'] = array('Authorization', $auth);
+                $requests[$id]['http_headers'] = array('Authorization' => $auth);
             }
 
             $requests[$id]['url'] = $url;
@@ -453,54 +488,108 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
     /**
      * Ensure there is a valid access token.
-     * If the token is missing credentials, the database is queried.
-     * If no token credentials are found in the database, an API call is made to obtain a new request token.
+     * If the token is missing credentials, the query the database.
+     * If no token credentials are found in the database, make an API call to obtain a new request token.
      *
+     * @param   Jelly_Model the model representing the OAuth credentials
      * @return  void
      */
-    protected function _check_access_token()
+    protected function _check_access_token($model = NULL)
     {
+        // Attempt to load the token from the database
         if ( ! $this->_is_token_set())
         {
-            // Load existing data from the database
-            $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($this->_consumer->key, FALSE);
+            if ( ! $model instanceof Jelly_Model)
+            {
+                $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($this->_consumer->key, FALSE);
+            }
             if ($model->loaded())
             {
                 $this->_token = new OAuthToken($model->token_key, Encrypt::instance()->decode($model->token_secret));
             }
+        }
 
-            if ( ! $this->_is_token_set())
+        // Get a new request token
+        if ( ! $this->_is_token_set())
+        {
+            // Initialize the model
+            if ( ! $model->loaded())
             {
-                // Initialize the model
-                if ( ! $model->loaded())
+                $this->_init_model($model);
+            }
+
+            // Get a request token
+            $token = $this->get_request_token($this->_auth_callback_url, $this->_auth_config);
+            if ($this->_is_token_set($token))
+            {
+                // Update the token in the database
+                $success = $this->_update_token($token, $model, TRUE);
+
+                // Get the x-oauth redirect, if present
+                $redirect = Arr::get($token->attributes, 'xoauth_request_auth_url');
+                unset($this->_token->attributes);
+
+                // Process the redirect
+                if (empty($redirect))
                 {
-                    $this->_init_model($model);
+                    $redirect = $this->authenticate_url();
                 }
-
-                // Get a request token
-                $token = $this->get_request_token($this->_auth_callback_url, $this->_auth_config);
-                if ($this->_is_token_set($token))
+                if (empty($redirect))
                 {
-                    $this->_token = $token;
-                    $model->token_key = $token->key;
-                    $model->token_secret = Encrypt::instance()->encode($token->secret);
-                    $success = MMI_Jelly::save($model, $errors);
-
-                    // Get the redirect URL
-                    $xoauth_request_auth_url = Arr::get($token->attributes, 'xoauth_request_auth_url');
-                    unset($this->_token->attributes);
-                    if ($success AND ! empty($xoauth_request_auth_url))
-                    {
-                        // Redirect to authorization URL
-                        Request::$instance->redirect($xoauth_request_auth_url);
-                    }
-                    elseif ($this->_debug)
-                    {
-                        MMI_Debug::dead($errors);
-                    }
+                    $redirect = $this->authorize_url();
+                }
+                if ( ! empty($redirect))
+                {
+                    Request::$instance->redirect($redirect);
                 }
             }
         }
+    }
+
+    /**
+     * Update the OAuth token class property and update the OAuth credentials in the database.
+     *
+     * @param   OAuthToken  the OAuth token object
+     * @param   Jelly_Model the model representing the OAuth credentials
+     * @param   boolean     save the extended token attributes in the database?
+     * @return  boolean
+     */
+    protected function _update_token($token, $model, $save_attributes = FALSE)
+    {
+        $success = FALSE;
+        if ($this->_is_token_set($token))
+        {
+            $this->_token = $token;
+            $model->token_key = $token->key;
+            $model->token_secret = Encrypt::instance()->encode($token->secret);
+            if ($save_attributes AND ! empty($token->attributes))
+            {
+                $model->attributes = $token->attributes;
+            }
+            $success = MMI_Jelly::save($model, $errors);
+            if ( ! $success AND $this->_debug)
+            {
+                MMI_Debug::dead($errors);
+            }
+        }
+        return $success;
+    }
+
+    /**
+     * Delete the OAuth credentials from the database.
+     *
+     * @param   Jelly_Model the model representing the OAuth credentials
+     * @return  boolean
+     */
+    protected function _delete_token($model)
+    {
+        $success = FALSE;
+        if ($model instanceof Jelly_Model)
+        {
+            $model->delete();
+            $success = TRUE;
+        }
+        return $success;
     }
 
     /**
@@ -595,7 +684,15 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         // Prepare and sign the OAuth request
         $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $url, $parms);
         $request->sign_request($signature_method, $consumer, $token);
-        $url = $request->to_url();
+        if ($method === MMI_HTTP::METHOD_GET)
+        {
+            $url = $request->to_url();
+        }
+        else
+        {
+            $url = $request->get_normalized_http_url();
+            $parms = $request->to_postdata();
+        }
         unset($consumer, $token, $signature_method, $request);
 
         // Execute the cURL request
