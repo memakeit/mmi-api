@@ -76,29 +76,17 @@ abstract class Kohana_MMI_OAuth_Verification
         $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($consumer_key, FALSE);
         if ($model->loaded())
         {
-            $model->token_key = $token_key;
-            $model->oauth_verifier = $oauth_verifier;
-            $success = MMI_Jelly::save($model, $errors);
-            if ( ! $success AND $this->_debug)
-            {
-                MMI_Debug::dead($errors);
-            }
-        }
-
-        if ($success)
-        {
-            $success = FALSE;
-
             // Get an access token
-            $auth_config['token_key'] = $model->token_key;
+            $auth_config['token_key'] = $token_key;
             $auth_config['token_secret'] = Encrypt::instance()->decode($model->token_secret);
-            $token = MMI_API::factory($this->_service)->get_access_token($model->oauth_verifier, $auth_config);
+            $token = MMI_API::factory($this->_service)->get_access_token($oauth_verifier, $auth_config);
 
-            // Save access token in the database
-            if ( ! empty($token) AND ! empty($token->key) AND ! empty($token->secret))
+            // Save the token credentials in the database
+            if ($token instanceof OAuthToken AND ! empty($token->key) AND ! empty($token->secret))
             {
                 $model->token_key = $token->key;
                 $model->token_secret = Encrypt::instance()->encode($token->secret);
+                $model->oauth_verifier = $oauth_verifier;
                 if ( ! empty($token->attributes))
                 {
                     $model->attributes = $token->attributes;
