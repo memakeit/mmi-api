@@ -35,6 +35,7 @@ abstract class Kohana_MMI_API
     const SERVICE_LINKEDIN = 'linkedin';
     const SERVICE_READERNAUT = 'readernaut';
     const SERVICE_TWITTER = 'twitter';
+    const SERVICE_YOUTUBE = 'youtube';
 
     /**
      * @var Kohana_Config API settings
