@@ -6,6 +6,7 @@
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
+ * @link        http://delicious.com/help/api
  */
 class Kohana_MMI_API_Delicious extends MMI_API_OAuth
 {
@@ -16,88 +17,54 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
 
     /**
      * Ensure there is a valid access token.
-     * If the token is missing credentials, the database is queried.
-     * If token credentials are found in the database along with an oauth_session_handle, the access token is refreshed.
-     * If token credentials are NOT found in the database, an API call is made to obtain a new request token.
+     * If the token is missing credentials, query the database.
+     * If token credentials are found in the database along with an oauth_session_handle, the refresh the access token.
+     * Otherwise perform the logic in the parent method.
      *
+     * @param   Jelly_Model the model representing the OAuth credentials
      * @return  void
      */
-    protected function _check_access_token()
+    protected function _check_access_token($model = NULL)
     {
-        $token = NULL;
+        // Attempt to load the token from the database
         if ( ! $this->_is_token_set())
         {
-            // Load existing data from the database
-            $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($this->_consumer->key, FALSE);
+            if ( ! $model instanceof Jelly_Model)
+            {
+                $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($this->_consumer->key, FALSE);
+            }
             if ($model->loaded())
             {
-                // Refresh the access token
-                $attributes = isset($model->attributes) ? $model->attributes : array();
-                $oauth_session_handle = Arr::get($attributes, 'oauth_session_handle');
-                if ( ! empty($oauth_session_handle) AND ! empty($model->token_key) AND ! empty($model->token_secret))
-                {
-                    $auth_config = array
-                    (
-                        'token_key'     => $model->token_key,
-                        'token_secret'  => Encrypt::instance()->decode($model->token_secret),
-                    );
-                    $token = $this->_refresh_access_token($oauth_session_handle, $auth_config);
-
-                    if ($this->_is_token_set($token))
-                    {
-                        $model->token_key = $token->key;
-                        $model->token_secret = Encrypt::instance()->encode($token->secret);
-                        if ( ! empty($token->attributes))
-                        {
-                            $model->attributes = $token->attributes;
-                        }
-                        unset($this->_token->attributes);
-                        $success = MMI_Jelly::save($model, $errors);
-                        if ( ! $success AND $this->_debug)
-                        {
-                            MMI_Debug::dead($errors);
-                        }
-                        $this->_token = $token;
-                    }
-                }
-                else
-                {
-                    $this->_token = new OAuthToken($model->token_key, Encrypt::instance()->decode($model->token_secret));
-                }
-            }
-
-            if ( ! $this->_is_token_set())
-            {
-                // Initialize the model
-                if ( ! $model->loaded())
-                {
-                    $this->_init_model($model);
-                }
-
-                // Get a request token
-                $token = self::get_request_token($this->_auth_callback_url, $this->_auth_config);
-                if ($this->_is_token_set($token))
-                {
-                    $this->_token = $token;
-                    $model->token_key = $token->key;
-                    $model->token_secret = Encrypt::instance()->encode($token->secret);
-                    $success = MMI_Jelly::save($model, $errors);
-
-                    // Get the redirect URL
-                    $xoauth_request_auth_url = Arr::get($token->attributes, 'xoauth_request_auth_url');
-                    unset($this->_token->attributes);
-                    if ($success AND ! empty($xoauth_request_auth_url))
-                    {
-                        // Redirect to authorization URL
-                        Request::$instance->redirect($xoauth_request_auth_url);
-                    }
-                    elseif ($this->_debug)
-                    {
-                        MMI_Debug::dead($errors);
-                    }
-                }
+                $this->_token = new OAuthToken($model->token_key, Encrypt::instance()->decode($model->token_secret));
             }
         }
+
+        // Refresh the access token
+        if ($model->loaded() AND ! empty($model->oauth_verifier))
+        {
+            $attributes = isset($model->attributes) ? $model->attributes : array();
+            $oauth_session_handle = Arr::get($attributes, 'oauth_session_handle');
+            if ( ! empty($oauth_session_handle) AND ! empty($model->token_key) AND ! empty($model->token_secret))
+            {
+                $token = $this->_refresh_access_token($oauth_session_handle, array
+                (
+                    'token_key'     => $model->token_key,
+                    'token_secret'  => Encrypt::instance()->decode($model->token_secret),
+                ));
+
+                // Update the token in the database
+                if ($this->_is_token_set($token))
+                {
+                    if ($this->_update_token($token, $model, TRUE))
+                    {
+                        return;
+                    }
+                }
+                $this->_delete_token($model);
+                $model = NULL;
+            }
+        }
+        parent::_check_access_token($model);
     }
 
     /**
@@ -106,6 +73,7 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
      * @param   string  an authorization session handle
      * @param   array   an associative array of auth settings
      * @return  OAuthToken
+     * @link    http://developer.yahoo.com/oauth/guide/oauth-refreshaccesstoken.html
      */
     protected function _refresh_access_token($oauth_session_handle = NULL, $auth_config = array())
     {
@@ -116,15 +84,8 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
         }
         $auth_config = Arr::merge($this->_auth_config, $auth_config);
 
-        // Configure the request parameters
-        $parms = array();
-        if ( ! empty($oauth_session_handle))
-        {
-            $parms['oauth_session_handle'] = $oauth_session_handle;
-        }
-
-        // Configure the HTTP method and URL
-        $method = MMI_HTTP::METHOD_GET;
+        // Configure the HTTP method and the URL
+        $http_method = MMI_HTTP::METHOD_POST;
         $url = $this->_access_token_url;
         if (empty($url))
         {
@@ -133,8 +94,15 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
             throw new Kohana_Exception($msg);
         }
 
+        // Configure the request parameters
+        $parms = array();
+        if ( ! empty($oauth_session_handle))
+        {
+            $parms['oauth_session_handle'] = $oauth_session_handle;
+        }
+
         // Make the request and extract the token
-        $response = $this->_isolated_request($auth_config, $method, $url, $parms);
+        $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
         return $this->_extract_token($response);
     }
 } // End Kohana_MMI_API_Delicious
