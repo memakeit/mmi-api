@@ -760,11 +760,16 @@ abstract class Kohana_MMI_API
      * Decode a JSON response.
      *
      * @param   string  the response string
+     * @param   boolean return the decoded results as an associative array?
      * @return  mixed
      */
-    protected function _decode_json($input)
+    protected function _decode_json($input, $decode_as_array = NULL)
     {
-        return json_decode($input, $this->_decode_as_array);
+        if ( ! isset($decode_as_array))
+        {
+            $decode_as_array = $this->_decode_as_array;
+        }
+        return json_decode($input, $decode_as_array);
     }
 
     /**
@@ -772,12 +777,17 @@ abstract class Kohana_MMI_API
      * Returns a SimpleXMLElement object or an associative array depending on the value of the _decode_as_array property.
      *
      * @param   string  the response string
+     * @param   boolean return the decoded results as an associative array?
      * @return  mixed
      */
-    protected function _decode_xml($input)
+    protected function _decode_xml($input, $decode_as_array = NULL)
     {
+        if ( ! isset($decode_as_array))
+        {
+            $decode_as_array = $this->_decode_as_array;
+        }
         $response = simplexml_load_string($input, 'SimpleXMLElement', LIBXML_NOCDATA);
-        if ($this->_decode_as_array)
+        if ($decode_as_array)
         {
             $response = json_decode(json_encode($response), TRUE);
         }
