@@ -16,6 +16,7 @@ abstract class Kohana_MMI_API
     const FORMAT_ATOM = 'atom';
     const FORMAT_JAVASCRIPT = 'javascript';
     const FORMAT_JSON = 'json';
+    const FORMAT_JSONP = 'jsonp';
     const FORMAT_PHP = 'php';
     const FORMAT_RSS = 'rss';
     const FORMAT_XML = 'xml';
@@ -35,6 +36,7 @@ abstract class Kohana_MMI_API
     const SERVICE_LINKEDIN = 'linkedin';
     const SERVICE_READERNAUT = 'readernaut';
     const SERVICE_TWITTER = 'twitter';
+    const SERVICE_VIMEO = 'vimeo';
     const SERVICE_YOUTUBE = 'youtube';
 
     /**
