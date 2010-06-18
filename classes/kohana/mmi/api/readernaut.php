@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make Readernaut API calls.
+ * Response formats: JSON, XML
  *
  * @package     MMI API
  * @author      Me Make It

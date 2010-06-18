@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make Delicious API calls.
+ * Response formats: XML
  *
  * @package     MMI API
  * @author      Me Make It

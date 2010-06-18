@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make GitHub API calls.
+ * Response formats: JSON, XML, YAML
  *
  * @package     MMI API
  * @author      Me Make It

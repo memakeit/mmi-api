@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make Vimeo API calls.
+ * Response formats: JSON, JSONP, PHP, XML
  *
  * @package     MMI API
  * @author      Me Make It

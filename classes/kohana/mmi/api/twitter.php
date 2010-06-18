@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make Twitter API calls.
+ * Response formats: Atom, JSON, RSS, XML
  *
  * @package     MMI API
  * @author      Me Make It
