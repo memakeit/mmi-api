@@ -145,8 +145,13 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
         else
         {
-            $token = isset($this->_token) ? $this->_token->key : '';
-            return $this->_authenticate_url.'?oauth_token='.$token;
+            $url = $this->_authenticate_url;
+            if ( ! empty($url))
+            {
+                $token = isset($this->_token) ? $this->_token->key : '';
+                return $url.'?oauth_token='.$token;
+            }
+            return;
         }
     }
 
@@ -166,8 +171,13 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
         else
         {
-            $token = isset($this->_token) ? $this->_token->key : '';
-            return $this->_authorize_url.'?oauth_token='.$token;
+            $url = $this->_authorize_url;
+            if ( ! empty($url))
+            {
+                $token = isset($this->_token) ? $this->_token->key : '';
+                return $url.'?oauth_token='.$token;
+            }
+            return;
         }
     }
 
@@ -628,7 +638,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      *
      * @return  boolean
      */
-    protected function _init_model( & $model)
+    protected function _init_model($model)
     {
         $consumer = $this->_consumer;
         $model->service = $this->_service;
