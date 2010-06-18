@@ -31,7 +31,9 @@ abstract class Kohana_MMI_API
     const SERVICE_DIGG = 'digg';
     const SERVICE_FACEBOOK = 'facebook';
     const SERVICE_FLICKR = 'flickr';
+    const SERVICE_FOURSQUARE = 'foursquare';
     const SERVICE_GITHUB = 'github';
+    const SERVICE_GOWALLA = 'gowalla';
     const SERVICE_LASTFM = 'lastfm';
     const SERVICE_LINKEDIN = 'linkedin';
     const SERVICE_READERNAUT = 'readernaut';
@@ -50,7 +52,7 @@ abstract class Kohana_MMI_API
     protected static $_last_response;
 
     /**
-     * @var mixed the API URL (usually a string but an array can be used to specify a read-only URL and a read-write URL)
+     * @var string the API URL
      **/
     protected $_api_url = '';
 
@@ -85,11 +87,6 @@ abstract class Kohana_MMI_API
     protected $_format = self::FORMAT_JSON;
 
     /**
-     * @var boolean the API mode is read-only?
-     **/
-    protected $_read_only = TRUE;
-
-    /**
      * @var string the service name
      */
     protected $_service = '?';
@@ -100,9 +97,14 @@ abstract class Kohana_MMI_API
     protected $_service_config;
 
     /**
-     * @var boolean sign read-only requests?
+     * @var boolean send the HTTP accept header?
      **/
-    protected $_sign_read_only = FALSE;
+    protected $_send_accept_header = FALSE;
+
+    /**
+     * @var boolean send the HTTP authorization header?
+     **/
+    protected $_send_auth_header = FALSE;
 
     /**
      * @var boolean verify the SSL certificate during cURL requests?
@@ -142,8 +144,8 @@ abstract class Kohana_MMI_API
             'decode',
             'decode_as_array',
             'format',
-            'read_only',
-            'sign_read_only',
+            'send_accept_header',
+            'send_auth_header',
             'ssl_verifypeer',
             'timeout',
             'useragent',
@@ -217,18 +219,6 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Get or set whether the API mode is read-only.
-     * This method is chainable when setting a value.
-     *
-     * @param   boolean the value to set
-     * @return  mixed
-     */
-    public function read_only($value = NULL)
-    {
-        return $this->_get_set('_read_only', $value, 'is_bool');
-    }
-
-    /**
      * Get the service name.
      *
      * @return  string
@@ -239,15 +229,27 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Get or set whether to sign read-only requests.
+     * Get or set whether to send the HTTP accept header.
      * This method is chainable when setting a value.
      *
      * @param   boolean the value to set
      * @return  mixed
      */
-    public function sign_read_only($value = NULL)
+    public function send_accept_header($value = NULL)
     {
-        return $this->_get_set('_sign_read_only', $value, 'is_bool');
+        return $this->_get_set('_send_accept_header', $value, 'is_bool');
+    }
+
+    /**
+     * Get or set whether to send the HTTP authorization header.
+     * This method is chainable when setting a value.
+     *
+     * @param   boolean the value to set
+     * @return  mixed
+     */
+    public function send_auth_header($value = NULL)
+    {
+        return $this->_get_set('_send_auth_header', $value, 'is_bool');
     }
 
     /**
@@ -557,18 +559,7 @@ abstract class Kohana_MMI_API
         if (strrpos($url, 'https://') !== 0 AND strrpos($url, 'http://') !== 0)
         {
             $path = $url;
-
-            $url = $this->_api_url;
-            if (is_array($url) AND count($url) === 1)
-            {
-                $url = end($url);
-            }
-            elseif (is_array($url) AND count($url) > 1)
-            {
-                $key = ($this->_read_only) ? self::READ_ONLY : self::READ_WRITE;
-                $url = Arr::get($url, $key, end($url));
-            }
-            $url = $this->_build_url($url, $path);
+            $url = $this->_build_url($this->_api_url, $path);
         }
         return $url;
     }
@@ -693,6 +684,9 @@ abstract class Kohana_MMI_API
      */
     protected function _configure_http_headers($curl)
     {
+        // Configure the HTTP accept header
+        $this->_configure_accept_header($curl);
+
         // Customize HTTP headers as specified in the configuration file
         $custom = Arr::path($this->_service_config, 'custom.http_headers', array());
         if (is_array($custom) AND count($custom) > 0)
@@ -727,6 +721,39 @@ abstract class Kohana_MMI_API
     }
 
     /**
+     * Configure the HTTP accept header sent via cURL.
+     *
+     * @param   MMI_Curl    the cURL object instance
+     * @return  void
+     */
+    protected function _configure_accept_header($curl)
+    {
+        // Set an accept header, if necessary
+        if ($this->_send_accept_header)
+        {
+            $accept = $this->_get_accept_header();
+            if ( ! empty($accept))
+            {
+                $curl->add_http_header('Accept', $accept);
+            }
+        }
+    }
+
+    /**
+     * Get the string to be sent via the accept header.
+     *
+     * @return  string
+     */
+    protected function _get_accept_header()
+    {
+        if ($this->_format === self::FORMAT_JSONP)
+        {
+            return 'text/javascript';
+        }
+        return File::mime_by_ext($this->_format);
+    }
+
+    /**
      * Configure the HTTP authorization header sent via cURL.
      *
      * @param   MMI_Curl    the cURL object instance
@@ -735,16 +762,12 @@ abstract class Kohana_MMI_API
     protected function _configure_auth_header($curl)
     {
         // Set an auth header, if necessary
-        $auth_config = $this->_auth_config;
-        if (is_array($auth_config) AND count($auth_config) > 0)
+        if ($this->_send_auth_header)
         {
-            if ( ! $this->_read_only OR ($this->_read_only AND $this->_sign_read_only))
+            $auth = $this->_get_auth_header();
+            if ( ! empty($auth))
             {
-                $auth = $this->_get_auth_header();
-                if ( ! empty($auth))
-                {
-                    $curl->add_http_header('Authorization', $auth);
-                }
+                $curl->add_http_header('Authorization', $auth);
             }
         }
     }
