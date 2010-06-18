@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make Digg API calls.
+ * Response formats: Javascript, JSON, XML
  *
  * @package     MMI API
  * @author      Me Make It
@@ -96,19 +97,16 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
     }
 
     /**
-     * Configure the request parameters as specified in the configuration file.
-     * When processing additions, if a parameter value exists, it will not be overwritten.
+     * Get the string to be sent via the accept header.
      *
-     * @param   array   an associative array of request parameters
-     * @return  array
+     * @return  string
      */
-    protected function _configure_parameters($parms)
+    protected function _get_accept_header()
     {
-        $name = 'type';
-        if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+        if ($this->_format === MMI_API::FORMAT_JAVASCRIPT)
         {
-            $parms[$name] = $this->_format;
+            return 'text/javascript';
         }
-        return parent::_configure_parameters($parms);
+        return parent::_get_accept_header();
     }
 } // End Kohana_MMI_API_Digg
