@@ -25,6 +25,11 @@ class Kohana_MMI_API_Vimeo extends MMI_API_OAuth
      */
     protected function _configure_parameters($parms)
     {
+        if ( ! is_array($parms))
+        {
+            $parms = array();
+        }
+
         $name = 'format';
         if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
         {

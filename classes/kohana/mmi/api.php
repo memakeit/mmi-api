@@ -36,6 +36,7 @@ abstract class Kohana_MMI_API
     const SERVICE_GOWALLA = 'gowalla';
     const SERVICE_LASTFM = 'lastfm';
     const SERVICE_LINKEDIN = 'linkedin';
+    const SERVICE_PICASA = 'picasa';
     const SERVICE_READERNAUT = 'readernaut';
     const SERVICE_TWITTER = 'twitter';
     const SERVICE_VIMEO = 'vimeo';
@@ -585,6 +586,11 @@ abstract class Kohana_MMI_API
      */
     protected function _configure_parameters($parms)
     {
+        if ( ! is_array($parms))
+        {
+            $parms = array();
+        }
+
         $custom = Arr::path($this->_service_config, 'custom.parms', array());
         if (is_array($custom) AND count($custom) > 0)
         {
