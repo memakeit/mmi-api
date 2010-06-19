@@ -26,7 +26,7 @@ class Controller_OAuth_Verification extends Controller
         $success = FALSE;
         if ( ! empty($service))
         {
-            $success = MMI_OAuth_Verification::factory($service)->insert_verification();
+            $success = MMI_OAuth_Verification::factory()->insert_verification($service);
         }
 
         // Send the response
