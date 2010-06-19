@@ -269,6 +269,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         // Make the request and extract the token
         $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
+        $this->_validate_curl_response($response, 'Invalid request token');
         return $this->_extract_token($response);
     }
 
@@ -312,6 +313,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         // Make the request and extract the token
         $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
+        $this->_validate_curl_response($response, 'Invalid access token');
         return $this->_extract_token($response);
     }
 
@@ -357,6 +359,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         // Make the request and extract the token
         $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
+        $this->_validate_curl_response($response, 'Invalid access token');
         return $this->_extract_token($response);
     }
 

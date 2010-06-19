@@ -109,6 +109,7 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
 
         // Make the request and extract the token
         $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
+        $this->_validate_curl_response($response, 'Invalid refresh token');
         return $this->_extract_token($response);
     }
 } // End Kohana_MMI_API_Delicious
