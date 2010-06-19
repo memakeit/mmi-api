@@ -19,6 +19,7 @@ abstract class Kohana_MMI_API
     const FORMAT_JSONP = 'jsonp';
     const FORMAT_PHP = 'php';
     const FORMAT_RSS = 'rss';
+    const FORMAT_TXT = 'txt';
     const FORMAT_XML = 'xml';
     const FORMAT_YAML = 'yaml';
 
@@ -27,6 +28,7 @@ abstract class Kohana_MMI_API
     const READ_WRITE = 'rw';
 
     // Service name constants
+    const SERVICE_BITLY = 'bitly';
     const SERVICE_DELICIOUS = 'delicious';
     const SERVICE_DIGG = 'digg';
     const SERVICE_FACEBOOK = 'facebook';
