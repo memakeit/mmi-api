@@ -33,7 +33,7 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
         {
             if ( ! $model instanceof Jelly_Model)
             {
-                $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($this->_consumer->key, FALSE);
+                $model = Model_MMI_Auth_Tokens::select_by_service_and_consumer_key($this->_service, $this->_consumer->key, FALSE);
             }
             if ($model->loaded())
             {

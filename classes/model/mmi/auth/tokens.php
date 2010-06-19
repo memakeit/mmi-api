@@ -1,15 +1,15 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * OAuth tokens.
+ * Authorization tokens.
  *
  * @package     MMI API
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
  */
-class Model_MMI_OAuth_Tokens extends Jelly_Model
+class Model_MMI_Auth_Tokens extends Jelly_Model
 {
-    protected static $_table_name = 'mmi_oauth_tokens';
+    protected static $_table_name = 'mmi_auth_tokens';
     public static function initialize(Jelly_Meta $meta)
     {
         $meta
@@ -106,10 +106,14 @@ class Model_MMI_OAuth_Tokens extends Jelly_Model
         return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
     }
 
-    public static function select_by_consumer_key($consumer_key, $as_array = TRUE, $array_key = NULL, $limit = 1)
+    public static function select_by_service_and_consumer_key($service, $consumer_key, $as_array = TRUE, $array_key = NULL, $limit = 1)
     {
-        $where_parms = array('consumer_key' => $consumer_key);
+        $where_parms = array
+        (
+            'service'       => $service,
+            'consumer_key'  => $consumer_key,
+        );
         $query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
         return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
     }
-} // End Model_MMI_OAuth_Tokens
+} // End Model_MMI_Auth_Tokens
