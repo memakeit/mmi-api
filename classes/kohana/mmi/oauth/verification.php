@@ -7,7 +7,7 @@
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
  */
-abstract class Kohana_MMI_OAuth_Verification
+class Kohana_MMI_OAuth_Verification
 {
     /**
      * @var boolean turn debugging on?
@@ -57,29 +57,51 @@ abstract class Kohana_MMI_OAuth_Verification
     /**
      * Insert the OAuth verification details into the database.
      *
+     * @param   string  the service name
      * @return  boolean
      */
-    public function insert_verification()
+    public function insert_verification($service = NULL)
     {
+        // Set the service
+        if ( ! isset($service))
+        {
+            $service = $this->_service;
+        }
+        if (empty($service))
+        {
+            MMI_Log::log_error(__METHOD__, __LINE__, 'Service not set');
+            throw new Kohana_Exception('Service not set in :method.', array
+            (
+                ':method'   => __METHOD__,
+            ));
+        }
+
+        // Ensure the verification parameters are set
         $oauth_verifier = Arr::get($_GET, $this->_key_verifier);
         $token_key = Arr::get($_GET, $this->_key_token);
         if (empty($oauth_verifier) OR empty($token_key))
         {
-            return FALSE;
+            MMI_Log::log_error(__METHOD__, __LINE__, 'Verification parameter missing.  OAuth token:'.$token_key.'.  OAuth verifier:'.$oauth_verifier);
+            throw new Kohana_Exception('Verification parameter missing in :method.  OAuth token: :token_key.  OAuth verifier: :oauth_verifier.', array
+            (
+                ':method'           => __METHOD__,
+                ':token_key'        => $token_key,
+                ':oauth_verifier'   => $oauth_verifier,
+            ));
         }
 
         $success = FALSE;
-        $auth_config = $this->_auth_config;
+        $auth_config = Arr::path(MMI_API::get_config(TRUE), $service.'.auth', array());
 
         // Load existing data from the database
         $consumer_key = Arr::get($auth_config, 'consumer_key');
-        $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($consumer_key, FALSE);
+        $model = Model_MMI_Auth_Tokens::select_by_service_and_consumer_key($service, $consumer_key, FALSE);
         if ($model->loaded())
         {
             // Get an access token
             $auth_config['token_key'] = $token_key;
             $auth_config['token_secret'] = Encrypt::instance()->decode($model->token_secret);
-            $token = MMI_API::factory($this->_service)->get_access_token($oauth_verifier, $auth_config);
+            $token = MMI_API::factory($service)->get_access_token($oauth_verifier, $auth_config);
 
             // Save the token credentials in the database
             if ($token instanceof OAuthToken AND ! empty($token->key) AND ! empty($token->secret))
@@ -107,9 +129,14 @@ abstract class Kohana_MMI_OAuth_Verification
      * @param   string  the name of the service
      * @return  MMI_OAuth_Verifcation
      */
-    public static function factory($driver)
+    public static function factory($driver = NULL)
     {
-        $class = 'MMI_OAuth_Verification_'.ucfirst($driver);
+        $class = 'MMI_OAuth_Verification';
+        if ( ! empty($driver))
+        {
+            $class .= '_'.ucfirst($driver);
+        }
+
         if ( ! class_exists($class))
         {
             MMI_Log::log_error(__METHOD__, __LINE__, $class.' class does not exist');
