@@ -29,9 +29,13 @@ class Kohana_MMI_API_Gowalla extends MMI_API_Basic
         $api_key = Arr::get($this->_auth_config, 'api_key');
         if (empty($api_key))
         {
-            $msg = 'API key not configured for '.$this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
-            throw new Kohana_Exception($msg);
+            $service = $this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, 'API key not set for '.$service);
+            throw new Kohana_Exception('API key not set for :service in :method.', array
+            (
+                ':service'  => $service,
+                ':method'   => __METHOD__,
+            ));
         }
         $curl->add_http_header('X-Gowalla-API-Key', $api_key);
     }
