@@ -232,6 +232,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * Get a request token.
      *
+     * @throws  Kohana_Exception
      * @param   string  the callback URL
      * @param   array   an associative array of auth settings
      * @return  OAuthToken
@@ -250,9 +251,13 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $url = $this->_request_token_url;
         if (empty($url))
         {
-            $msg = 'Request token URL not configured for '.$this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
-            throw new Kohana_Exception($msg);
+            $service = $this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, 'Request token URL not configured for '.$service);
+            throw new Kohana_Exception('Request token URL not configured for :service in :method.', array
+            (
+                ':service'  => $service,
+                ':method'   => __METHOD__,
+            ));
         }
 
         // Configure the request parameters
@@ -270,6 +275,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * Exchange the request token for an access token.
      *
+     * @throws  Kohana_Exception
      * @param   string  the verification code
      * @param   array   an associative array of auth settings
      * @return  OAuthToken
@@ -288,9 +294,13 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $url = $this->_access_token_url;
         if (empty($url))
         {
-            $msg = 'Access token URL not configured for '.$this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
-            throw new Kohana_Exception($msg);
+            $service = $this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
+            throw new Kohana_Exception('Access token URL not configured for :service in :method.', array
+            (
+                ':service'  => $service,
+                ':method'   => __METHOD__,
+            ));
         }
 
         // Configure the request parameters
@@ -308,6 +318,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * Exchange a username and password for an access token.
      *
+     * @throws  Kohana_Exception
      * @param   string  the username
      * @param   string  the password
      * @param   array   an associative array of auth settings
@@ -327,9 +338,13 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $url = $this->_access_token_url;
         if (empty($url))
         {
-            $msg = 'Access token URL not configured for '.$this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
-            throw new Kohana_Exception($msg);
+            $service = $this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
+            throw new Kohana_Exception('Access token URL not configured for :service in :method.', array
+            (
+                ':service'  => $service,
+                ':method'   => __METHOD__,
+            ));
         }
 
         // Configure the request parameters
@@ -343,6 +358,40 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         // Make the request and extract the token
         $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
         return $this->_extract_token($response);
+    }
+
+    /**
+     * Ensure a valid MMI_Curl_Response object was received and check the HTTP status code.
+     *
+     * @throws  Kohana_Exception
+     * @param   MMI_Curl_Response   the response to validate
+     * @param   string              an error message for invalid responses
+     * @return  void
+     */
+    protected function _validate_curl_response($response, $msg)
+    {
+        if ( ! $response instanceof MMI_Curl_Response)
+        {
+            MMI_Log::log_error(__METHOD__, __LINE__, 'No cURL response.');
+            throw new Kohana_Exception('No cURL response in :method.', array
+            (
+                ':method'   => __METHOD__
+            ));
+        }
+
+        $http_status_code = $response->http_status_code();
+        if (intval($http_status_code) !== 200)
+        {
+            $body = $response->body();
+            MMI_Log::log_error(__METHOD__, __LINE__, $msg.'.  HTTP status code:' .$http_status_code. '.  Response: '.$body);
+            throw new Kohana_Exception(':msg in :method.  HTTP status code: :http_status_code.  Response: :body', array
+            (
+                ':msg'              => $msg,
+                ':method'           => __METHOD__,
+                ':http_status_code' => $http_status_code,
+                ':body'             => $body,
+            ));
+        }
     }
 
     /**
@@ -511,7 +560,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         {
             if ( ! $model instanceof Jelly_Model)
             {
-                $model = Model_MMI_OAuth_Tokens::select_by_consumer_key($this->_consumer->key, FALSE);
+                $model = Model_MMI_Auth_Tokens::select_by_service_and_consumer_key($this->_service, $this->_consumer->key, FALSE);
             }
             if ($model->loaded())
             {

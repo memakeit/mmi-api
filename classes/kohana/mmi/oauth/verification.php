@@ -57,6 +57,7 @@ class Kohana_MMI_OAuth_Verification
     /**
      * Insert the OAuth verification details into the database.
      *
+     * @throws  Kohana_Exception
      * @param   string  the service name
      * @return  boolean
      */
@@ -126,6 +127,7 @@ class Kohana_MMI_OAuth_Verification
     /**
      * Create an OAuth verification instance.
      *
+     * @throws  Kohana_Exception
      * @param   string  the name of the service
      * @return  MMI_OAuth_Verifcation
      */

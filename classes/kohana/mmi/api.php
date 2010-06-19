@@ -853,6 +853,7 @@ abstract class Kohana_MMI_API
     /**
      * Create an API instance.
      *
+     * @throws  Kohana_Exception
      * @param   string  the service name
      * @return  MMI_API
      */

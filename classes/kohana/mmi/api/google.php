@@ -12,6 +12,7 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
     /**
      * Get a request token.
      *
+     * @throws  Kohana_Exception
      * @param   string  the callback URL
      * @param   array   an associative array of auth settings
      * @return  OAuthToken
@@ -30,9 +31,13 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         $url = $this->_request_token_url;
         if (empty($url))
         {
-            $msg = 'Request token URL not configured for '.$this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
-            throw new Kohana_Exception($msg);
+            $service = $this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, 'Request token URL not configured for '.$service);
+            throw new Kohana_Exception('Request token URL not configured for :service in :method.', array
+            (
+                ':service'  => $service,
+                ':method'   => __METHOD__,
+            ));
         }
 
         // Configure the auth scope parameter

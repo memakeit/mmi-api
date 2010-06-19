@@ -71,6 +71,7 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
     /**
      * Refresh the access token.
      *
+     * @throws  Kohana_Exception
      * @param   string  an authorization session handle
      * @param   array   an associative array of auth settings
      * @return  OAuthToken
@@ -90,9 +91,13 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
         $url = $this->_access_token_url;
         if (empty($url))
         {
-            $msg = 'Access token URL not configured for '.$this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, $msg);
-            throw new Kohana_Exception($msg);
+            $service = $this->_service;
+            MMI_Log::log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
+            throw new Kohana_Exception('Access token URL not configured for :service in :method.', array
+            (
+                ':service'  => $service,
+                ':method'   => __METHOD__,
+            ));
         }
 
         // Configure the request parameters

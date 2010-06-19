@@ -19,6 +19,7 @@ class Kohana_MMI_API_Gowalla extends MMI_API_Basic
     /**
      * Configure the HTTP authorization header sent via cURL.
      *
+     * @throws  Kohana_Exception
      * @param   MMI_Curl    the cURL object instance
      * @return  void
      */
