@@ -454,11 +454,11 @@ class Kohana_MMI_Curl
         $responses = array();
         foreach ($handles as $id => $handle)
         {
+            $request = $requests[$id];
             $url = Arr::get($request, 'url');
             if (intval(curl_errno($handle)) === CURLE_OK)
             {
                 // Process the response
-                $request = $requests[$id];
                 $parms = Arr::get($request, 'parms');
                 $responses[$id] = $this->_process_response($handle, curl_multi_getcontent($handle), $url, $parms);
             }
