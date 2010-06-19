@@ -33,6 +33,7 @@ abstract class Kohana_MMI_API
     const SERVICE_FLICKR = 'flickr';
     const SERVICE_FOURSQUARE = 'foursquare';
     const SERVICE_GITHUB = 'github';
+    const SERVICE_GOOGLEBUZZ = 'googlebuzz';
     const SERVICE_GOWALLA = 'gowalla';
     const SERVICE_LASTFM = 'lastfm';
     const SERVICE_LINKEDIN = 'linkedin';
