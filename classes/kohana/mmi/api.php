@@ -42,6 +42,7 @@ abstract class Kohana_MMI_API
     const SERVICE_LINKEDIN = 'linkedin';
     const SERVICE_PICASA = 'picasa';
     const SERVICE_READERNAUT = 'readernaut';
+    const SERVICE_SOUNDCLOUD = 'soundcloud';
     const SERVICE_TWITTER = 'twitter';
     const SERVICE_VIMEO = 'vimeo';
     const SERVICE_YOUTUBE = 'youtube';
