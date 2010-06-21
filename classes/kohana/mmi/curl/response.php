@@ -53,7 +53,7 @@ class Kohana_MMI_Curl_Response
     protected $_request;
 
     /**
-     * Configure debugging (using the Request instance).
+     * Initialize debugging (using the Request instance).
      *
      * @return  void
      */

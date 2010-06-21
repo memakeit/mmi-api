@@ -22,7 +22,7 @@ return array
     ),
     'http_headers' => array
     (
-        'Expect'        => '100-continue',
+        'Expect'        => '',
         'Connection'    => 'close',
     )
 );

@@ -53,7 +53,8 @@ class Kohana_MMI_Curl
     protected $_requests = array();
 
     /**
-     * Configure debugging (using the Request instance).
+     * Initialize debugging (using the Request instance).
+     * Load the configuration settings.
      *
      * @return  void
      */
@@ -86,7 +87,7 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Add a custom cURL option.
+     * Add a cURL option.
      * This method is chainable.
      *
      * @param   string  the option name
@@ -100,7 +101,7 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Remove a custom cURL option.
+     * Remove a cURL option.
      * This method is chainable.
      *
      * @param   string  the option name
@@ -153,7 +154,7 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Add a custom HTTP header to the cURL request.
+     * Add an HTTP header to the cURL request.
      * This method is chainable.
      *
      * @param   string  the header name
@@ -167,7 +168,7 @@ class Kohana_MMI_Curl
     }
 
     /**
-     * Remove a custom HTTP header from the cURL request.
+     * Remove an HTTP header from the cURL request.
      * This method is chainable.
      *
      * @param   string  the header name
@@ -395,8 +396,7 @@ class Kohana_MMI_Curl
         $ch = $this->_init_curl($url, $parms, $http_method);
 
         // Execute the request and process the response
-        $response = curl_exec($ch);
-		$response = $this->_process_response($ch, $response, $url, $parms);
+		$response = $this->_process_response($ch, curl_exec($ch), $url, $parms);
 
 		// Close the cURL handle
 		curl_close($ch);
@@ -464,7 +464,7 @@ class Kohana_MMI_Curl
             }
             else
             {
-                MMI_Log::log_error(__METHOD__, __LINE__, 'Multi cURL error for URL:'.$url.'. Error number: '.curl_errno($handle).'. Error message: '.curl_error($handle));
+                $this->_log_error(__METHOD__, __LINE__, 'Multi cURL error for URL:'.$url.'. Error number: '.curl_errno($handle).'. Error message: '.curl_error($handle));
             }
 
             // Close each cURL handle
@@ -528,7 +528,7 @@ class Kohana_MMI_Curl
         {
             $options[CURLOPT_HTTPPROXYTUNNEL] = TRUE;
             $host = $proxy['host'];
-            $host .= (isset($proxy['port'])) ?  (':'.$proxy['port']) : '';
+            $host .= (isset($proxy['port'])) ? (':'.$proxy['port']) : '';
             $options[CURLOPT_PROXY] = $host;
             if (isset($proxy['user']) AND isset($proxy['pass']))
             {
@@ -617,7 +617,7 @@ class Kohana_MMI_Curl
     {
         if ( ! is_resource($ch))
         {
-            MMI_Log::log_error(__METHOD__, __LINE__, 'Unable to establish cURL connection for URL: '.$url);
+            $this->_log_error(__METHOD__, __LINE__, 'Unable to establish cURL connection for URL: '.$url);
             return FALSE;
         }
 
@@ -625,13 +625,13 @@ class Kohana_MMI_Curl
         {
             // Cannot connect
             $response = FALSE;
-            MMI_Log::log_error(__METHOD__, __LINE__, 'Unable to establish cURL connection for URL: '.$url);
+            $this->_log_error(__METHOD__, __LINE__, 'Unable to establish cURL connection for URL: '.$url);
         }
         elseif ($response === TRUE)
         {
             // No response data
             $response = NULL;
-            MMI_Log::log_info(__METHOD__, __LINE__, 'No cURL data returned for URL: '.$url);
+            $this->_log_info(__METHOD__, __LINE__, 'No cURL data for URL: '.$url);
         }
         else
         {
@@ -694,6 +694,32 @@ class Kohana_MMI_Curl
     }
 
     /**
+     * Log a formatted error message.
+     *
+     * @param   string  the method name
+     * @param   string  the line number
+     * @param   string  the error message
+     * @return  void
+     */
+    protected function _log_error($method, $line, $msg)
+    {
+        Kohana::$log->add(Kohana::ERROR, '['.$method.' @ line '.$line.'] '.$msg)->write();
+    }
+
+    /**
+     * Log a formatted informational message.
+     *
+     * @param   string  the method name
+     * @param   string  the line number
+     * @param   string  the informational message
+     * @return  void
+     */
+    public function _log_info($method, $line, $msg)
+    {
+        Kohana::$log->add(Kohana::INFO, '['.$method.' @ line '.$line.'] '.$msg)->write();
+    }
+
+    /**
      * Get or set a class property.
      * This method is chainable when setting a value.
      *
@@ -742,6 +768,24 @@ class Kohana_MMI_Curl
             $config = $config->as_array();
         }
         return $config;
+    }
+
+    /**
+     * Get the cURL version information.
+     * If a key is specified, the corresponding value is returned.  Otherwise an associative array of all version information is returned.
+     *
+     * @param   string  the key used to retrieve an individual value
+     * @return  mixed
+     */
+    public static function get_version_info($key = NULL)
+    {
+        (self::$_version_info === NULL) AND self::$_version_info = curl_version();
+        $info = self::$_version_info;
+        if ( ! empty($key) AND array_key_exists($key, $info))
+        {
+            $info = Arr::get($info, $key);
+        }
+        return $info;
     }
 
     /**
@@ -905,23 +949,5 @@ class Kohana_MMI_Curl
             CURLOPT_READFUNCTION => 'CURLOPT_READFUNCTION',
             CURLOPT_WRITEFUNCTION => 'CURLOPT_WRITEFUNCTION'
         );
-    }
-
-    /**
-     * Get the cURL version information.
-     * If a key is specified, the corresponding value is returned.  Otherwise an associative array of all version information is returned.
-     *
-     * @param   string  the key used to retrieve an individual value
-     * @return  mixed
-     */
-    public static function get_version_info($key = NULL)
-    {
-        (self::$_version_info === NULL) AND self::$_version_info = curl_version();
-        $info = self::$_version_info;
-        if ( ! empty($key) AND array_key_exists($key, $info))
-        {
-            $info = Arr::get($info, $key);
-        }
-        return $info;
     }
 } // End Kohana_MMI_Curl
