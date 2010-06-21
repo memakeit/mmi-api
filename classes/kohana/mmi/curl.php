@@ -30,7 +30,7 @@ class Kohana_MMI_Curl
     /**
      * @var boolean turn debugging on?
      **/
-    protected $_debug;
+    public $debug;
 
     /**
      * @var array an associative array of cURL options
@@ -60,7 +60,7 @@ class Kohana_MMI_Curl
      */
     public function __construct()
     {
-        $this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
+        $this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
 
         // Load cURL options and HTTP headers from the config file
         $config = self::get_config(TRUE);
@@ -497,7 +497,7 @@ class Kohana_MMI_Curl
 
         // Save the request details for debugging
         $request = array();
-        if ($this->_debug)
+        if ($this->debug)
         {
             $request['url'] = $url;
             $temp = $parms;
@@ -591,7 +591,7 @@ class Kohana_MMI_Curl
         }
 
         // Save the request details for debugging
-        if ($this->_debug)
+        if ($this->debug)
         {
             // Save the request details for debugging
             $request_id = md5(serialize($url.$parms));
@@ -652,7 +652,7 @@ class Kohana_MMI_Curl
                 ->http_status_code(intval(Arr::get($curl_info, 'http_code')));
 
             // Save the request details for debugging
-            if ($this->_debug)
+            if ($this->debug)
             {
                 if (is_array($parms) AND count($parms) > 0 AND Arr::is_assoc($parms))
                 {

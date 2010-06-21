@@ -13,6 +13,11 @@
 class Kohana_MMI_Curl_Response
 {
     /**
+     * @var boolean turn debugging on?
+     **/
+    public $debug;
+
+    /**
      * @var mixed the response body returned by cURL
      **/
     protected $_body;
@@ -21,11 +26,6 @@ class Kohana_MMI_Curl_Response
      * @var array an associative array of the options returned by cURL
      **/
     protected $_curl_info;
-
-    /**
-     * @var boolean turn debugging on?
-     **/
-    protected $_debug;
 
     /**
      * @var string the error message returned by cURL
@@ -59,7 +59,7 @@ class Kohana_MMI_Curl_Response
      */
     public function __construct()
     {
-        $this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
+        $this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
     }
 
     /**
