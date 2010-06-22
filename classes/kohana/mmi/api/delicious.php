@@ -28,9 +28,21 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
         $token = $this->_token;
         if (isset($token->attributes) AND is_array($token->attributes))
         {
-            $oauth_session_handle = Arr::get($token->attributes, 'oauth_session_handle');
-            if ( ! empty($oauth_session_handle))
+            $attributes = $token->attributes;
+            $oauth_session_handle = Arr::get($attributes, 'oauth_session_handle');
+            $oauth_expires_in = Arr::get($attributes, 'oauth_expires_in');
+
+            // Get the date the token was last updated
+            $date_updated = 0;
+            $model= $this->_model;
+            if ($model instanceof Jelly_Model)
             {
+                $date_updated = $model->date_updated;
+            }
+
+            if ( ! empty($oauth_session_handle) AND ($date_updated + $oauth_expires_in < time()))
+            {
+                // Refresh the access token
                 $token = $this->_refresh_access_token($oauth_session_handle, array
                 (
                     'token_key'     => $token->key,
@@ -38,7 +50,6 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
                 ));
                 if ($this->is_token_valid($token))
                 {
-                    // Update the token
                     $success = $this->_update_token($token);
                 }
             }
