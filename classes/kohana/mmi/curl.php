@@ -559,7 +559,7 @@ class Kohana_MMI_Curl
         }
 
         // Configure HTTP method specific settings
-        switch ($http_method)
+        switch (strtoupper($http_method))
         {
             case MMI_HTTP::METHOD_HEAD:
                 $options[CURLOPT_CUSTOMREQUEST] = MMI_HTTP::METHOD_HEAD;

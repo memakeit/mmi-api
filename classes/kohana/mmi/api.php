@@ -19,33 +19,9 @@ abstract class Kohana_MMI_API
     const FORMAT_JSONP = 'jsonp';
     const FORMAT_PHP = 'php';
     const FORMAT_RSS = 'rss';
-    const FORMAT_TXT = 'txt';
+    const FORMAT_TEXT = 'txt';
     const FORMAT_XML = 'xml';
     const FORMAT_YAML = 'yaml';
-
-    // Read write constants
-    const READ_ONLY = 'ro';
-    const READ_WRITE = 'rw';
-
-    // Service name constants
-    const SERVICE_BITLY = 'bitly';
-    const SERVICE_DELICIOUS = 'delicious';
-    const SERVICE_DIGG = 'digg';
-    const SERVICE_FACEBOOK = 'facebook';
-    const SERVICE_FLICKR = 'flickr';
-    const SERVICE_FOURSQUARE = 'foursquare';
-    const SERVICE_GITHUB = 'github';
-    const SERVICE_GOODREADS = 'goodreads';
-    const SERVICE_GOOGLEBUZZ = 'googlebuzz';
-    const SERVICE_GOWALLA = 'gowalla';
-    const SERVICE_LASTFM = 'lastfm';
-    const SERVICE_LINKEDIN = 'linkedin';
-    const SERVICE_PICASA = 'picasa';
-    const SERVICE_READERNAUT = 'readernaut';
-    const SERVICE_SOUNDCLOUD = 'soundcloud';
-    const SERVICE_TWITTER = 'twitter';
-    const SERVICE_VIMEO = 'vimeo';
-    const SERVICE_YOUTUBE = 'youtube';
 
     /**
      * @var Kohana_Config API settings
@@ -56,6 +32,11 @@ abstract class Kohana_MMI_API
      * @var MMI_Curl_Response the last cURL response received
      **/
     protected static $_last_response;
+
+    /**
+     * @var boolean turn debugging on?
+     **/
+    public $debug;
 
     /**
      * @var string the API URL
@@ -71,11 +52,6 @@ abstract class Kohana_MMI_API
      * @var integer the cURL connection timeout
      **/
     protected $_connect_timeout = 5;
-
-    /**
-     * @var boolean turn debugging on?
-     **/
-    protected $_debug;
 
     /**
      * @var boolean decode the results?
@@ -128,20 +104,20 @@ abstract class Kohana_MMI_API
     protected $_useragent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3';
 
     /**
-     * Configure debugging (using the Request instance).
+     * Initialize debugging (using the Request instance).
      * Load the configuration settings.
      *
      * @return  void
      */
     public function __construct()
     {
-        $this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
+        $this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
         $config = self::get_config(TRUE);
         $service_config = Arr::get($config, $this->_service, array());
         $this->_auth_config = Arr::get($service_config, 'auth', array());
         $this->_service_config = $service_config;
 
-        $api_global = Arr::get($config, 'api', array());
+        $api_globals = Arr::get($config, 'api', array());
         $api_service = Arr::get($service_config, 'api', array());
         $settings = array
         (
@@ -158,22 +134,21 @@ abstract class Kohana_MMI_API
         );
         foreach ($settings as $name)
         {
-            $value = Arr::get($api_service, $name, Arr::get($api_global, $name));
+            $value = Arr::get($api_service, $name, Arr::get($api_globals, $name));
             $this->$name($value);
         }
     }
 
     /**
      * Get or set the API URL.
-     * The API URL is usually a string, but an array can be used to specify a read-only URL and a read-write URL.
      * This method is chainable when setting a value.
      *
-     * @param   mixed  the value to set
+     * @param   string  the value to set
      * @return  mixed
      */
     public function api_url($value = NULL)
     {
-        return $this->_get_set('_api_url', $value);
+        return $this->_get_set('_api_url', $value, 'is_string');
     }
 
     /**
@@ -473,7 +448,7 @@ abstract class Kohana_MMI_API
         $parms = $this->_configure_parameters($parms);
 
         // Create and configure the cURL object
-        $curl = new MMI_Curl;
+        $curl = MMI_Curl::factory();
         $this->_configure_curl_options($curl);
         $this->_configure_auth_header($curl);
         $this->_configure_http_headers($curl);
@@ -484,9 +459,9 @@ abstract class Kohana_MMI_API
         unset($curl);
 
         // Format the response
-        if ($this->_decode AND $response instanceof MMI_Curl_Response)
+        if ($response instanceof MMI_Curl_Response AND $this->_decode)
         {
-            $method  = '_decode_'.$this->_format;
+            $method  = '_decode_'.strtolower($this->_format);
             if (method_exists($this, $method))
             {
                 $decoded = $this->$method($response->body());
@@ -532,7 +507,7 @@ abstract class Kohana_MMI_API
         // Format the response
         if ($this->_decode AND is_array($responses) AND count($responses) > 0)
         {
-            $method  = '_decode_'.$this->_format;
+            $method  = '_decode_'.strtolower($this->_format);
             if (method_exists($this, $method))
             {
                 foreach ($responses as $id => $response)
@@ -583,7 +558,7 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Configure the request parameters as specified in the configuration file.
+     * Customize the request parameters as specified in the configuration file.
      * When processing additions, if a parameter value exists, it will not be overwritten.
      *
      * @param   array   an associative array of request parameters
@@ -626,12 +601,12 @@ abstract class Kohana_MMI_API
             }
         }
 
-        // Configure authentication parameters (that are passed as request parameters instead of via HTTP headers)
+        // Configure authentication parameters that are passed as request parameters (instead of via HTTP headers)
         return $this->_configure_auth_parms($parms);
     }
 
     /**
-     * Configure authentication parameters that are passed as request parameters instead of via HTTP headers.
+     * Configure authentication parameters that are passed as request parameters (instead of via HTTP headers).
      *
      * @param   array   an associative array of request parameters
      * @return  array
@@ -660,7 +635,7 @@ abstract class Kohana_MMI_API
         {
             // Process defaults
             $defaults = Arr::get($custom, 'defaults', FALSE);
-            if (is_array($defaults) AND count($defaults) > 0)
+            if (is_array($defaults))
             {
                 $curl->curl_options($defaults);
             }
@@ -704,7 +679,7 @@ abstract class Kohana_MMI_API
         {
             // Process defaults
             $defaults = Arr::get($custom, 'defaults', FALSE);
-            if (is_array($defaults) AND count($defaults) > 0)
+            if (is_array($defaults))
             {
                 $curl->http_headers($defaults);
             }
@@ -757,11 +732,23 @@ abstract class Kohana_MMI_API
      */
     protected function _get_accept_header()
     {
-        if ($this->_format === self::FORMAT_JSONP)
+        $accept_header;
+        $format = strtolower($this->_format);
+        switch($format)
         {
-            return 'text/javascript';
+            case MMI_API::FORMAT_JAVASCRIPT:
+                $accept_header = 'text/javascript';
+                break;
+
+            case self::FORMAT_JSONP:
+                $accept_header = 'text/javascript';
+                break;
+
+            default:
+                $accept_header = File::mime_by_ext($format);
+                break;
         }
-        return File::mime_by_ext($this->_format);
+        return $accept_header;
     }
 
     /**
@@ -839,6 +826,19 @@ abstract class Kohana_MMI_API
     }
 
     /**
+     * Log a formatted error message.
+     *
+     * @param   string  the method name
+     * @param   string  the line number
+     * @param   string  the error message
+     * @return  void
+     */
+    protected function _log_error($method, $line, $msg)
+    {
+        Kohana::$log->add(Kohana::ERROR, '['.$method.' @ line '.$line.'] '.$msg)->write();
+    }
+
+    /**
      * Get or set a class property.
      * This method is chainable when setting a value.
      *
@@ -874,7 +874,7 @@ abstract class Kohana_MMI_API
         $class = 'MMI_API_'.ucfirst($driver);
         if ( ! class_exists($class))
         {
-            MMI_Log::log_error(__METHOD__, __LINE__, $class.' class does not exist');
+            $this->_log_error(__METHOD__, __LINE__, $class.' class does not exist');
             throw new Kohana_Exception(':class class does not exist in :method.', array
             (
                 ':class'    => $class,
