@@ -1,15 +1,15 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * Authorization tokens.
+ * API authorization tokens.
  *
  * @package     MMI API
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
  */
-class Model_MMI_Auth_Tokens extends Jelly_Model
+class Model_MMI_API_Tokens extends Jelly_Model
 {
-    protected static $_table_name = 'mmi_auth_tokens';
+    protected static $_table_name = 'mmi_api_tokens';
     public static function initialize(Jelly_Meta $meta)
     {
         $meta
@@ -59,22 +59,21 @@ class Model_MMI_Auth_Tokens extends Jelly_Model
                     ),
                     'null' => TRUE,
                 )),
-                'oauth_verifier' => new Field_String(array
+                'verified' => new Field_Boolean(array
+                (
+                    'default' => 0,
+                    'rules' => array
+                    (
+                        'range' => array(0, 1)
+                    ),
+                )),
+                'verification_code' => new Field_String(array
                 (
                     'rules' => array
                     (
-                        'max_length' => array(65535),
+                        'max_length' => array(64),
                     ),
                     'null' => TRUE,
-                )),
-                'oauth_version' => new Field_String(array
-                (
-                    'default' => '1.0',
-                    'rules' => array
-                    (
-                        'max_length' => array(4),
-                        'not_empty' => NULL,
-                    ),
                 )),
                 'attributes' => new Field_Serialized(array
                 (
@@ -116,4 +115,4 @@ class Model_MMI_Auth_Tokens extends Jelly_Model
         $query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
         return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
     }
-} // End Model_MMI_Auth_Tokens
+} // End Model_MMI_API_Tokens
