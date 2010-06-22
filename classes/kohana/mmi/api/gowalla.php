@@ -31,7 +31,7 @@ class Kohana_MMI_API_Gowalla extends MMI_API_Basic
         if (empty($api_key))
         {
             $service = $this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, 'API key not set for '.$service);
+            $this->_log_error(__METHOD__, __LINE__, 'API key not set for '.$service);
             throw new Kohana_Exception('API key not set for :service in :method.', array
             (
                 ':service'  => $service,
