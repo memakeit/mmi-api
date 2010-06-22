@@ -17,55 +17,32 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
     protected $_service = MMI_API::SERVICE_DELICIOUS;
 
     /**
-     * Ensure there is a valid access token.
-     * If the token is missing credentials, query the database.
-     * If token credentials are found in the database along with an oauth_session_handle, the refresh the access token.
-     * Otherwise perform the logic in the parent method.
+     * Ensure the request token has been verified and an access token received.
      *
-     * @param   Jelly_Model the model representing the OAuth credentials
+     * @throws  Kohana_Exception
      * @return  void
      */
-    protected function _check_access_token($model = NULL)
+    protected function _check_access_token()
     {
-        // Attempt to load the token from the database
-        if ( ! $this->_is_token_set())
+        parent::_check_access_token();
+        $token = $this->_token;
+        if (isset($token->attributes) AND is_array($token->attributes))
         {
-            if ( ! $model instanceof Jelly_Model)
-            {
-                $model = Model_MMI_Auth_Tokens::select_by_service_and_consumer_key($this->_service, $this->_consumer->key, FALSE);
-            }
-            if ($model->loaded())
-            {
-                $this->_token = new OAuthToken($model->token_key, Encrypt::instance()->decode($model->token_secret));
-            }
-        }
-
-        // Refresh the access token
-        if ($model->loaded() AND ! empty($model->oauth_verifier))
-        {
-            $attributes = isset($model->attributes) ? $model->attributes : array();
-            $oauth_session_handle = Arr::get($attributes, 'oauth_session_handle');
-            if ( ! empty($oauth_session_handle) AND ! empty($model->token_key) AND ! empty($model->token_secret))
+            $oauth_session_handle = Arr::get($token->attributes, 'oauth_session_handle');
+            if ( ! empty($oauth_session_handle))
             {
                 $token = $this->_refresh_access_token($oauth_session_handle, array
                 (
-                    'token_key'     => $model->token_key,
-                    'token_secret'  => Encrypt::instance()->decode($model->token_secret),
+                    'token_key'     => $token->key,
+                    'token_secret'  => $token->secret,
                 ));
-
-                // Update the token in the database
-                if ($this->_is_token_set($token))
+                if ($this->is_token_valid($token))
                 {
-                    if ($this->_update_token($token, $model, TRUE))
-                    {
-                        return;
-                    }
+                    // Update the token
+                    $success = $this->_update_token($token);
                 }
-                $this->_delete_token($model);
-                $model = NULL;
             }
         }
-        parent::_check_access_token($model);
     }
 
     /**
@@ -77,7 +54,7 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
      * @return  OAuthToken
      * @link    http://developer.yahoo.com/oauth/guide/oauth-refreshaccesstoken.html
      */
-    protected function _refresh_access_token($oauth_session_handle = NULL, $auth_config = array())
+    protected function _refresh_access_token($oauth_session_handle, $auth_config = array())
     {
         // Configure the auth settings
         if ( ! is_array($auth_config))
@@ -92,7 +69,7 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
         if (empty($url))
         {
             $service = $this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
+            $this->_log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
             throw new Kohana_Exception('Access token URL not configured for :service in :method.', array
             (
                 ':service'  => $service,
@@ -101,14 +78,10 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
         }
 
         // Configure the request parameters
-        $parms = array();
-        if ( ! empty($oauth_session_handle))
-        {
-            $parms['oauth_session_handle'] = $oauth_session_handle;
-        }
+        $parms['oauth_session_handle'] = $oauth_session_handle;
 
         // Make the request and extract the token
-        $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
+        $response = $this->_auth_request($auth_config, $http_method, $url, $parms);
         $this->_validate_curl_response($response, 'Invalid refresh token');
         return $this->_extract_token($response);
     }

@@ -32,7 +32,7 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         if (empty($url))
         {
             $service = $this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, 'Request token URL not configured for '.$service);
+            $this->_log_error(__METHOD__, __LINE__, 'Request token URL not configured for '.$service);
             throw new Kohana_Exception('Request token URL not configured for :service in :method.', array
             (
                 ':service'  => $service,
@@ -45,7 +45,7 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         if (empty($scope))
         {
             $service = $this->_service;
-            MMI_Log::log_error(__METHOD__, __LINE__, 'Authorization scope not set for '.$service);
+            $this->_log_error(__METHOD__, __LINE__, 'Authorization scope not set for '.$service);
             throw new Kohana_Exception('Authorization scope not set for :service in :method.', array
             (
                 ':service'  => $service,
@@ -55,13 +55,17 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         $parms['scope'] = $scope;
 
         // Configure the OAuth callback URL
+        if ( ! isset($oauth_callback))
+        {
+            $oauth_callback = $this->_auth_callback_url;
+        }
         if ( ! empty($oauth_callback))
         {
             $parms['oauth_callback'] = $oauth_callback;
         }
 
         // Make the request and extract the token
-        $response = $this->_isolated_request($auth_config, $http_method, $url, $parms);
+        $response = $this->_auth_request($auth_config, $http_method, $url, $parms);
         $this->_validate_curl_response($response, 'Invalid request token');
         return $this->_extract_token($response);
     }
