@@ -10,11 +10,6 @@
 class Controller_OAuth_Verification extends Controller
 {
     /**
-     * @var string configure the cache type
-     **/
-    public $cache_type = MMI_Cache::CACHE_TYPE_NONE;
-
-    /**
      * @var boolean turn debugging on?
      **/
     public $debug = FALSE;
