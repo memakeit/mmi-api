@@ -22,9 +22,9 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
      * @throws  Kohana_Exception
      * @return  void
      */
-    protected function _check_access_token()
+    protected function _check_token()
     {
-        parent::_check_access_token();
+        parent::_check_token();
         $token = $this->_token;
         if (isset($token->attributes) AND is_array($token->attributes))
         {

@@ -516,8 +516,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      */
     protected function _request($url, $parms, $method = MMI_HTTP::METHOD_GET)
     {
-        // Ensure the access token is valid
-        $this->_check_access_token();
+        // Ensure the token is valid
+        $this->_check_token();
 
         // Configure URL
         $url = $this->_configure_url($url);
@@ -586,8 +586,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      */
     protected function _mrequest($requests, $method = MMI_HTTP::METHOD_GET)
     {
-        // Ensure the access token is valid
-        $this->_check_access_token();
+        // Ensure the token is valid
+        $this->_check_token();
 
         $consumer = $this->_consumer;
         $signature_method = $this->_signature_method;
@@ -676,13 +676,13 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      * @throws  Kohana_Exception
      * @return  void
      */
-    protected function _check_access_token()
+    protected function _check_token()
     {
         if ( ! $this->is_token_valid(NULL, TRUE))
         {
             $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Request token has not been verified for '.$service);
-            throw new Kohana_Exception('Request token has not been verified for :service in :method.', array
+            MMI_API::log_error(__METHOD__, __LINE__, 'Request token is not valid for '.$service);
+            throw new Kohana_Exception('Request token is not valid for :service in :method.', array
             (
                 ':service'  => $service,
                 ':method'   => __METHOD__,
