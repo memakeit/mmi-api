@@ -7,3 +7,11 @@ Route::set('oauth/verification', 'oauth/verification/<service>')
     'controller'    => 'verification',
     'directory'     => 'oauth',
 ));
+
+// API test route
+Route::set('test/api', 'test/api/<controller>(/<action>)')
+->defaults(array
+(
+    'action'        => 'index',
+    'directory'     => 'test/api',
+));
