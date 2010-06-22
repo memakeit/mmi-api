@@ -15,18 +15,4 @@ class Kohana_MMI_API_SoundCloud extends MMI_API_OAuth
      * @var string the service name
      */
     protected $_service = MMI_API::SERVICE_SOUNDCLOUD;
-
-    /**
-     * Get the string to be sent via the accept header.
-     *
-     * @return  string
-     */
-    protected function _get_accept_header()
-    {
-        if ($this->_format === MMI_API::FORMAT_JAVASCRIPT)
-        {
-            return 'text/javascript';
-        }
-        return parent::_get_accept_header();
-    }
 } // End Kohana_MMI_API_SoundCloud
