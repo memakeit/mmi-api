@@ -115,4 +115,15 @@ class Model_MMI_API_Tokens extends Jelly_Model
         $query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
         return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
     }
+
+    public static function select_by_service_and_token_key($service, $token_key, $as_array = TRUE, $array_key = NULL, $limit = 1)
+    {
+        $where_parms = array
+        (
+            'service'   => $service,
+            'token_key' => $token_key,
+        );
+        $query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
+        return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
+    }
 } // End Model_MMI_API_Tokens
