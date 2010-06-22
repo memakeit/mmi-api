@@ -826,19 +826,6 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Log a formatted error message.
-     *
-     * @param   string  the method name
-     * @param   string  the line number
-     * @param   string  the error message
-     * @return  void
-     */
-    protected function _log_error($method, $line, $msg)
-    {
-        Kohana::$log->add(Kohana::ERROR, '['.$method.' @ line '.$line.'] '.$msg)->write();
-    }
-
-    /**
      * Get or set a class property.
      * This method is chainable when setting a value.
      *
@@ -874,7 +861,7 @@ abstract class Kohana_MMI_API
         $class = 'MMI_API_'.ucfirst($driver);
         if ( ! class_exists($class))
         {
-            $this->_log_error(__METHOD__, __LINE__, $class.' class does not exist');
+            self::log_error(__METHOD__, __LINE__, $class.' class does not exist');
             throw new Kohana_Exception(':class class does not exist in :method.', array
             (
                 ':class'    => $class,
@@ -899,6 +886,19 @@ abstract class Kohana_MMI_API
             $config = $config->as_array();
         }
         return $config;
+    }
+
+    /**
+     * Log a formatted error message.
+     *
+     * @param   string  the method name
+     * @param   string  the line number
+     * @param   string  the error message
+     * @return  void
+     */
+    public static function log_error($method, $line, $msg)
+    {
+        Kohana::$log->add(Kohana::ERROR, '['.$method.' @ line '.$line.'] '.$msg)->write();
     }
 
     /**

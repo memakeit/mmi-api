@@ -32,7 +32,7 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         if (empty($url))
         {
             $service = $this->_service;
-            $this->_log_error(__METHOD__, __LINE__, 'Request token URL not configured for '.$service);
+            MMI_API::log_error(__METHOD__, __LINE__, 'Request token URL not configured for '.$service);
             throw new Kohana_Exception('Request token URL not configured for :service in :method.', array
             (
                 ':service'  => $service,
@@ -45,7 +45,7 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         if (empty($scope))
         {
             $service = $this->_service;
-            $this->_log_error(__METHOD__, __LINE__, 'Authorization scope not set for '.$service);
+            MMI_API::log_error(__METHOD__, __LINE__, 'Authorization scope not set for '.$service);
             throw new Kohana_Exception('Authorization scope not set for :service in :method.', array
             (
                 ':service'  => $service,

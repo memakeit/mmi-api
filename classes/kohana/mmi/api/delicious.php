@@ -69,7 +69,7 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
         if (empty($url))
         {
             $service = $this->_service;
-            $this->_log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
+            MMI_API::log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
             throw new Kohana_Exception('Access token URL not configured for :service in :method.', array
             (
                 ':service'  => $service,

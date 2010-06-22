@@ -76,7 +76,7 @@ class Kohana_MMI_OAuth_Verification
         $token_key = Arr::get($_GET, 'oauth_token');
         if (empty($token_key) OR ($require_verification_code AND empty($verification_code)))
         {
-            $this->_log_error(__METHOD__, __LINE__, 'Verification parameter missing.  OAuth token:'.$token_key.'.  Verification code:'.$verification_code);
+            MMI_API::log_error(__METHOD__, __LINE__, 'Verification parameter missing.  OAuth token:'.$token_key.'.  Verification code:'.$verification_code);
             throw new Kohana_Exception('Verification parameter missing in :method.  OAuth token: :token_key.  Verification code: :verification_code.', array
             (
                 ':method'               => __METHOD__,
@@ -104,7 +104,7 @@ class Kohana_MMI_OAuth_Verification
                 // Create a dummy verification code
                 $verification_code = $service.'-'.time();
             }
-MMI_Debug::dead($previously_verified, '$previously_verified');
+
             // Do database update
             if ( ! $previously_verified AND $model->token_key === $token_key)
             {
@@ -153,7 +153,7 @@ MMI_Debug::dead($previously_verified, '$previously_verified');
 
         if ( ! class_exists($class))
         {
-            $this->_log_error(__METHOD__, __LINE__, $class.' class does not exist');
+            MMI_API::log_error(__METHOD__, __LINE__, $class.' class does not exist');
             throw new Kohana_Exception(':class class does not exist in :method.', array
             (
                 ':class'    => $class,
