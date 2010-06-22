@@ -15,4 +15,26 @@ class Kohana_MMI_API_LastFM extends MMI_API
      * @var string the service name
      */
     protected $_service = MMI_API::SERVICE_LASTFM;
+
+    /**
+     * Configure the request parameters as specified in the configuration file.
+     * When processing additions, if a parameter value exists, it will not be overwritten.
+     *
+     * @param   array   an associative array of request parameters
+     * @return  array
+     */
+    protected function _configure_parameters($parms)
+    {
+        if ( ! is_array($parms))
+        {
+            $parms = array();
+        }
+
+        $name = 'format';
+        if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+        {
+            $parms[$name] = $this->_format;
+        }
+        return parent::_configure_parameters($parms);
+    }
 } // End Kohana_MMI_API_LastFM
