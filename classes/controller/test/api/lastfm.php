@@ -18,25 +18,24 @@ class Controller_Test_API_LastFM extends Controller_Test_API
     {
         $parms1 = array
         (
-            'method' => 'tag.gettopalbums',
-            'tag' => 'disco',
-            'format' => 'json',
+            'method' => 'user.getinfo',
+            'user' => 'memakeit',
         );
         $parms2 = array
         (
-            'method' => 'user.getinfo',
-            'user' => 'memakeit',
-            'format' => 'json',
+            'method' => 'artist.gettoptracks',
+            'artist' => 'the fall',
         );
 
         $svc = MMI_API::factory(MMI_API::SERVICE_LASTFM);
-        $response = $svc->get('', $parms2);
+//        $response = $svc->get(NULL, $parms1);
+
         $requests = array
         (
-            'tag.gettopalbums' => array('url' => '', 'parms' => $parms1),
-            'user.getinfo' => array('url' => '', 'parms' => $parms2),
+            $parms1['method'] => array('parms' => $parms1),
+            $parms2['method'] => array('parms' => $parms2),
         );
-//        $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $response = $svc->mget($requests);
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_LastFM

@@ -17,7 +17,7 @@ class Controller_Test_API_Bitly extends Controller_Test_API
     public function action_index()
     {
         $svc = MMI_API::factory(MMI_API::SERVICE_BITLY);
-        $response = $svc->get('shorten', array('longUrl' => 'http://www.memakeit.com'));
+//        $response = $svc->get('shorten', array('longUrl' => 'http://www.memakeit.com'));
 
         $requests = array
         (
@@ -25,6 +25,6 @@ class Controller_Test_API_Bitly extends Controller_Test_API
             'google' => array('url' => 'shorten', 'parms' => array('longUrl' => 'http://www.google.com')),
         );
         $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_Bitly

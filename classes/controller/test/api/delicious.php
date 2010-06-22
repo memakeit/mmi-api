@@ -21,14 +21,14 @@ class Controller_Test_API_Delicious extends Controller_Test_API
         {
             die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
         }
-        $response = $svc->get('posts/recent');
+//        $response = $svc->get('posts/recent');
 
         $requests = array
         (
             'posts/recent' => array('url' => 'posts/recent'),
             'posts/dates' => array('url' => 'posts/dates'),
         );
-//        $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $response = $svc->mget($requests);
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_Delicious

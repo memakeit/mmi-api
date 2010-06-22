@@ -21,15 +21,16 @@ class Controller_Test_API_Vimeo extends Controller_Test_API
         {
             die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
         }
-        $response = $svc->get('', array('method' => 'vimeo.people.getInfo', 'user_id' => 'memakeit'));
+//        $response = $svc->get('', array('method' => 'vimeo.people.getInfo'));
 
         $requests = array
         (
-            'profile' => array('url' => '~'),
-            'current-status' => array('url' => '~/current-status'),
-            'network' => array('url' => '~/network'),
+            'profile' => array('parms' => array('method' => 'vimeo.people.getInfo')),
+            'user did' => array('parms' => array('method' => 'vimeo.activity.userDid')),
+            'videos uploaded' => array('parms' => array('method' => 'vimeo.videos.getUploaded')),
+            'videos liked' => array('parms' => array('method' => 'vimeo.videos.getLikes')),
         );
-//        $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $response = $svc->mget($requests);
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_Vimeo

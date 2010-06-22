@@ -31,6 +31,6 @@ class Controller_Test_API_SoundCloud extends Controller_Test_API
             'followers' => array('url' => 'me/followers'),
         );
         $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_SoundCloud

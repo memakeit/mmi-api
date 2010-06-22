@@ -10,36 +10,32 @@
 abstract class Controller_Test_API extends Controller
 {
     /**
-     * @var string configure the cache type
-     **/
-    public $cache_type = MMI_Cache::CACHE_TYPE_NONE;
-
-    /**
      * @var boolean turn debugging on?
      **/
     public $debug = TRUE;
 
     /**
-     * Display the cURL response
+     * Set the request response to the cURL debugging output.
      *
      * @param   MMI_Curl_Response   the cURL response object
      * @param   string              the service name
      * @return  void
      */
-    protected function _display_response($response, $service)
+    protected function _set_response($response, $service)
     {
+        $output = '';
         if (is_array($response) AND count($response) > 0)
         {
             $responses = $response;
             foreach ($responses as $id => $response)
             {
-                MMI_Debug::dump($response, $service.' response ['.$id.']');
+                $output .= MMI_Debug::get($response, $service.' response ['.$id.']');
             }
         }
         else
         {
-            MMI_Debug::dump($response, $service.' response');
+            $output .= MMI_Debug::get($response, $service.' response');
         }
-        die();
+        $this->request->response = $output;
     }
 } // End Controller_Test_API

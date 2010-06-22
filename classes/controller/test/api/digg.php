@@ -29,6 +29,6 @@ class Controller_Test_API_Digg extends Controller_Test_API
             'user.getInfo' => array('url' => '', 'parms' => array('method' => 'user.getInfo', 'username' => 'memakeit')),
         );
         $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_Digg

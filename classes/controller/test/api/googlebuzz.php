@@ -25,13 +25,12 @@ class Controller_Test_API_GoogleBuzz extends Controller_Test_API
 
         $requests = array
         (
-//            'streams' => array('url' => 'activities/@me/@self'),
-//            'profile' => array('url' => 'people/@me/@self'),
+            'profile' => array('url' => 'people/@me/@self'),
+            'streams' => array('url' => 'activities/@me/@self'),
             'followers' => array('url' => 'people/@me/@groups/@followers'),
             'following' => array('url' => 'people/@me/@groups/@following'),
-            'groups' => array('url' => 'people/@me/@groups'),
         );
         $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_GoogleBuzz

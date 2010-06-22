@@ -21,7 +21,6 @@ class Controller_Test_API_Picasa extends Controller_Test_API
         {
             die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
         }
-        $svc->format(MMI_API::FORMAT_JSON);
 //        $response = $svc->get('user/memakeit', array('kind' => 'photo', 'access' => 'all'));
 
         $requests = array
@@ -30,6 +29,6 @@ class Controller_Test_API_Picasa extends Controller_Test_API
             'recent photos' => array('url' => 'user/memakeit', 'parms' => array('kind' => 'photo', 'access' => 'all')),
         );
         $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_Picasa

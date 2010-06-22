@@ -25,6 +25,6 @@ class Controller_Test_API_Gowalla extends Controller_Test_API
             'shadowhand' => array('url' => 'user/show/shadowhand'),
         );
 //        $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_Gowalla

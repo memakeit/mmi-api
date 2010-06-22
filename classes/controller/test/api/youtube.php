@@ -21,7 +21,6 @@ class Controller_Test_API_YouTube extends Controller_Test_API
         {
             die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
         }
-        $svc->format(MMI_API::FORMAT_RSS);
 //        $response = $svc->get('users/default', array('v' => 2));
 
         $requests = array
@@ -30,6 +29,6 @@ class Controller_Test_API_YouTube extends Controller_Test_API
             'subscriptions' => array('url' =>'users/default/subscriptions'),
         );
         $response = $svc->mget($requests);
-        $this->_display_response($response, $svc->service());
+        $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_YouTube
