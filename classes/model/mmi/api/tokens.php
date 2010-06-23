@@ -75,6 +75,14 @@ class Model_MMI_API_Tokens extends Jelly_Model
                     ),
                     'null' => TRUE,
                 )),
+                'user_id' => new Field_String(array
+                (
+                    'rules' => array
+                    (
+                        'max_length' => array(64),
+                    ),
+                    'null' => TRUE,
+                )),
                 'attributes' => new Field_Serialized(array
                 (
                     'null' => TRUE,
