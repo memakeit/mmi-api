@@ -9,6 +9,9 @@
  */
 abstract class Kohana_MMI_API_Verify_Custom
 {
+    // Abstract methods
+    abstract public function verify();
+
     /**
      * @var boolean turn debugging on?
      **/
@@ -37,21 +40,11 @@ abstract class Kohana_MMI_API_Verify_Custom
      */
     public function __construct()
     {
-        require_once Kohana::find_file('vendor', 'oauth/oauth_required');
-
         $this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
         $config = MMI_API::get_config(TRUE);
         $this->_service_config = Arr::get($config, $this->_service, array());
         $this->_auth_config = Arr::get($this->_service_config, 'auth', array());
     }
-
-    /**
-     * Verify the custom credentials.
-     *
-     * @throws  Kohana_Exception
-     * @return  boolean
-     */
-    abstract public function verify();
 
     /**
      * Create a custom verification instance.

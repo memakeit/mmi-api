@@ -31,6 +31,7 @@ class Kohana_MMI_API_Verify_OAuth
 
     /**
      * Initialize debugging (using the Request instance).
+     * Include the OAuth vendor files.
      * Load the configuration settings.
      *
      * @return  void
@@ -64,7 +65,7 @@ class Kohana_MMI_API_Verify_OAuth
             MMI_API::log_error(__METHOD__, __LINE__, 'Service not set');
             throw new Kohana_Exception('Service not set in :method.', array
             (
-                ':method'   => __METHOD__,
+                ':method' => __METHOD__,
             ));
         }
 
@@ -102,13 +103,12 @@ class Kohana_MMI_API_Verify_OAuth
         if ($model->loaded())
         {
             // Check if the credentials were previously verified
-            $previously_verified = FALSE;
-            if ($model->verified)
+            $previously_verified = $model->verified;
+            if ($previously_verified)
             {
-                $previously_verified = TRUE;
                 $success = TRUE;
             }
-            elseif ( ! $model->verified AND ! $require_verification_code)
+            elseif ( ! $require_verification_code)
             {
                 // Create a dummy verification code
                 $verification_code = $service.'-'.time();
@@ -118,10 +118,12 @@ class Kohana_MMI_API_Verify_OAuth
             if ( ! $previously_verified AND $model->token_key === $token_key)
             {
                 // Get an access token
-                $auth_config['token_key'] = $token_key;
-                $auth_config['token_secret'] = Encrypt::instance()->decode($model->token_secret);
                 $svc = MMI_API::factory($service);
-                $token = $svc->get_access_token($verification_code, $auth_config);
+                $token = $svc->get_access_token($verification_code, array
+                (
+                    'token_key'     => $token_key,
+                    'token_secret'  => Encrypt::instance()->decode($model->token_secret),
+                ));
 
                 // Update the token credentials in the database
                 if ($svc->is_valid_token($token))
