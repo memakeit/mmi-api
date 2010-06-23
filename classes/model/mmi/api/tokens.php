@@ -75,11 +75,11 @@ class Model_MMI_API_Tokens extends Jelly_Model
                     ),
                     'null' => TRUE,
                 )),
-                'user_id' => new Field_String(array
+                'username' => new Field_String(array
                 (
                     'rules' => array
                     (
-                        'max_length' => array(64),
+                        'max_length' => array(128),
                     ),
                     'null' => TRUE,
                 )),
@@ -119,6 +119,17 @@ class Model_MMI_API_Tokens extends Jelly_Model
         (
             'service'       => $service,
             'consumer_key'  => $consumer_key,
+        );
+        $query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
+        return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
+    }
+
+    public static function select_by_service_and_username($service, $username, $as_array = TRUE, $array_key = NULL, $limit = 1)
+    {
+        $where_parms = array
+        (
+            'service'   => $service,
+            'username'  => $username,
         );
         $query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
         return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
