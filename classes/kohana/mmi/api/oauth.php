@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make API calls using OAuth authentication.
- * This class is an attempt to generalize Abraham Williams Twitter OAuth class.
+ * This class is based on Abraham Williams' Twitter OAuth class.
  *
  * @package     MMI API
  * @author      Me Make It

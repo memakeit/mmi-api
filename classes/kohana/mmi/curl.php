@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * cURL helper.
- * This work is based on Ryan Parman's requestcore library.
+ * This class is based on Ryan Parman's requestcore library.
  *
  * @package     MMI API
  * @author      Me Make It
