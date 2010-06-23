@@ -27,7 +27,7 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
     {
         // Configure the auth settings
         $auth_config = array();
-        if ($this->is_token_valid(NULL, TRUE))
+        if ($this->is_valid_token(NULL, TRUE))
         {
             $token = $this->_token;
             $auth_config = array

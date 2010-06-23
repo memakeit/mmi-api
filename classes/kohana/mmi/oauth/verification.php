@@ -115,7 +115,7 @@ class Kohana_MMI_OAuth_Verification
                 $token = $svc->get_access_token($verification_code, $auth_config);
 
                 // Update the token credentials in the database
-                if ($svc->is_token_valid($token))
+                if ($svc->is_valid_token($token))
                 {
                     $model->token_key = $token->key;
                     $model->token_secret = Encrypt::instance()->encode($token->secret);

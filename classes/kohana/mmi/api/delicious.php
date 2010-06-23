@@ -47,7 +47,7 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
                     'token_key'     => $token->key,
                     'token_secret'  => $token->secret,
                 ));
-                if ($this->is_token_valid($token))
+                if ($this->is_valid_token($token))
                 {
                     $success = $this->_update_token($token);
                 }

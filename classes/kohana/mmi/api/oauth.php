@@ -107,7 +107,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $this->_send_auth_as_data = Arr::get($auth_config, 'send_auth_as_data', FALSE);
 
         // Ensure the access token is valid
-        if ( ! $this->is_token_valid())
+        if ( ! $this->is_valid_token())
         {
             $this->_load_token();
         }
@@ -394,7 +394,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      * @param   boolean     check the token's verified flag?
      * @return  boolean
      */
-    public function is_token_valid($token = NULL, $check_verified = FALSE)
+    public function is_valid_token($token = NULL, $check_verified = FALSE)
     {
         if ( ! $token instanceof OAuthToken)
         {
@@ -408,7 +408,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
         elseif ( ! $check_verified)
         {
-            $valid = ($token instanceof OAuthToken AND ! empty($token->key) AND ! empty($token->secret));
+            $valid = ( ! empty($token->key) AND ! empty($token->secret));
         }
         return $valid;
     }
@@ -448,7 +448,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         // Get a new request token
         $token = $this->get_request_token();
-        if ($this->is_token_valid($token))
+        if ($this->is_valid_token($token))
         {
             // Update the token
             $success = $this->_update_token($token);

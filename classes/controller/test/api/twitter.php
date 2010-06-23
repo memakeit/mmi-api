@@ -17,7 +17,7 @@ class Controller_Test_API_Twitter extends Controller_Test_API
     public function action_index()
     {
         $svc = MMI_API::factory(MMI_API::SERVICE_TWITTER);
-        if ( ! $svc->is_token_valid(NULL, FALSE))
+        if ( ! $svc->is_valid_token(NULL, FALSE))
         {
             die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
         }

@@ -17,7 +17,7 @@ class Controller_Test_API_Vimeo extends Controller_Test_API
     public function action_index()
     {
         $svc = MMI_API::factory(MMI_API::SERVICE_VIMEO);
-        if ( ! $svc->is_token_valid(NULL, TRUE))
+        if ( ! $svc->is_valid_token(NULL, TRUE))
         {
             die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
         }

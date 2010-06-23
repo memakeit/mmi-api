@@ -24,7 +24,7 @@ class Kohana_MMI_API_Twitter extends MMI_API_OAuth
      */
     protected function _check_token()
     {
-        if ( ! $this->is_token_valid())
+        if ( ! $this->is_valid_token())
         {
             $service = $this->_service;
             MMI_API::log_error(__METHOD__, __LINE__, 'Request token not valid for '.$service);
