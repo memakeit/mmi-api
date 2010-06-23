@@ -73,6 +73,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     protected $_token;
 
     /**
+     * @var string the username associated with the OAuth credentials
+     **/
+    protected $_username = NULL;
+
+    /**
      * @var string the OAuth version
      **/
     protected $_version = '1.0';
@@ -90,7 +95,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $auth_config = $this->_auth_config;
 
         // Configure the auth URLs
-        $settings = array('access_token_url', 'auth_callback_url', 'authenticate_url', 'authorize_url', 'request_token_url');
+        $settings = array('access_token_url', 'auth_callback_url', 'authenticate_url', 'authorize_url', 'request_token_url', 'username');
         foreach ($settings as $setting)
         {
             $var = '_'.$setting;
@@ -226,6 +231,18 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     }
 
     /**
+     * Get or set the username associated with the OAuth credentials.
+     * This method is chainable when setting a value.
+     *
+     * @param   string  the value to set
+     * @return  mixed
+     */
+    public function username($value = NULL)
+    {
+        return $this->_get_set('_username', $value, 'is_string');
+    }
+
+    /**
      * Get or set the OAuth version.
      * This method is chainable when setting a value.
      *
@@ -260,8 +277,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         if (empty($url))
         {
             $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Request token URL not configured for '.$service);
-            throw new Kohana_Exception('Request token URL not configured for :service in :method.', array
+            MMI_API::log_error(__METHOD__, __LINE__, 'Request token URL not set for '.$service);
+            throw new Kohana_Exception('Request token URL not set for :service in :method.', array
             (
                 ':service'  => $service,
                 ':method'   => __METHOD__,
@@ -312,8 +329,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         if (empty($url))
         {
             $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
-            throw new Kohana_Exception('Access token URL not configured for :service in :method.', array
+            MMI_API::log_error(__METHOD__, __LINE__, 'Access token URL not set for '.$service);
+            throw new Kohana_Exception('Access token URL not set for :service in :method.', array
             (
                 ':service'  => $service,
                 ':method'   => __METHOD__,
@@ -361,8 +378,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         if (empty($url))
         {
             $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Access token URL not configured for '.$service);
-            throw new Kohana_Exception('Access token URL not configured for :service in :method.', array
+            MMI_API::log_error(__METHOD__, __LINE__, 'Access token URL not set for '.$service);
+            throw new Kohana_Exception('Access token URL not set for :service in :method.', array
             (
                 ':service'  => $service,
                 ':method'   => __METHOD__,
@@ -654,7 +671,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      */
     protected function _check_token()
     {
-        if ( ! $this->is_token_valid(NULL, TRUE))
+        if ( ! $this->is_valid_token(NULL, TRUE))
         {
             $service = $this->_service;
             MMI_API::log_error(__METHOD__, __LINE__, 'Request token not valid for '.$service);
@@ -693,7 +710,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $model = $this->_model;
         if ( ! $model instanceof Jelly_Model)
         {
-            $model = Model_MMI_API_Tokens::select_by_service_and_consumer_key($this->_service, $this->_consumer->key, FALSE);
+            $model = $this->_get_db_model();
         }
         if ($model->loaded())
         {
@@ -703,6 +720,27 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             $this->_token = $token;
         }
         $this->_model = $model;
+    }
+
+    /**
+     * Get the OAuth credentials model from the database.
+     *
+     * @return  Jelly_Model
+     */
+    protected function _get_db_model()
+    {
+        $model;
+        $service = $this->_service;
+        $username = $this->_username;
+        if ( ! empty($username))
+        {
+            $model = Model_MMI_API_Tokens::select_by_service_and_username($service, $username, FALSE);
+        }
+        else
+        {
+            $model = Model_MMI_API_Tokens::select_by_service_and_consumer_key($service, $this->_consumer->key, FALSE);
+        }
+        return $model;
     }
 
     /**
@@ -723,7 +761,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $model = $this->_model;
         if ( ! $model instanceof Jelly_Model)
         {
-            $model = Model_MMI_API_Tokens::select_by_service_and_consumer_key($this->_service, $this->_consumer->key, FALSE);
+            $model = $this->_get_db_model();
         }
 
         // Update the data model
@@ -781,6 +819,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     protected function _init_model($model)
     {
         $consumer = $this->_consumer;
+        $username = $this->_username;
         if ( ! $model instanceof Jelly_Model)
         {
             $model = Jelly::factory('MMI_API_Tokens');
@@ -790,6 +829,10 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             $model->service = $this->_service;
             $model->consumer_key = $consumer->key;
             $model->consumer_secret = Encrypt::instance()->encode($consumer->secret);
+            if ( ! empty($username))
+            {
+                $model->username = $username;
+            }
         }
         return $model;
     }
