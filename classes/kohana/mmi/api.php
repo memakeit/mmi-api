@@ -828,35 +828,26 @@ abstract class Kohana_MMI_API
     /**
      * Ensure a valid MMI_Curl_Response object was received and check the HTTP status code.
      *
-     * @throws  Kohana_Exception
      * @param   MMI_Curl_Response   the response to validate
      * @param   string              an error message for invalid responses
-     * @return  void
+     * @return  boolean
      */
     protected function _validate_curl_response($response, $msg)
     {
+        $valid = TRUE;
         if ( ! $response instanceof MMI_Curl_Response)
         {
-            MMI_API::log_error(__METHOD__, __LINE__, 'No cURL response.');
-            throw new Kohana_Exception('No cURL response in :method.', array
-            (
-                ':method'   => __METHOD__
-            ));
+            $valid = FALSE;
+            MMI_API::log_error(__METHOD__, __LINE__, 'No cURL response object.');
         }
 
         $http_status_code = $response->http_status_code();
         if (intval($http_status_code) !== 200)
         {
-            $body = $response->body();
-            MMI_API::log_error(__METHOD__, __LINE__, $msg.'.  HTTP status code:' .$http_status_code. '.  Response: '.$body);
-            throw new Kohana_Exception(':msg in :method.  HTTP status code: :http_status_code.  Response: :body', array
-            (
-                ':msg'              => $msg,
-                ':method'           => __METHOD__,
-                ':http_status_code' => $http_status_code,
-                ':body'             => $body,
-            ));
+            $valid = FALSE;
+            MMI_API::log_error(__METHOD__, __LINE__, $msg.'.  HTTP status code:' .$http_status_code. '.  Response: '.$response->body());
         }
+        return $valid;
     }
 
     /**
