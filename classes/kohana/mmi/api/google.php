@@ -66,8 +66,12 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
 
         // Make the request and extract the token
         $response = $this->_auth_request($auth_config, $http_method, $url, $parms);
-        $this->_validate_curl_response($response, 'Invalid request token');
-        return $this->_extract_token($response);
+        $token = NULL;
+        if ($this->_validate_curl_response($response, 'Invalid request token'))
+        {
+            $token = $this->_extract_token($response);
+        }
+        return $token;
     }
 
     /**

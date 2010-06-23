@@ -281,8 +281,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         // Make the request and extract the token
         $response = $this->_auth_request($auth_config, $http_method, $url, $parms);
-        $this->_validate_curl_response($response, 'Invalid request token');
-        return $this->_extract_token($response);
+        $token = NULL;
+        if ($this->_validate_curl_response($response, 'Invalid request token'))
+        {
+            $token = $this->_extract_token($response);
+        }
+        return $token;
     }
 
     /**
@@ -325,8 +329,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         // Make the request and extract the token
         $response = $this->_auth_request($auth_config, $http_method, $url, $parms);
-        $this->_validate_curl_response($response, 'Invalid access token');
-        return $this->_extract_token($response);
+        $token = NULL;
+        if ($this->_validate_curl_response($response, 'Invalid access token'))
+        {
+            $token = $this->_extract_token($response);
+        }
+        return $token;
     }
 
     /**
@@ -371,8 +379,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         // Make the request and extract the token
         $response = $this->_auth_request($auth_config, $http_method, $url, $parms);
-        $this->_validate_curl_response($response, 'Invalid xauth access token');
-        return $this->_extract_token($response);
+        $token = NULL;
+        if ($this->_validate_curl_response($response, 'Invalid xauth access token'))
+        {
+            $token = $this->_extract_token($response);
+        }
+        return $token;
     }
 
     /**
@@ -474,7 +486,6 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * Make an API call.
      *
-     * @throws  Kohana_Exception
      * @param   string  the URL
      * @param   array   an associative array of request parameters
      * @param   string  the HTTP method
@@ -545,7 +556,6 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * Make multiple API calls.
      *
-     * @throws  Kohana_Exception
      * @param   array   an associative array containing the request details (URL, request parameters, HTTP headers, and cURL options)
      * @param   string  the HTTP method
      * @return  array
@@ -647,8 +657,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         if ( ! $this->is_token_valid(NULL, TRUE))
         {
             $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Request token is not valid for '.$service);
-            throw new Kohana_Exception('Request token is not valid for :service in :method.', array
+            MMI_API::log_error(__METHOD__, __LINE__, 'Request token not valid for '.$service);
+            throw new Kohana_Exception('Request token not valid for :service in :method.', array
             (
                 ':service'  => $service,
                 ':method'   => __METHOD__,
