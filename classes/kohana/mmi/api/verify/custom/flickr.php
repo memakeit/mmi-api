@@ -1,64 +1,24 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * Verify OAuth authorization.
+ * Verify Flickr credentials.
  *
  * @package     MMI API
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
  */
-class Kohana_MMI_OAuth_Verification
+class Kohana_MMI_API_Verify_Custom_Flickr
 {
     /**
-     * @var boolean turn debugging on?
-     **/
-    public $debug;
-
-    /**
-     * @var string the service name
-     */
-    protected $_service = '?';
-
-    /**
-     * @var array an associative array of OAuth configuration options
-     **/
-    protected $_auth_config = array();
-
-    /**
-     * @var array an associative array of service-specific configuration options
-     **/
-    protected $_service_config = array();
-
-    /**
-     * Initialize debugging (using the Request instance).
-     * Load the configuration settings.
-     *
-     * @return  void
-     */
-    public function __construct()
-    {
-        require_once Kohana::find_file('vendor', 'oauth/oauth_required');
-
-        $this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
-        $config = MMI_API::get_config(TRUE);
-        $this->_service_config = Arr::get($config, $this->_service, array());
-        $this->_auth_config = Arr::get($this->_service_config, 'auth', array());
-    }
-
-    /**
-     * Process the OAuth verification details.
+     * Verify the custom credentials.
      *
      * @throws  Kohana_Exception
-     * @param   string  the service name
      * @return  boolean
      */
-    public function process_verification($service = NULL)
+    public function verify()
     {
         // Set the service
-        if ( ! isset($service))
-        {
-            $service = $this->_service;
-        }
+        $service = $this->_service;
         if (empty($service))
         {
             MMI_API::log_error(__METHOD__, __LINE__, 'Service not set');
@@ -87,7 +47,16 @@ class Kohana_MMI_OAuth_Verification
 
         // Load existing data from the database
         $consumer_key = Arr::get($auth_config, 'consumer_key');
-        $model = Model_MMI_API_Tokens::select_by_service_and_consumer_key($service, $consumer_key, FALSE);
+        $username = Arr::get($auth_config, 'username');
+        $model;
+        if ( ! empty($username))
+        {
+            $model = Model_MMI_API_Tokens::select_by_service_and_username($service, $username, FALSE);
+        }
+        else
+        {
+            $model = Model_MMI_API_Tokens::select_by_service_and_consumer_key($service, $consumer_key, FALSE);
+        }
 
         $success = FALSE;
         if ($model->loaded())
@@ -135,31 +104,4 @@ class Kohana_MMI_OAuth_Verification
         }
         return $success;
     }
-
-    /**
-     * Create an OAuth verification instance.
-     *
-     * @throws  Kohana_Exception
-     * @param   string  the name of the service
-     * @return  MMI_OAuth_Verifcation
-     */
-    public static function factory($driver = NULL)
-    {
-        $class = 'MMI_OAuth_Verification';
-        if ( ! empty($driver))
-        {
-            $class .= '_'.ucfirst($driver);
-        }
-
-        if ( ! class_exists($class))
-        {
-            MMI_API::log_error(__METHOD__, __LINE__, $class.' class does not exist');
-            throw new Kohana_Exception(':class class does not exist in :method.', array
-            (
-                ':class'    => $class,
-                ':method'   => __METHOD__
-            ));
-        }
-        return new $class;
-    }
-} // End Kohana_MMI_OAuth_Verification
+} // End Kohana_MMI_API_Verify_Custom_Flickr
