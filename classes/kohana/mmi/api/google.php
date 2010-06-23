@@ -32,8 +32,8 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         if (empty($url))
         {
             $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Request token URL not configured for '.$service);
-            throw new Kohana_Exception('Request token URL not configured for :service in :method.', array
+            MMI_API::log_error(__METHOD__, __LINE__, 'Request token URL not set for '.$service);
+            throw new Kohana_Exception('Request token URL not set for :service in :method.', array
             (
                 ':service'  => $service,
                 ':method'   => __METHOD__,
