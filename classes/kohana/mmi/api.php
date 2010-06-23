@@ -258,7 +258,7 @@ abstract class Kohana_MMI_API
     }
 
     /**
-     * Get or set the user-agent sent by cURL requests.
+     * Get or set the useragent sent by cURL requests.
      * This method is chainable when setting a value.
      *
      * @param   string  the value to set
