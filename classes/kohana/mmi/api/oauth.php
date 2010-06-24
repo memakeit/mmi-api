@@ -492,7 +492,6 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         if (isset($this->token->attributes))
         {
             $redirect = Arr::get($this->token->attributes, 'xoauth_request_auth_url');
-            unset($this->_token->attributes);
         }
 
         // Validate the redirect

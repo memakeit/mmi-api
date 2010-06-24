@@ -253,7 +253,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
             if ( ! empty($body))
             {
                 $frob = NULL;
-                $data = $this->_decode_json($response->body(), TRUE);
+                $data = $this->_decode_json($body, TRUE);
                 if (is_array($data) AND count($data) > 0)
                 {
                     $frob = Arr::path($data, 'frob._content');
@@ -291,7 +291,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
                 $permissions = NULL;
                 $token_key = NULL;
                 $username = NULL;
-                $data = $this->_decode_json($response->body(), TRUE);
+                $data = $this->_decode_json(body, TRUE);
                 if (is_array($data) AND count($data) > 0)
                 {
                     $auth = Arr::get($data, 'auth', array());

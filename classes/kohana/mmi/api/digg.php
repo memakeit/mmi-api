@@ -58,6 +58,7 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
                 }
             }
         }
+        unset($response);
         return ($verified === 1);
     }
 } // End Kohana_MMI_API_Digg

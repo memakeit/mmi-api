@@ -448,7 +448,7 @@ abstract class Kohana_MMI_API
         $parms = $this->_configure_parameters($parms);
 
         // Create and configure the cURL object
-        $curl = MMI_Curl::factory();
+        $curl = new MMI_Curl;
         $this->_configure_curl_options($curl);
         $this->_configure_auth_header($curl);
         $this->_configure_http_headers($curl);
