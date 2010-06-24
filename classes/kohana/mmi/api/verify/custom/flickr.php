@@ -90,10 +90,6 @@ class Kohana_MMI_API_Verify_Custom_Flickr
                     $model->token_secret = Encrypt::instance()->encode($token->secret);
                     $model->verified = 1;
                     $model->verification_code = $verification_code;
-                    if ( ! empty($token->username))
-                    {
-                        $model->username = $token->username;
-                    }
                     if ( ! empty($token->attributes))
                     {
                         $model->attributes = $token->attributes;
