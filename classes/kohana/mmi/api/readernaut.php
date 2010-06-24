@@ -11,10 +11,11 @@
  */
 class Kohana_MMI_API_Readernaut extends MMI_API
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_READERNAUT;
+
+    // API settings
+    protected $_api_url = 'http://readernaut.com/api/v1/';
 
     /**
      * Build the request URL.

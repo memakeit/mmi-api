@@ -11,10 +11,18 @@
  */
 class Kohana_MMI_API_Foursquare extends MMI_API_OAuth
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_FOURSQUARE;
+
+    // API settings
+    protected $_api_url = 'http://api.foursquare.com/v1/';
+
+    // OAuth settings
+    protected $_request_token_url = 'http://foursquare.com/oauth/request_token';
+    protected $_request_token_http_method = MMI_HTTP::METHOD_GET;
+    protected $_access_token_url = 'http://foursquare.com/oauth/access_token';
+    protected $_access_token_http_method = MMI_HTTP::METHOD_GET;
+    protected $_authorize_url = 'http://foursquare.com/oauth/authorize';
 
     /**
      * Build the request URL.

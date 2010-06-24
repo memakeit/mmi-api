@@ -11,10 +11,16 @@
  */
 class Kohana_MMI_API_Delicious extends MMI_API_OAuth
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_DELICIOUS;
+
+    // API settings
+    protected $_api_url = 'http://api.del.icio.us/v2/';
+
+    // OAuth settings
+    protected $_request_token_url = 'https://api.login.yahoo.com/oauth/v2/get_request_token';
+    protected $_access_token_url = 'https://api.login.yahoo.com/oauth/v2/get_token';
+    protected $_authorize_url = 'https://api.login.yahoo.com/oauth/v2/request_auth';
 
     /**
      * Ensure the request token has been verified and an access token received.

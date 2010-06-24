@@ -11,8 +11,9 @@
  */
 class Kohana_MMI_API_Picasa extends MMI_API_Google
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_PICASA;
+
+    // API settings
+    protected $_api_url = 'http://picasaweb.google.com/data/feed/api/';
 } // End Kohana_MMI_API_Picasa

@@ -11,8 +11,9 @@
  */
 class Kohana_MMI_API_YouTube extends MMI_API_Google
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_YOUTUBE;
+
+    // API settings
+    protected $_api_url = 'http://gdata.youtube.com/feeds/api/';
 } // End Kohana_MMI_API_YouTube

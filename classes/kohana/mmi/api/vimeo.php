@@ -11,10 +11,18 @@
  */
 class Kohana_MMI_API_Vimeo extends MMI_API_OAuth
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_VIMEO;
+
+    // API settings
+    protected $_api_url = 'http://vimeo.com/api/rest/v2/';
+
+    // OAuth settings
+    protected $_request_token_url = 'http://vimeo.com/oauth/request_token';
+    protected $_request_token_http_method = MMI_HTTP::METHOD_GET;
+    protected $_access_token_url = 'http://vimeo.com/oauth/access_token';
+    protected $_access_token_http_method = MMI_HTTP::METHOD_GET;
+    protected $_authorize_url = 'http://vimeo.com/oauth/authorize';
 
     /**
      * Configure the request parameters as specified in the configuration file.

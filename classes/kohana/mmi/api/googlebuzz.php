@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * Make Google Buzz API calls.
+ * Make GoogleBuzz API calls.
  * Response formats: Atom, JSON
  *
  * @package     MMI API
@@ -11,8 +11,9 @@
  */
 class Kohana_MMI_API_GoogleBuzz extends MMI_API_Google
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_GOOGLEBUZZ;
+
+    // API settings
+    protected $_api_url = 'https://www.googleapis.com/buzz/v1/';
 } // End Kohana_MMI_API_GoogleBuzz

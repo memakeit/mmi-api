@@ -11,8 +11,9 @@
  */
 class Kohana_MMI_API_Bitly extends MMI_API
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_BITLY;
+
+    // API settings
+    protected $_api_url = 'http://api.bit.ly/v3/';
 } // End Kohana_MMI_API_Bitly

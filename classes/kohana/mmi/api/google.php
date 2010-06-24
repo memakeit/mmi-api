@@ -9,6 +9,11 @@
  */
 abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
 {
+    // OAuth settings
+    protected $_request_token_url = 'https://www.google.com/accounts/OAuthGetRequestToken';
+    protected $_access_token_url = 'https://www.google.com/accounts/OAuthGetAccessToken';
+    protected $_authorize_url = 'https://www.google.com/accounts/OAuthAuthorizeToken';
+
     /**
      * Get a request token.
      *
@@ -27,7 +32,7 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         $auth_config = Arr::merge($this->_auth_config, $auth_config);
 
         // Configure the HTTP method and the URL
-        $http_method = Arr::get($auth_config, 'request_token_http_method', MMI_HTTP::METHOD_POST);
+        $http_method = $this->_request_token_http_method;
         $url = $this->_request_token_url;
         if (empty($url))
         {

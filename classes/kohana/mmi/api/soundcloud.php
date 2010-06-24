@@ -11,8 +11,14 @@
  */
 class Kohana_MMI_API_SoundCloud extends MMI_API_OAuth
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_SOUNDCLOUD;
+
+    // API settings
+    protected $_api_url = 'http://api.soundcloud.com/';
+
+    // OAuth settings
+    protected $_request_token_url = 'http://api.soundcloud.com/oauth/request_token';
+    protected $_access_token_url = 'http://api.soundcloud.com/oauth/access_token';
+    protected $_authorize_url = 'http://api.soundcloud.com/oauth/authorize';
 } // End Kohana_MMI_API_SoundCloud

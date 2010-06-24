@@ -11,6 +11,15 @@
  */
 class Kohana_MMI_API_Flickr extends MMI_API_Custom
 {
+    // Service name
+    protected $_service = MMI_API::SERVICE_FLICKR;
+
+    // API settings
+    protected $_api_url = 'http://api.flickr.com/services/rest/';
+
+    // Auth settings
+    protected $_authorize_url = 'http://flickr.com/services/auth/';
+
     /**
      * @var string the API key
      */
@@ -20,11 +29,6 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
      * @var string the API secret
      */
     protected $_api_secret = NULL;
-
-    /**
-     * @var string the service name
-     */
-    protected $_service = MMI_API::SERVICE_FLICKR;
 
     /**
      * Load configuration settings.
@@ -291,7 +295,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
                 $permissions = NULL;
                 $token_key = NULL;
                 $username = NULL;
-                $data = $this->_decode_json(body, TRUE);
+                $data = $this->_decode_json($body, TRUE);
                 if (is_array($data) AND count($data) > 0)
                 {
                     $auth = Arr::get($data, 'auth', array());

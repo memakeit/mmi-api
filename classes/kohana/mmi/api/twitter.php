@@ -11,12 +11,21 @@
  */
 class Kohana_MMI_API_Twitter extends MMI_API_OAuth
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_TWITTER;
 
-        /**
+    // API settings
+    protected $_api_url = 'http://api.twitter.com/1/';
+
+    // OAuth settings
+    protected $_request_token_url = 'https://api.twitter.com/oauth/request_token';
+    protected $_request_token_http_method = MMI_HTTP::METHOD_GET;
+    protected $_access_token_url = 'https://api.twitter.com/oauth/access_token';
+    protected $_access_token_http_method = MMI_HTTP::METHOD_GET;
+    protected $_authenticate_url = 'https://api.twitter.com/oauth/authenticate';
+    protected $_authorize_url = 'https://api.twitter.com/oauth/authorize';
+
+    /**
      * Ensure the request token has been verified and an access token received.
      *
      * @throws  Kohana_Exception

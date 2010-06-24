@@ -11,10 +11,11 @@
  */
 class Kohana_MMI_API_LastFM extends MMI_API
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_LASTFM;
+
+    // API settings
+    protected $_api_url = 'http://ws.audioscrobbler.com/2.0/';
 
     /**
      * Configure the request parameters as specified in the configuration file.

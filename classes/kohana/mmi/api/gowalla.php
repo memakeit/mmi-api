@@ -7,14 +7,15 @@
  * @author      Me Make It
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
- * @link        http://develop.github.com/
+ * @link        http://gowalla.com/api/explorer
  */
 class Kohana_MMI_API_Gowalla extends MMI_API_Basic
 {
-    /**
-     * @var string the service name
-     */
+    // Srvice name
     protected $_service = MMI_API::SERVICE_GOWALLA;
+
+    // API settings
+    protected $_api_url = 'http://api.gowalla.com/';
 
     /**
      * Configure the HTTP authorization header sent via cURL.

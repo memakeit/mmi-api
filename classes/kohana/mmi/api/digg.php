@@ -11,10 +11,17 @@
  */
 class Kohana_MMI_API_Digg extends MMI_API_OAuth
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_DIGG;
+
+    // API settings
+    protected $_api_url = 'http://services.digg.com/1.0/endpoint';
+
+    // OAuth settings
+    protected $_request_token_url = 'http://services.digg.com/1.0/endpoint?method=oauth.getRequestToken';
+    protected $_access_token_url = 'http://services.digg.com/1.0/endpoint?method=oauth.getAccessToken';
+    protected $_authenticate_url = 'http://digg.com/oauth/authenticate';
+    protected $_authorize_url = 'http://digg.com/oauth/authorize';
 
     /**
      * Verify the access token.
