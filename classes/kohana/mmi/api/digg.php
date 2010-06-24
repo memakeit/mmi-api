@@ -68,4 +68,29 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
         unset($response);
         return ($verified === 1);
     }
+
+    /**
+     * Configure the request parameters as specified in the configuration file.
+     * When processing additions, if a parameter value exists, it will not be overwritten.
+     *
+     * @param   array   an associative array of request parameters
+     * @return  array
+     */
+    protected function _configure_parameters($parms)
+    {
+        if ( ! is_array($parms))
+        {
+            $parms = array();
+        }
+
+        if ( ! $this->_send_accept_header)
+        {
+            $name = 'type';
+            if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+            {
+                $parms[$name] = $this->_format;
+            }
+        }
+        return parent::_configure_parameters($parms);
+    }
 } // End Kohana_MMI_API_Digg
