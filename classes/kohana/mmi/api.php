@@ -135,7 +135,10 @@ abstract class Kohana_MMI_API
         foreach ($settings as $name)
         {
             $value = Arr::get($api_service, $name, Arr::get($api_globals, $name));
-            $this->$name($value);
+            if ( ! empty($value))
+            {
+                $this->$name($value);
+            }
         }
     }
 
@@ -834,20 +837,19 @@ abstract class Kohana_MMI_API
      */
     protected function _validate_curl_response($response, $msg)
     {
-        $valid = TRUE;
         if ( ! $response instanceof MMI_Curl_Response)
         {
-            $valid = FALSE;
             MMI_API::log_error(__METHOD__, __LINE__, 'No cURL response object.');
+            return FALSE;
         }
 
         $http_status_code = $response->http_status_code();
         if (intval($http_status_code) !== 200)
         {
-            $valid = FALSE;
             MMI_API::log_error(__METHOD__, __LINE__, $msg.'.  HTTP status code:' .$http_status_code. '.  Response: '.$response->body());
+            return FALSE;
         }
-        return $valid;
+        return TRUE;
     }
 
     /**

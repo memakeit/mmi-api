@@ -11,10 +11,11 @@
  */
 class Kohana_MMI_API_GitHub extends MMI_API_Basic
 {
-    /**
-     * @var string the service name
-     */
+    // Service name
     protected $_service = MMI_API::SERVICE_GITHUB;
+
+    // API settings
+    protected $_api_url = 'https://github.com/api/v2/';
 
     /**
      * Build the request URL.
