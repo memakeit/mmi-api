@@ -853,6 +853,25 @@ abstract class Kohana_MMI_API
     }
 
     /**
+     * Check if a URL ends with a given suffix.
+     *
+     * @param   string  the URL to test
+     * @param   string  the suffix
+     * @param   boolean perform a case-sensitive comparison?
+     * @return  boolean
+     */
+    protected function _url_ends_with($url, $suffix, $case_sensitive = TRUE)
+    {
+        $ends_with = FALSE;
+        if ( ! empty($url) AND ! empty($suffix))
+        {
+            $end = substr($url, strlen($url) - strlen($suffix));
+            $ends_with = ($case_sensitive) ? ($end === $suffix) : (strcasecmp($end, $suffix) === 0);
+        }
+        return $ends_with;
+    }
+
+    /**
      * Get or set a class property.
      * This method is chainable when setting a value.
      *
