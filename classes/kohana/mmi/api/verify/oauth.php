@@ -73,8 +73,17 @@ class Kohana_MMI_API_Verify_OAuth
         $require_verification_code = Arr::get($auth_config, 'require_verification_code', TRUE);
 
         // Ensure the verification parameters are set
-        $verification_code = Arr::get($_GET, 'oauth_verifier');
-        $token_key = Arr::get($_GET, 'oauth_token');
+        $verification_code = NULL;
+        if (array_key_exists('oauth_verifier', $_GET))
+        {
+            $verification_code = urldecode(Security::xss_clean($_GET['oauth_verifier']));
+        }
+        $token_key = NULL;
+        if (array_key_exists('oauth_token', $_GET))
+        {
+            $token_key = urldecode(Security::xss_clean($_GET['oauth_token']));
+        }
+
         if (empty($token_key) OR ($require_verification_code AND empty($verification_code)))
         {
             MMI_API::log_error(__METHOD__, __LINE__, 'Verification parameter missing.  OAuth token:'.$token_key.'.  Verification code:'.$verification_code);

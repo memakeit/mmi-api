@@ -34,7 +34,11 @@ class Kohana_MMI_API_Verify_Custom_Flickr
         }
 
         // Ensure the verification parameters are set
-        $frob = Arr::get($_GET, 'frob');
+        $frob = NULL;
+        if (array_key_exists('frob', $_GET))
+        {
+            $frob = urldecode(Security::xss_clean($_GET['frob']));
+        }
         if (empty($frob))
         {
             MMI_API::log_error(__METHOD__, __LINE__, 'Frob parameter missing');
