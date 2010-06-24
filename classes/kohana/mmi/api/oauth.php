@@ -43,7 +43,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     protected $_consumer;
 
     /**
-     * @var Jelly_Model the OAuth credentials data
+     * @var Jelly_Model the OAuth credentials model
      **/
     protected $_model = NULL;
 
@@ -457,17 +457,20 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
      * After obtaining a new request token, return the authorization URL.
      *
      * @throws  Kohana_Exception
+     * @param   OAuthToken  the OAuth token object
      * @return  string
      */
-    public function get_auth_redirect()
+    public function get_auth_redirect($token = NULL)
     {
         $redirect = NULL;
 
         // Get a new request token
-        $token = $this->get_request_token();
+        if ( ! isset($token))
+        {
+            $token = $this->get_request_token();
+        }
         if ($this->is_valid_token($token))
         {
-            // Update the token
             $success = $this->_update_token($token);
         }
         else
@@ -758,17 +761,18 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
         $this->_token = new OAuthToken($token->key, $token->secret);
 
+        // Load the data model
         $model = $this->_model;
         if ( ! $model instanceof Jelly_Model)
         {
             $model = $this->_get_db_model();
         }
-
-        // Update the data model
         if ( ! $model->loaded())
         {
             $model = $this->_init_model($model);
         }
+
+        // Update the data model
         $model->token_key = $token->key;
         $model->token_secret = Encrypt::instance()->encode($token->secret);
         if ($save_attributes AND ! empty($token->attributes))
@@ -776,7 +780,6 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             $model->attributes = $token->attributes;
             $this->_token->attributes = $token->attributes;
         }
-
         $success = MMI_Jelly::save($model, $errors);
         if ( ! $success AND $this->debug)
         {
@@ -784,7 +787,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         }
         $this->_model = $model;
 
-        // Update the token verification
+        // Update the token's verified flag
         if ($success)
         {
             $this->_token->verified = $model->verified;
