@@ -84,7 +84,7 @@ class Kohana_MMI_API_Verify_Custom_Flickr
                 ));
 
                 // Update the token credentials in the database
-                if ($svc->is_valid_token($token))
+                if (isset($token) AND $svc->is_valid_token($token))
                 {
                     $model->token_key = $token->key;
                     $model->token_secret = Encrypt::instance()->encode($token->secret);

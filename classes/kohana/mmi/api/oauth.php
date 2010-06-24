@@ -417,6 +417,10 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         {
             $token = $this->_token;
         }
+        if ( ! $token instanceof OAuthToken)
+        {
+            return FALSE;
+        }
 
         $valid = FALSE;
         if ($check_verified AND isset($token->verified) AND is_bool($token->verified))
@@ -469,7 +473,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         {
             $token = $this->get_request_token();
         }
-        if ($this->is_valid_token($token))
+        if (isset($token) AND $this->is_valid_token($token))
         {
             $success = $this->_update_token($token);
         }

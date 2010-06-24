@@ -133,6 +133,10 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
         {
             $token = $this->_token;
         }
+        if ( ! is_object($token))
+        {
+            return FALSE;
+        }
 
         $valid = FALSE;
         if ($check_verified AND isset($token->verified) AND is_bool($token->verified))

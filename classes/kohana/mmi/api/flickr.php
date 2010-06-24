@@ -177,7 +177,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
         {
             $token = $this->get_request_token();
         }
-        if ($this->is_valid_token($token))
+        if (isset($token) AND $this->is_valid_token($token))
         {
             $success = $this->_update_token($token);
         }
