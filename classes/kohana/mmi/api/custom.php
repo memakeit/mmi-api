@@ -58,11 +58,21 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
         $auth_config = $this->_auth_config;
 
         // Configure the auth URLs
-        $settings = array('auth_callback_url', 'authenticate_url', 'authorize_url', 'username');
+        $settings = array
+        (
+            'auth_callback_url',
+            'authenticate_url',
+            'authorize_url',
+            'username'
+        );
         foreach ($settings as $setting)
         {
             $var = '_'.$setting;
-            $this->$var = Arr::get($auth_config, $setting);
+            $value = Arr::get($auth_config, $setting);
+            if ( ! empty($value))
+            {
+                $this->$var = $value;
+            }
         }
 
         // Ensure the access token is valid
