@@ -18,6 +18,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     const SIGN_RSA_SHA1 = 'RSA-SHA1';
 
     /**
+     * @var string the HTTP method used to process access token requests
+     **/
+    protected $_access_token_http_method = MMI_HTTP::METHOD_POST;
+
+    /**
      * @var string the access token URL
      **/
     protected $_access_token_url;
@@ -53,6 +58,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     protected $_realm = '';
 
     /**
+     * @var string the HTTP method used to process request token requests
+     **/
+    protected $_request_token_http_method = MMI_HTTP::METHOD_POST;
+
+    /**
      * @var string the request token URL
      **/
     protected $_request_token_url;
@@ -65,7 +75,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * @var OAuthSignatureMethod the signature object (used to sign the request)
      **/
-    protected $_signature_method;
+    protected $_signature_method = MMI_API_OAuth::SIGN_HMAC_SHA1;
 
     /**
      * @var OAuthToken the OAuth token object
@@ -95,11 +105,23 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $auth_config = $this->_auth_config;
 
         // Configure the auth URLs
-        $settings = array('access_token_url', 'auth_callback_url', 'authenticate_url', 'authorize_url', 'request_token_url', 'username');
+        $settings = array
+        (
+            'access_token_url',
+            'auth_callback_url',
+            'authenticate_url',
+            'authorize_url',
+            'request_token_url',
+            'username'
+        );
         foreach ($settings as $setting)
         {
             $var = '_'.$setting;
-            $this->$var = Arr::get($auth_config, $setting);
+            $value = Arr::get($auth_config, $setting);
+            if ( ! empty($value))
+            {
+                $this->$var = $value;
+            }
         }
 
         // Create the consumer, token, and signature method objects
@@ -116,6 +138,18 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         {
             $this->_load_token();
         }
+    }
+
+    /**
+     * Get or set the HTTP method used to process access token requests.
+     * This method is chainable when setting a value.
+     *
+     * @param   string  the value to set
+     * @return  mixed
+     */
+    public function access_token_http_method($value = NULL)
+    {
+        return $this->_get_set('_access_token_http_method', $value, 'is_string');
     }
 
     /**
@@ -207,6 +241,18 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     }
 
     /**
+     * Get or set the HTTP method used to process request token requests.
+     * This method is chainable when setting a value.
+     *
+     * @param   string  the value to set
+     * @return  mixed
+     */
+    public function request_token_http_method($value = NULL)
+    {
+        return $this->_get_set('_request_token_http_method', $value, 'is_string');
+    }
+
+    /**
      * Get or set the request token URL.
      * This method is chainable when setting a value.
      *
@@ -272,7 +318,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $auth_config = Arr::merge($this->_auth_config, $auth_config);
 
         // Configure the HTTP method and the URL
-        $http_method = Arr::get($auth_config, 'request_token_http_method', MMI_HTTP::METHOD_POST);
+        $http_method = $this->_request_token_http_method;
         $url = $this->_request_token_url;
         if (empty($url))
         {
@@ -324,7 +370,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         $auth_config = Arr::merge($this->_auth_config, $auth_config);
 
         // Configure the HTTP method and the URL
-        $http_method = Arr::get($auth_config, 'access_token_http_method', MMI_HTTP::METHOD_POST);
+        $http_method = $this->_access_token_http_method;
         $url = $this->_access_token_url;
         if (empty($url))
         {
