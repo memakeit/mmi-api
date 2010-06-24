@@ -21,7 +21,7 @@ class Controller_Test_API_Goodreads extends Controller_Test_API
         {
             die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
         }
-        $response = $svc->get('user/show/3865951');
+//        $response = $svc->get('user/show/3865951');
 
         $requests = array
         (
@@ -30,7 +30,7 @@ class Controller_Test_API_Goodreads extends Controller_Test_API
             'following' => array('url' => 'user/3865951/following'),
             'owned books' => array('url' => 'owned_books/user', 'parms' => array('id'=>'3865951')),
         );
-//        $response = $svc->mget($requests);
+        $response = $svc->mget($requests);
         $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_Goodreads

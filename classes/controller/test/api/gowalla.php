@@ -17,14 +17,15 @@ class Controller_Test_API_Gowalla extends Controller_Test_API
     public function action_index()
     {
         $svc = MMI_API::factory(MMI_API::SERVICE_GOWALLA);
-        $response = $svc->get('users/memakeit');
+//        $response = $svc->get('users/memakeit');
 
         $requests = array
         (
-            'memakeit' => array('url' => 'user/show/memakeit'),
-            'shadowhand' => array('url' => 'user/show/shadowhand'),
+            'profile' => array('url' => 'users/memakeit'),
+            'stamps' => array('url' => 'users/memakeit/stamps'),
+            'top spots' => array('url' => 'users/memakeit/top_spots'),
         );
-//        $response = $svc->mget($requests);
+        $response = $svc->mget($requests);
         $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_Gowalla

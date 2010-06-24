@@ -21,15 +21,15 @@ class Controller_Test_API_LinkedIn extends Controller_Test_API
         {
             die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
         }
-        $response = $svc->get('~:(id,first-name,last-name,location,current-status,current-status-timestamp,num-recommenders,connections)');
+//        $response = $svc->get('~:(id,first-name,last-name,location,current-status,current-status-timestamp,num-recommenders,connections)');
 
         $requests = array
         (
-            'profile' => array('url' => '~'),
+            'profile' => array('url' => '~:(id,first-name,last-name,location,current-status,current-status-timestamp,num-recommenders,connections)'),
             'current-status' => array('url' => '~/current-status'),
             'network' => array('url' => '~/network'),
         );
-//        $response = $svc->mget($requests);
+        $response = $svc->mget($requests);
         $this->_set_response($response, $svc->service());
     }
 } // End Controller_Test_API_LinkedIn
