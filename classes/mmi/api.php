@@ -26,6 +26,7 @@ abstract class MMI_API extends Kohana_MMI_API
     const SERVICE_LASTFM = 'lastfm';
     const SERVICE_LINKEDIN = 'linkedin';
     const SERVICE_MIXX = 'mixx';
+    const SERVICE_MYSPACE = 'myspace';
     const SERVICE_PICASA = 'picasa';
     const SERVICE_READERNAUT = 'readernaut';
     const SERVICE_SOUNDCLOUD = 'soundcloud';
