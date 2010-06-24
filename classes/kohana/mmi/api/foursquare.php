@@ -33,6 +33,16 @@ class Kohana_MMI_API_Foursquare extends MMI_API_OAuth
      */
     protected function _build_url($url, $path)
     {
-        return "$url$path.{$this->_format}";
+        // Ensure the URL does not already have an extension
+        $has_extension = FALSE;
+        foreach (array(MMI_API::FORMAT_JSON, MMI_API::FORMAT_XML) as $ext)
+        {
+            if ($this->_url_ends_with($path, '.'.$ext))
+            {
+                $has_extension = TRUE;
+                break;
+            }
+        }
+        return ($has_extension) ? $url.$path : "$url$path.{$this->_format}";
     }
 } // End Kohana_MMI_API_Foursquare
