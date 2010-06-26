@@ -45,7 +45,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * @var OAuthConsumer the OAuth consumer object
      **/
-    protected $_consumer;
+    protected $_consumer = NULL;
 
     /**
      * @var Jelly_Model the OAuth credentials model
@@ -75,12 +75,17 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * @var OAuthSignatureMethod the signature object (used to sign the request)
      **/
-    protected $_signature_method = MMI_API_OAuth::SIGN_HMAC_SHA1;
+    protected $_signature_method = NULL;
+
+    /**
+     * @var string the signature type (used to sign the request)
+     **/
+    protected $_signature_type = MMI_API_OAuth::SIGN_HMAC_SHA1;
 
     /**
      * @var OAuthToken the OAuth token object
      **/
-    protected $_token;
+    protected $_token = NULL;
 
     /**
      * @var string the username associated with the OAuth credentials
@@ -127,7 +132,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         // Create the consumer, token, and signature method objects
         $this->_consumer = $this->_get_consumer($auth_config);
         $this->_token = $this->_get_token($auth_config);
-        $this->_signature_method = $this->_get_signature_method($auth_config);
+        $this->_signature_method = $this->_get_signature_method();
 
         // Configure other OAuth settings
         $this->_realm = Arr::get($auth_config, 'realm');
@@ -949,7 +954,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         // Create the consumer, token, and signature method objects
         $consumer = $this->_get_consumer($auth_config);
         $token = $this->_get_token($auth_config);
-        $signature_method = $this->_get_signature_method($auth_config);
+        $signature_method = $this->_get_signature_method();
 
         // Prepare and sign the OAuth request
         $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $url, $parms);
@@ -1042,12 +1047,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
     /**
      * Create an OAuth signature object using the auth configuration settings.
      *
-     * @param   array   an associative array of auth settings
      * @return  OAuthSignatureMethod
      */
-    protected function _get_signature_method($auth_config)
+    protected function _get_signature_method()
     {
-        $type = strtoupper(Arr::get($auth_config, 'signature_method', MMI_API_OAuth::SIGN_HMAC_SHA1));
+        $type = strtoupper($this->_signature_type);
         $signature_method = NULL;
         switch($type)
         {
