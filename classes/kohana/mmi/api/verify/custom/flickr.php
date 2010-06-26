@@ -7,7 +7,7 @@
  * @copyright   (c) 2010 Me Make It
  * @license     http://www.memakeit.com/license
  */
-class Kohana_MMI_API_Verify_Custom_Flickr
+class Kohana_MMI_API_Verify_Custom_Flickr extends MMI_API_Verify_Custom
 {
     /**
      * @var string the service name
@@ -15,7 +15,7 @@ class Kohana_MMI_API_Verify_Custom_Flickr
     protected $_service = MMI_API::SERVICE_FLICKR;
 
     /**
-     * Verify the custom credentials.
+     * Verify the Flickr credentials.
      *
      * @throws  Kohana_Exception
      * @return  boolean
@@ -33,7 +33,7 @@ class Kohana_MMI_API_Verify_Custom_Flickr
             ));
         }
 
-        // Ensure the verification parameters are set
+        // Ensure the frob is set
         $frob = NULL;
         if (array_key_exists('frob', $_GET))
         {
