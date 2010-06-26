@@ -26,7 +26,16 @@ class Controller_API_Verify_OAuth extends Controller
         $success = FALSE;
         if ( ! empty($service))
         {
-            $success = MMI_API_Verify_OAuth::factory()->verify($service);
+            switch (strtolower($service))
+            {
+                case MMI_API::SERVICE_FACEBOOK:
+                    $success = MMI_API_Verify_OAuth::factory($service)->verify();
+                    break;
+
+                default:
+                    $success = MMI_API_Verify_OAuth::factory()->verify($service);
+                    break;
+            }
         }
 
         // Send the response
