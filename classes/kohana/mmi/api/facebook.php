@@ -46,53 +46,7 @@ class Kohana_MMI_API_Facebook extends MMI_API_OAuth
      */
     public function get_access_token($oauth_verifier = NULL, $auth_config = array())
     {
-        // Configure the auth settings
-        if ( ! is_array($auth_config))
-        {
-            $auth_config = array();
-        }
-        $auth_config = Arr::merge($this->_auth_config, $auth_config);
-
-        // Configure the HTTP method and the URL
-        $http_method = $this->_access_token_http_method;
-        $url = $this->_access_token_url;
-        if (empty($url))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Access token URL not set for '.$service);
-            throw new Kohana_Exception('Access token URL not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
-
-        // Configure the request parameters
-        $parms = array
-        (
-            'client_id'     => Arr::get($auth_config, 'application_id'),
-            'client_secret' => Arr::get($auth_config, 'application_secret'),
-            'redirect_uri'  => Arr::get($auth_config, 'auth_callback_url'),
-            'type'          => 'client_cred',
-        );
-        if ( ! empty($oauth_verifier))
-        {
-            $parms['code'] = $oauth_verifier;
-        }
-MMI_Debug::dump($parms, 'parms');
-        // Make the request and extract the token
-        $curl = new MMI_Curl;
-        $http_method = strtolower($http_method);
-        $response = $curl->$http_method($url, $parms);
-        unset($curl);
-
-MMI_Debug::dead($response);
-        $token = NULL;
-        if ($this->_validate_curl_response($response, 'Invalid access token'))
-        {
-            $token = $this->_extract_token($response);
-        }
-        return $token;
+       return NULL;
     }
 
     /**
@@ -105,7 +59,7 @@ MMI_Debug::dead($response);
     public function get_auth_redirect($token = NULL)
     {
         $redirect = $this->authenticate_url();
-        if (empty($redirect) OR ! $this->_is_valid_redirect($redirect))
+        if (empty($redirect))
         {
             $redirect = $this->authorize_url();
         }
@@ -135,6 +89,7 @@ MMI_Debug::dead($response);
             $parms = array();
         }
 
+        // Set the access key
         $access_token = NULL;
         if ($this->is_valid_token(NULL, TRUE))
         {
