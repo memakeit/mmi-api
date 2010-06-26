@@ -193,12 +193,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         else
         {
             $url = $this->_authenticate_url;
-            if ( ! empty($url))
+            if ( ! empty($url) AND isset($this->_token) AND ! empty($this->_token->key))
             {
-                $token = isset($this->_token) ? $this->_token->key : '';
-                return $url.'?oauth_token='.$token;
+                $url .= '?oauth_token='.$this->_token->key;
             }
-            return;
+            return $url;
         }
     }
 
@@ -219,12 +218,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         else
         {
             $url = $this->_authorize_url;
-            if ( ! empty($url))
+            if ( ! empty($url) AND isset($this->_token) AND ! empty($this->_token->key))
             {
-                $token = isset($this->_token) ? $this->_token->key : '';
-                return $url.'?oauth_token='.$token;
+                $url .= '?oauth_token='.$this->_token->key;
             }
-            return;
+            return $url;
         }
     }
 
