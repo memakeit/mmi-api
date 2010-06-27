@@ -397,12 +397,13 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
             $parms = array();
         }
 
+        // Ensure the API secret is set
         $api_secret = $this->_api_secret;
         if (empty($api_secret))
         {
             $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'API secret not configured for '.$service);
-            throw new Kohana_Exception('API secret not configured for :service in :method.', array
+            MMI_API::log_error(__METHOD__, __LINE__, 'API secret not set for '.$service);
+            throw new Kohana_Exception('API secret not set for :service in :method.', array
             (
                 ':service'  => $service,
                 ':method'   => __METHOD__,
