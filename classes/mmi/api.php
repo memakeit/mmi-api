@@ -17,10 +17,10 @@ abstract class MMI_API extends Kohana_MMI_API
     const SERVICE_BRIGHTKITE = 'brightkite';
     const SERVICE_DELICIOUS = 'delicious';
     const SERVICE_DIGG = 'digg';
-    const SERVICE_DOPPLR = 'dopplr';
     const SERVICE_FACEBOOK = 'facebook';
     const SERVICE_FLICKR = 'flickr';
     const SERVICE_FOURSQUARE = 'foursquare';
+    const SERVICE_FRIENDFEED = 'friendfeed';
     const SERVICE_EVERNOTE = 'evernote';
     const SERVICE_GITHUB = 'github';
     const SERVICE_GOODREADS = 'goodreads';
