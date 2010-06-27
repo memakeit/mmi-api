@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make Flickr API calls.
- * Response formats: JSON, PHP. XML
+ * Response formats: JSON, PHP, XML
  *
  * @package     MMI API
  * @author      Me Make It
