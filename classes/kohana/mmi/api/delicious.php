@@ -82,16 +82,7 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
         // Configure the HTTP method and the URL
         $http_method = MMI_HTTP::METHOD_POST;
         $url = $this->_access_token_url;
-        if (empty($url))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Access token URL not set for '.$service);
-            throw new Kohana_Exception('Access token URL not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
+        $this->_ensure_parm('Access token URL', $url);
 
         // Configure the request parameters
         $parms['oauth_session_handle'] = $oauth_session_handle;

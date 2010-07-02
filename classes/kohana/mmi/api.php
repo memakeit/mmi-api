@@ -872,6 +872,29 @@ abstract class Kohana_MMI_API
     }
 
     /**
+     * Ensure a parameter is set.
+     * If a parameter is not set, log an error and throw an exception (if specified).
+     *
+     * @param   string  the parameter name
+     * @param   mixed   the parameter value
+     * @param   boolean throw an exception?
+     * @return  void
+     */
+    protected function _ensure_parm($name, $value, $throw_exception = TRUE)
+    {
+        if ( ! isset($value) OR (is_string($value) AND UTF8::trim($value) === '') OR ($value === array()))
+        {
+            $service = $this->_service;
+            MMI_API::log_error(__METHOD__, __LINE__, $name.' not set for '.$service);
+            throw new Kohana_Exception(':name not set for :service in :method.', array
+            (
+                ':name'     => $name,
+                ':service'  => $service,
+                ':method'   => __METHOD__,
+            ));
+        }
+    }
+    /**
      * Get or set a class property.
      * This method is chainable when setting a value.
      *

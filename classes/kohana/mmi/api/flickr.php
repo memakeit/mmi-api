@@ -63,20 +63,11 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
         // Configure the HTTP method and the URL
         $http_method = MMI_HTTP::METHOD_POST;
         $url = $this->_api_url;
-        if (empty($url))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Request token URL not set for '.$service);
-            throw new Kohana_Exception('Request token URL not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
+        $this->_ensure_parm('Request token URL', $url);
 
         // Get the API key
         $api_key = $this->_api_key;
-        $this->_check_api_key($api_key);
+        $this->_ensure_parm('API key', $api_key);
 
         // Configure the request parameters
         $parms = array
@@ -123,20 +114,11 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
         // Configure the HTTP method and the URL
         $http_method = MMI_HTTP::METHOD_POST;
         $url = $this->_api_url;
-        if (empty($url))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Access token URL not set for '.$service);
-            throw new Kohana_Exception('Access token URL not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
+        $this->_ensure_parm('Access token URL', $url);
 
         // Get the API key
         $api_key = $this->_api_key;
-        $this->_check_api_key($api_key);
+        $this->_ensure_parm('API key', $api_key);
 
         // Configure the request parameters
         $frob = Arr::get($auth_config, 'token_key');
@@ -198,7 +180,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 
         // Get the API key
         $api_key = $this->_api_key;
-        $this->_check_api_key($api_key);
+        $this->_ensure_parm('API key', $api_key);
 
         // Build the redirect URL
         $redirect = $this->authenticate_url();
@@ -214,27 +196,6 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
         );
         $parms['api_sig'] = $this->_get_signature($parms);
         return $redirect.'?'.http_build_query($parms);
-    }
-
-    /**
-     * Ensure an API key is set.
-     *
-     * @throws  Kohana_Exception
-     * @param   string  the API key
-     * @return  void
-     */
-    protected function _check_api_key($api_key)
-    {
-        if (empty($api_key))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'API key not set for '.$service);
-            throw new Kohana_Exception('API key not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
     }
 
     /**
@@ -399,16 +360,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 
         // Ensure the API secret is set
         $api_secret = $this->_api_secret;
-        if (empty($api_secret))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'API secret not set for '.$service);
-            throw new Kohana_Exception('API secret not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
+        $this->_ensure_parm('API secret', $api_secret);
 
         ksort($parms);
         $signature = $api_secret;

@@ -62,16 +62,7 @@ class Kohana_MMI_API_Scribd extends MMI_API
 
         // Ensure the API key is set
         $api_key = $this->_api_key;
-        if (empty($api_key))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'API key not set for '.$service);
-            throw new Kohana_Exception('API key not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
+        $this->_ensure_parm('API key', $api_key);
 
         // Set the API and generate the signature
         $parms['api_key'] = $api_key;
@@ -97,16 +88,7 @@ class Kohana_MMI_API_Scribd extends MMI_API
 
         // Ensure the API secret is set
         $api_secret = $this->_api_secret;
-        if (empty($api_secret))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'API secret not set for '.$service);
-            throw new Kohana_Exception('API secret not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
+        $this->_ensure_parm('API secret', $api_secret);
 
         ksort($parms);
         $signature = $api_secret;

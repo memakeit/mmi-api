@@ -34,29 +34,11 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
         // Configure the HTTP method and the URL
         $http_method = $this->_request_token_http_method;
         $url = $this->_request_token_url;
-        if (empty($url))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Request token URL not set for '.$service);
-            throw new Kohana_Exception('Request token URL not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
+        $this->_ensure_parm('Request token URL', $url);
 
         // Configure the auth scope parameter
         $scope = Arr::get($auth_config, 'scope');
-        if (empty($scope))
-        {
-            $service = $this->_service;
-            MMI_API::log_error(__METHOD__, __LINE__, 'Authorization scope not set for '.$service);
-            throw new Kohana_Exception('Authorization scope not set for :service in :method.', array
-            (
-                ':service'  => $service,
-                ':method'   => __METHOD__,
-            ));
-        }
+        $this->_ensure_parm('Authorization scope', $scope);
         $parms['scope'] = $scope;
 
         // Configure the OAuth callback URL
