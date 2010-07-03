@@ -540,7 +540,7 @@ abstract class Kohana_MMI_API
      */
     protected function _configure_url($url)
     {
-        if (strrpos($url, 'https://') !== 0 AND strrpos($url, 'http://') !== 0)
+        if (strpos($url, 'https://') !== 0 AND strpos($url, 'http://') !== 0)
         {
             $path = $url;
             $url = $this->_build_url($this->_api_url, $path);
