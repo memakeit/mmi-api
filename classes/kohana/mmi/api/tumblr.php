@@ -9,7 +9,7 @@
  * @license     http://www.memakeit.com/license
  * @link        http://www.tumblr.com/docs/en/api
  */
-class Kohana_MMI_API_Tumblr extends MMI_API_Basic
+class Kohana_MMI_API_Tumblr extends MMI_API
 {
     // Service name
     protected $_service = MMI_API::SERVICE_TUMBLR;

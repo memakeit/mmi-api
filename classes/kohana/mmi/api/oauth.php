@@ -619,7 +619,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
             // Configure the HTTP methods
             if ( ! isset($request['method']))
             {
-                $requests[$id]['method'] = $method;
+                $requests[$id]['method'] = (strtoupper($method) === 'EXEC') ? MMI_HTTP::METHOD_GET : $method;
             }
 
             // Configure URLs
