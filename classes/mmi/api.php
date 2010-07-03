@@ -39,4 +39,5 @@ abstract class MMI_API extends Kohana_MMI_API
     const SERVICE_TWITTER = 'twitter';
     const SERVICE_VIMEO = 'vimeo';
     const SERVICE_YOUTUBE = 'youtube';
+    const SERVICE_ZOOTOOL = 'zootool';
 }
