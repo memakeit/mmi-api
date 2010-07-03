@@ -487,6 +487,12 @@ abstract class Kohana_MMI_API
     {
         foreach ($requests as $id => $request)
         {
+            // Configure the HTTP methods
+            if ( ! isset($request['method']))
+            {
+                $requests[$id]['method'] = $method;
+            }
+
             // Configure the URLs
             $url = Arr::get($request, 'url');
             $requests[$id]['url'] = $this->_configure_url($url);;

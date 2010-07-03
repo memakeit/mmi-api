@@ -616,6 +616,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
         foreach ($requests as $id => $request)
         {
+            // Configure the HTTP methods
+            if ( ! isset($request['method']))
+            {
+                $requests[$id]['method'] = $method;
+            }
+
             // Configure URLs
             $url = Arr::get($request, 'url');
             $url = $this->_configure_url($url);

@@ -22,7 +22,7 @@ class Controller_Test_API_Reddit extends Controller_Test_API
 
         $requests = array
         (
-            'user about' => array('method' => MMI_HTTP::METHOD_GET, 'url' => 'user/memakeit/about'),
+            'user about' => array('url' => 'user/memakeit/about'),
             'clear vote' => array('method' => MMI_HTTP::METHOD_POST, 'url' => 'api/vote', 'parms' => array('api_type' => 'json', 'dir' => '0', 'id' => 't3_ckvqi', 'r' => 'web_design')),
         );
         $response = $svc->mexec($requests);
