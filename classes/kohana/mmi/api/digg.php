@@ -78,10 +78,7 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
      */
     protected function _configure_parameters($parms)
     {
-        if ( ! is_array($parms))
-        {
-            $parms = array();
-        }
+        $parms = parent::_configure_parameters($parms);
 
         if ( ! $this->_send_accept_header)
         {
@@ -91,6 +88,6 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
                 $parms[$name] = $this->_format;
             }
         }
-        return parent::_configure_parameters($parms);
+        return $parms;
     }
 } // End Kohana_MMI_API_Digg

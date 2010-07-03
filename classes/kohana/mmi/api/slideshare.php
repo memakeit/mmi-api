@@ -49,10 +49,7 @@ class Kohana_MMI_API_SlideShare extends MMI_API
      */
     protected function _configure_parameters($parms)
     {
-        if ( ! is_array($parms))
-        {
-            $parms = array();
-        }
+        $parms = parent::_configure_parameters($parms);
 
         // Ensure the API key and API secret are set
         $api_key = $this->_api_key;
@@ -65,6 +62,6 @@ class Kohana_MMI_API_SlideShare extends MMI_API
         $parms['api_key'] = $api_key;
         $parms['ts'] = $ts;
         $parms['hash'] = sha1($api_secret.$ts);
-        return parent::_configure_parameters($parms);
+        return $parms;
     }
 } // End Kohana_MMI_API_SlideShare

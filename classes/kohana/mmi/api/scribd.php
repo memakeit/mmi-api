@@ -55,10 +55,7 @@ class Kohana_MMI_API_Scribd extends MMI_API
      */
     protected function _configure_parameters($parms)
     {
-        if ( ! is_array($parms))
-        {
-            $parms = array();
-        }
+        $parms = parent::_configure_parameters($parms);
 
         // Ensure the API key is set
         $api_key = $this->_api_key;
@@ -70,7 +67,7 @@ class Kohana_MMI_API_Scribd extends MMI_API
         {
             $parms['api_sig'] = $this->_get_signature($parms);
         }
-        return parent::_configure_parameters($parms);
+        return $parms;
     }
 
     /**

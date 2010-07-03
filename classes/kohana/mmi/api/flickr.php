@@ -302,10 +302,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
      */
     protected function _configure_parameters($parms)
     {
-        if ( ! is_array($parms))
-        {
-            $parms = array();
-        }
+        $parms = parent::_configure_parameters($parms);
 
         // Set the response format
         $name = 'format';
@@ -342,7 +339,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
         // Set the API and generate the signature
         $parms['api_key'] = $this->_api_key;
         $parms['api_sig'] = $this->_get_signature($parms);
-        return parent::_configure_parameters($parms);
+        return $parms;
     }
 
     /**

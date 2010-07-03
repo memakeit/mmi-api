@@ -70,16 +70,13 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
      */
     protected function _configure_parameters($parms)
     {
-        if ( ! is_array($parms))
-        {
-            $parms = array();
-        }
+        $parms = parent::_configure_parameters($parms);
 
         $name = 'alt';
         if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
         {
             $parms[$name] = $this->_format;
         }
-        return parent::_configure_parameters($parms);
+        return $parms;
     }
 } // End Kohana_MMI_API_Google

@@ -26,16 +26,13 @@ class Kohana_MMI_API_Mixx extends MMI_API
      */
     protected function _configure_parameters($parms)
     {
-        if ( ! is_array($parms))
-        {
-            $parms = array();
-        }
+        $parms = parent::_configure_parameters($parms);
 
         $name = 'format';
         if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
         {
             $parms[$name] = $this->_format;
         }
-        return parent::_configure_parameters($parms);
+        return $parms;
     }
 } // End Kohana_MMI_API_Mixx
