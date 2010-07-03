@@ -27,16 +27,4 @@ abstract class Kohana_MMI_API_Basic extends MMI_API
         }
         return $auth_header;
     }
-
-    /**
-     * Configure the cURL options.
-     *
-     * @param   MMI_Curl    the cURL object instance
-     * @return  void
-     */
-    protected function _configure_curl_options($curl)
-    {
-        parent::_configure_curl_options($curl);
-        $curl->add_curl_option(CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-    }
 } // End Kohana_MMI_API_Basic
