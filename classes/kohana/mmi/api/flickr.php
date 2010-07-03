@@ -80,10 +80,8 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
         $parms['api_sig'] = $this->_get_signature($parms);
 
         // Execute the cURL request
-        $curl = new MMI_Curl;
         $http_method = strtolower($http_method);
-        $response = $curl->$http_method($url, $parms);
-        unset($curl);
+        $response = MMI_Curl::factory()->$http_method($url, $parms);
 
         // Extract the token
         $token = NULL;
@@ -133,10 +131,8 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
         $parms['api_sig'] = $this->_get_signature($parms);
 
         // Execute the cURL request
-        $curl = new MMI_Curl;
         $http_method = strtolower($http_method);
-        $response = $curl->$http_method($url, $parms);
-        unset($curl);
+        $response = MMI_Curl::factory()->$http_method($url, $parms);
 
         // Extract the token
         $token = NULL;

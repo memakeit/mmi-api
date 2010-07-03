@@ -944,10 +944,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
         unset($consumer, $token, $signature_method, $request);
 
         // Execute the cURL request
-        $curl = new MMI_Curl;
         $method = strtolower($method);
-        $response = $curl->$method($url, $parms);
-        unset($curl);
+        $response = MMI_Curl::factory()->$method($url, $parms);
 
         return $response;
     }
