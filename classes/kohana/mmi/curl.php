@@ -53,6 +53,7 @@ class Kohana_MMI_Curl
     protected $_requests = array();
 
     /**
+     * Ensure the cURL PHP extension is loaded.
      * Initialize debugging (using the Request instance).
      * Load the configuration settings.
      *
@@ -60,6 +61,14 @@ class Kohana_MMI_Curl
      */
     public function __construct()
     {
+        // Ensure the cURL PHP extension is loaded
+        if ( ! function_exists('curl_init'))
+        {
+            $msg = 'The php_curl extension is required';
+            $this->_log_error(__METHOD__, __LINE__, $msg);
+            throw new Kohana_Exception($msg);
+        }
+
         $this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
 
         // Load cURL options and HTTP headers from the config file
