@@ -18,7 +18,7 @@ return array
         CURLOPT_SSL_VERIFYPEER  => FALSE,   // bool
         CURLOPT_TIMEOUT         => 30,      // int
         CURLOPT_USERAGENT       => 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3',
-        CURLOPT_VERBOSE => TRUE
+        CURLOPT_VERBOSE         => TRUE
     ),
     'http_headers' => array
     (
