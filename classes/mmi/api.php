@@ -37,6 +37,7 @@ abstract class MMI_API extends Kohana_MMI_API
     const SERVICE_SLIDESHARE = 'slideshare';
     const SERVICE_SOUNDCLOUD = 'soundcloud';
     const SERVICE_TWITTER = 'twitter';
+    const SERVICE_TUMBLR = 'tumblr';
     const SERVICE_VIMEO = 'vimeo';
     const SERVICE_YOUTUBE = 'youtube';
     const SERVICE_ZOOTOOL = 'zootool';
