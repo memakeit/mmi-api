@@ -255,7 +255,7 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
     }
 
     /**
-     * Get the OAuth credentials model from the database.
+     * Get the auth credentials model from the database.
      *
      * @return  Jelly_Model
      */
