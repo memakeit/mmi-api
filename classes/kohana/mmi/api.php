@@ -34,11 +34,6 @@ abstract class Kohana_MMI_API
 	protected static $_last_response;
 
 	/**
-	 * @var boolean turn debugging on?
-	 **/
-	public $debug;
-
-	/**
 	 * @var string the API URL
 	 **/
 	protected $_api_url = '';
@@ -52,6 +47,11 @@ abstract class Kohana_MMI_API
 	 * @var integer the cURL connection timeout
 	 **/
 	protected $_connect_timeout = 5;
+
+	/**
+	 * @var boolean turn debugging on?
+	 **/
+	protected $_debug;
 
 	/**
 	 * @var boolean decode the results?
@@ -111,7 +111,7 @@ abstract class Kohana_MMI_API
 	 */
 	public function __construct()
 	{
-		$this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
+		$this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
 		$config = self::get_config(TRUE);
 		$service_config = Arr::get($config, $this->_service, array());
 		$this->_auth_config = Arr::get($service_config, 'auth', array());
@@ -164,6 +164,18 @@ abstract class Kohana_MMI_API
 	public function connect_timeout($value = NULL)
 	{
 		return $this->_get_set('_connect_timeout', $value, 'is_int');
+	}
+
+	/**
+	 * Get or set whether debugging is enabled.
+	 * This method is chainable when setting a value.
+	 *
+	 * @param	boolean	the value to set
+	 * @return	mixed
+	 */
+	public function debug($value = NULL)
+	{
+		return $this->_get_set('_debug', $value, 'is_bool');
 	}
 
 	/**

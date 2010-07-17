@@ -812,7 +812,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 			$this->_token->attributes = $token->attributes;
 		}
 		$success = MMI_Jelly::save($model, $errors);
-		if ( ! $success AND $this->debug)
+		if ( ! $success AND $this->_debug)
 		{
 			MMI_Debug::dead($errors);
 		}

@@ -10,19 +10,19 @@
 class Kohana_MMI_API_Verify_OAuth
 {
 	/**
+	 * @var array an associative array of OAuth configuration options
+	 **/
+	protected $_auth_config = array();
+
+	/**
 	 * @var boolean turn debugging on?
 	 **/
-	public $debug;
+	protected $_debug;
 
 	/**
 	 * @var string the service name
 	 */
 	protected $_service = '?';
-
-	/**
-	 * @var array an associative array of OAuth configuration options
-	 **/
-	protected $_auth_config = array();
 
 	/**
 	 * @var array an associative array of service-specific configuration options
@@ -40,7 +40,7 @@ class Kohana_MMI_API_Verify_OAuth
 	{
 		require_once Kohana::find_file('vendor', 'oauth/oauth_required');
 
-		$this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
+		$this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
 		$config = MMI_API::get_config(TRUE);
 		$this->_service_config = Arr::get($config, $this->_service, array());
 		$this->_auth_config = Arr::get($this->_service_config, 'auth', array());
@@ -145,7 +145,7 @@ class Kohana_MMI_API_Verify_OAuth
 						$model->attributes = $token->attributes;
 					}
 					$success = MMI_Jelly::save($model, $errors);
-					if ( ! $success AND $this->debug)
+					if ( ! $success AND $this->_debug)
 					{
 						MMI_Debug::dead($errors);
 					}

@@ -283,7 +283,7 @@ class Kohana_MMI_API_Reddit extends MMI_API
 		}
 
 		$success = MMI_Jelly::save($model, $errors);
-		if ( ! $success AND $this->debug)
+		if ( ! $success AND $this->_debug)
 		{
 			MMI_Debug::dead($errors);
 		}

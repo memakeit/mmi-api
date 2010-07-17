@@ -99,7 +99,7 @@ class Kohana_MMI_API_Verify_Custom_Flickr extends MMI_API_Verify_Custom
 						$model->attributes = $token->attributes;
 					}
 					$success = MMI_Jelly::save($model, $errors);
-					if ( ! $success AND $this->debug)
+					if ( ! $success AND $this->_debug)
 					{
 						MMI_Debug::dead($errors);
 					}

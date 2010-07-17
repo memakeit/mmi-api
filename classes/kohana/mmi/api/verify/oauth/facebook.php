@@ -93,7 +93,7 @@ class Kohana_MMI_API_Verify_OAuth_Facebook extends MMI_API_Verify_OAuth
 					$model->attributes = array('expires_in' => urldecode(Security::xss_clean($_GET['expires_in'])));
 				}
 				$success = MMI_Jelly::save($model, $errors);
-				if ( ! $success AND $this->debug)
+				if ( ! $success AND $this->_debug)
 				{
 					MMI_Debug::dead($errors);
 				}

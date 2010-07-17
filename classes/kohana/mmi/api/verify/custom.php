@@ -13,19 +13,19 @@ abstract class Kohana_MMI_API_Verify_Custom
 	abstract public function verify();
 
 	/**
+	 * @var array an associative array of OAuth configuration options
+	 **/
+	protected $_auth_config = array();
+
+	/**
 	 * @var boolean turn debugging on?
 	 **/
-	public $debug;
+	protected $_debug;
 
 	/**
 	 * @var string the service name
 	 */
 	protected $_service = '?';
-
-	/**
-	 * @var array an associative array of OAuth configuration options
-	 **/
-	protected $_auth_config = array();
 
 	/**
 	 * @var array an associative array of service-specific configuration options
@@ -40,7 +40,7 @@ abstract class Kohana_MMI_API_Verify_Custom
 	 */
 	public function __construct()
 	{
-		$this->debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
+		$this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
 		$config = MMI_API::get_config(TRUE);
 		$this->_service_config = Arr::get($config, $this->_service, array());
 		$this->_auth_config = Arr::get($this->_service_config, 'auth', array());
