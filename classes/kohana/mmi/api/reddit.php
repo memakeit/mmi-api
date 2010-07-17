@@ -83,8 +83,9 @@ class Kohana_MMI_API_Reddit extends MMI_API
 	}
 
 	/**
-	 * Log the user into Reddit using the username and password from the config file.
-	 * Save the cookie and user modhash in the corresponding class properties.
+	 * Log the user into Reddit using the username and password from the config
+	 * file.  Save the cookie and user modhash in the corresponding class
+	 * properties.
 	 *
 	 * @param	boolean	save the cookie to the database?
 	 * @return	void
@@ -145,7 +146,8 @@ class Kohana_MMI_API_Reddit extends MMI_API
 		}
 
 		$name = 'uh';
-		if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+		$temp = Arr::get($parms, $name);
+		if (empty($temp))
 		{
 			$parms[$name] = $this->_usermodhash;
 		}
@@ -165,7 +167,8 @@ class Kohana_MMI_API_Reddit extends MMI_API
 		foreach ($requests as $key => $request)
 		{
 			$parms = Arr::get($request, 'parms', array());
-			if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+			$temp = Arr::get($parms, $name);
+			if (empty($temp))
 			{
 				$parms[$name] = $this->_usermodhash;
 				$requests[$key]['parms'] = $parms;
@@ -203,7 +206,8 @@ class Kohana_MMI_API_Reddit extends MMI_API
 			if (strtoupper($method) === MMI_HTTP::METHOD_POST)
 			{
 				$parms = Arr::get($request, 'parms', array());
-				if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+				$temp = Arr::get($parms, $name);
+				if (empty($temp))
 				{
 					$parms[$name] = $this->_usermodhash;
 					$requests[$key]['parms'] = $parms;
@@ -212,7 +216,6 @@ class Kohana_MMI_API_Reddit extends MMI_API
 		}
 		return parent::mexec($requests);
 	}
-
 
 	/**
 	 * Set the Reddit cookie.

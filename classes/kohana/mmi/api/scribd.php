@@ -48,7 +48,8 @@ class Kohana_MMI_API_Scribd extends MMI_API
 
 	/**
 	 * Customize the request parameters as specified in the configuration file.
-	 * When processing additions, if a parameter value exists, it will not be overwritten.
+	 * When processing additions, if a parameter value exists, it will not be
+	 * overwritten.
 	 *
 	 * @param	array	an associative array of request parameters
 	 * @return	array

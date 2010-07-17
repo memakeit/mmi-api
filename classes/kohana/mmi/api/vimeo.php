@@ -37,7 +37,8 @@ class Kohana_MMI_API_Vimeo extends MMI_API_OAuth
 		$parms = parent::_configure_parameters($parms);
 
 		$name = 'format';
-		if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+		$temp = Arr::get($parms, $name);
+		if (empty($temp))
 		{
 			$parms[$name] = $this->_format;
 		}

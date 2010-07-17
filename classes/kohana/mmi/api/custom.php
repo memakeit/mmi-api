@@ -61,8 +61,6 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
 		$settings = array
 		(
 			'auth_callback_url',
-			'authenticate_url',
-			'authorize_url',
 			'username'
 		);
 		foreach ($settings as $setting)
@@ -200,7 +198,8 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
 	/**
 	 * Make multiple API calls.
 	 *
-	 * @param	array	an associative array containing the request details (URL, request parameters, HTTP headers, and cURL options)
+	 * @param	array	an associative array containing the request details
+	 * (URL, request parameters, HTTP headers, and cURL options)
 	 * @param	string	the HTTP method
 	 * @return	array
 	 */

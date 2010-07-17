@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
  * Make Facebook API calls.
+ * Response formats: JSON
  *
  * @package		MMI API
  * @author		Me Make It
@@ -77,7 +78,8 @@ class Kohana_MMI_API_Facebook extends MMI_API_OAuth
 
 	/**
 	 * Configure the request parameters as specified in the configuration file.
-	 * When processing additions, if a parameter value exists, it will not be overwritten.
+	 * When processing additions, if a parameter value exists, it will not be
+	 * overwritten.
 	 *
 	 * @param	array	an associative array of request parameters
 	 * @return	array
@@ -87,12 +89,12 @@ class Kohana_MMI_API_Facebook extends MMI_API_OAuth
 		$parms = parent::_configure_parameters($parms);
 
 		// Set the access key
-		$access_token = NULL;
 		if ($this->is_valid_token(NULL, TRUE))
 		{
 			$access_token = $this->_token->key;
 			$name = 'access_token';
-			if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+			$temp = Arr::get($parms, $name);
+			if (empty($temp))
 			{
 				$parms[$name] = $access_token;
 			}

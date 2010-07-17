@@ -69,7 +69,7 @@ class Kohana_MMI_API_Verify_OAuth
 			));
 		}
 
-		$auth_config = Arr::path(MMI_API::get_config(TRUE), $service.'.auth', array());
+		$auth_config = $this->_auth_config;
 		$require_verification_code = Arr::get($auth_config, 'require_verification_code', TRUE);
 
 		// Ensure the verification parameters are set
@@ -95,7 +95,6 @@ class Kohana_MMI_API_Verify_OAuth
 		}
 
 		// Load existing data from the database
-		$consumer_key = Arr::get($auth_config, 'consumer_key');
 		$username = Arr::get($auth_config, 'username');
 		$model;
 		if ( ! empty($username))
@@ -104,6 +103,7 @@ class Kohana_MMI_API_Verify_OAuth
 		}
 		else
 		{
+			$consumer_key = Arr::get($auth_config, 'consumer_key');
 			$model = Model_MMI_API_Tokens::select_by_service_and_consumer_key($service, $consumer_key, FALSE);
 		}
 

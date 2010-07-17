@@ -195,7 +195,8 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 	}
 
 	/**
-	 * Extract request token data from a MMI_Curl_Response object and create a token object.
+	 * Extract request token data from a MMI_Curl_Response object and create
+	 * a token object.
 	 *
 	 * @param	MMI_Curl_Response	the response object
 	 * @return	object
@@ -231,7 +232,8 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 	}
 
 	/**
-	 * Extract access token data from a MMI_Curl_Response object and create a token object.
+	 * Extract access token data from a MMI_Curl_Response object and create
+	 * a token object.
 	 *
 	 * @param	MMI_Curl_Response	the response object
 	 * @return	object
@@ -291,7 +293,8 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 
 	/**
 	 * Customize the request parameters as specified in the configuration file.
-	 * When processing additions, if a parameter value exists, it will not be overwritten.
+	 * When processing additions, if a parameter value exists, it will not be
+	 * overwritten.
 	 *
 	 * @param	array	an associative array of request parameters
 	 * @return	array
@@ -302,16 +305,20 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 
 		// Set the response format
 		$name = 'format';
-		if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+		$temp = Arr::get($parms, $name);
+		if (empty($temp))
 		{
+			$parms[$name] = $format;
+
 			$format = strtolower($this->_format);
 			switch ($format)
 			{
 				case MMI_API::FORMAT_JSON:
-					$temp = 'nojsoncallback';
-					if ( ! array_key_exists($temp, $parms) OR (array_key_exists($temp, $parms) AND empty($parms[$temp])))
+					$name = 'nojsoncallback';
+					$temp = Arr::get($parms, $name);
+					if (empty($temp))
 					{
-						$parms[$temp] = 1;
+						$parms[$name] = 1;
 					}
 					break;
 
@@ -319,7 +326,6 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 					$format = 'rest';
 					break;
 			}
-			$parms[$name] = $format;
 		}
 
 		// Set the auth token
@@ -339,7 +345,8 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 	}
 
 	/**
-	 * Generate a sinature using the value of the request parameters and the API secret.
+	 * Generate a signature using the value of the request parameters and
+	 * the API secret.
 	 *
 	 * @param	array	an associative array of request parameters
 	 * @return	string

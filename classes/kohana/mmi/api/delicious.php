@@ -50,8 +50,8 @@ class Kohana_MMI_API_Delicious extends MMI_API_OAuth
 				// Refresh the access token
 				$token = $this->_refresh_access_token($oauth_session_handle, array
 				(
-					'token_key'     => $token->key,
-					'token_secret'  => $token->secret,
+					'token_key'		=> $token->key,
+					'token_secret'	=> $token->secret,
 				));
 				if (isset($token) AND $this->is_valid_token($token))
 				{

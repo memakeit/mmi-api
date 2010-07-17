@@ -49,7 +49,7 @@ class Kohana_MMI_API_Verify_Custom_Flickr extends MMI_API_Verify_Custom
 		}
 
 		// Load existing data from the database
-		$auth_config = Arr::path(MMI_API::get_config(TRUE), $service.'.auth', array());
+		$auth_config = $this->_auth_config;
 		$username = Arr::get($auth_config, 'username');
 		$model;
 		if ( ! empty($username))
@@ -83,8 +83,8 @@ class Kohana_MMI_API_Verify_Custom_Flickr extends MMI_API_Verify_Custom
 				$svc = MMI_API::factory($service);
 				$token = $svc->get_access_token($verification_code, array
 				(
-					'token_key'     => $frob,
-					'token_secret'  => $service.'-'.time(),
+					'token_key'		=> $frob,
+					'token_secret'	=> $service.'-'.time(),
 				));
 
 				// Update the token credentials in the database

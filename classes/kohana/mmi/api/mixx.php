@@ -19,7 +19,8 @@ class Kohana_MMI_API_Mixx extends MMI_API
 
 	/**
 	 * Configure the request parameters as specified in the configuration file.
-	 * When processing additions, if a parameter value exists, it will not be overwritten.
+	 * When processing additions, if a parameter value exists, it will not be
+	 * overwritten.
 	 *
 	 * @param	array	an associative array of request parameters
 	 * @return	array
@@ -29,7 +30,8 @@ class Kohana_MMI_API_Mixx extends MMI_API
 		$parms = parent::_configure_parameters($parms);
 
 		$name = 'format';
-		if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+		$temp = Arr::get($parms, $name);
+		if (empty($temp))
 		{
 			$parms[$name] = $this->_format;
 		}

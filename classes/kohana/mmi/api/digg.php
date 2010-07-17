@@ -47,7 +47,7 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
 
 		// Configure the HTTP method, URL, and request parameters
 		$http_method = MMI_HTTP::METHOD_POST;
-		$url = 'http://services.digg.com/1.0/endpoint?';
+		$url = $this->_api_url;
 		$parms = array('method' => 'oauth.verify');
 
 		// Verify the request token
@@ -71,7 +71,8 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
 
 	/**
 	 * Configure the request parameters as specified in the configuration file.
-	 * When processing additions, if a parameter value exists, it will not be overwritten.
+	 * When processing additions, if a parameter value exists, it will not be
+	 * overwritten.
 	 *
 	 * @param	array	an associative array of request parameters
 	 * @return	array
@@ -83,7 +84,8 @@ class Kohana_MMI_API_Digg extends MMI_API_OAuth
 		if ( ! $this->_send_accept_header)
 		{
 			$name = 'type';
-			if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+			$temp = Arr::get($parms, $name);
+			if (empty($temp))
 			{
 				$parms[$name] = $this->_format;
 			}

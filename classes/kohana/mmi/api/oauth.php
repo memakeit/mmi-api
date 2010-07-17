@@ -112,11 +112,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 		// Configure the auth URLs
 		$settings = array
 		(
-			'access_token_url',
 			'auth_callback_url',
-			'authenticate_url',
-			'authorize_url',
-			'request_token_url',
 			'username'
 		);
 		foreach ($settings as $setting)
@@ -268,7 +264,8 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	}
 
 	/**
-	 * Get or set whether to send the OAuth data as part of the request (instead of via an HTTP header).
+	 * Get or set whether to send the OAuth data as part of the request
+	 * (instead of via an HTTP header).
 	 * This method is chainable when setting a value.
 	 *
 	 * @param	boolean	the value to set
@@ -621,6 +618,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 			{
 				$requests[$id]['method'] = (strtoupper($method) === 'EXEC') ? MMI_HTTP::METHOD_GET : $method;
 			}
+			$method = Arr::get($request, 'method');
 
 			// Configure URLs
 			$url = Arr::get($request, 'url');
@@ -951,13 +949,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 
 		// Execute the cURL request
 		$method = strtolower($method);
-		$response = MMI_Curl::factory()->$method($url, $parms);
-
-		return $response;
+		return MMI_Curl::factory()->$method($url, $parms);
 	}
 
 	/**
-	 * Extract token data from a MMI_Curl_Response object and create a OAuthToken object.
+	 * Extract token data from a MMI_Curl_Response object and create an
+	 * OAuthToken object.
 	 *
 	 * @param	MMI_Curl_Response	the response object
 	 * @return	OAuthToken
@@ -1022,7 +1019,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	}
 
 	/**
-	 * Create an OAuth signature object using the auth configuration settings.
+	 * Create an OAuth signature object.
 	 *
 	 * @return	OAuthSignatureMethod
 	 */

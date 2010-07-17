@@ -47,8 +47,7 @@ class Kohana_MMI_API_Verify_OAuth_Facebook extends MMI_API_Verify_OAuth
 		}
 
 		// Load existing data from the database
-		$auth_config = Arr::path(MMI_API::get_config(TRUE), $service.'.auth', array());
-		$consumer_key = Arr::get($auth_config, 'api_key');
+		$auth_config = $this->_auth_config;
 		$username = Arr::get($auth_config, 'username');
 		$model;
 		if ( ! empty($username))
@@ -57,6 +56,7 @@ class Kohana_MMI_API_Verify_OAuth_Facebook extends MMI_API_Verify_OAuth
 		}
 		else
 		{
+			$consumer_key = Arr::get($auth_config, 'api_key');
 			$model = Model_MMI_API_Tokens::select_by_service_and_consumer_key($service, $consumer_key, FALSE);
 		}
 
@@ -111,6 +111,7 @@ class Kohana_MMI_API_Verify_OAuth_Facebook extends MMI_API_Verify_OAuth
 	{
 $js = <<<EOJS
 <script type="text/javascript">
+// <![CDATA[
 var parts = location.href.split('#');
 if(parts.length > 1)
 {
@@ -122,6 +123,7 @@ if(parts.length > 1)
 	}
 	location.href = parts[0] + mark + 'fragment=' + parts[1];
 }
+// ]]>
 </script>
 EOJS;
 

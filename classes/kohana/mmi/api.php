@@ -101,7 +101,7 @@ abstract class Kohana_MMI_API
 	/**
 	 * @var string the user-agent sent by cURL requests
 	 **/
-	protected $_useragent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.3) Gecko/20100401 Firefox/3.6.3';
+	protected $_useragent = 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.6) Gecko/20100625 Firefox/3.6.6';
 
 	/**
 	 * Initialize debugging (using the Request instance).
@@ -579,7 +579,8 @@ abstract class Kohana_MMI_API
 
 	/**
 	 * Customize the request parameters as specified in the configuration file.
-	 * When processing additions, if a parameter value exists, it will not be overwritten.
+	 * When processing additions, if a parameter value exists, it will not be
+	 * overwritten.
 	 *
 	 * @param	array	an associative array of request parameters
 	 * @return	array
@@ -613,7 +614,8 @@ abstract class Kohana_MMI_API
 			{
 				foreach ($add as $name => $value)
 				{
-					if ( ! array_key_exists($name, $parms) OR (array_key_exists($name, $parms) AND empty($parms[$name])))
+					$temp = Arr::get($parms, $name);
+					if (empty($temp))
 					{
 						$parms[$name] = $value;
 					}
@@ -626,7 +628,8 @@ abstract class Kohana_MMI_API
 	}
 
 	/**
-	 * Configure authentication parameters that are passed as request parameters (instead of via HTTP headers).
+	 * Configure authentication parameters that are passed as request parameters
+	 * (instead of via HTTP headers).
 	 *
 	 * @param	array	an associative array of request parameters
 	 * @return	array
@@ -892,7 +895,8 @@ abstract class Kohana_MMI_API
 
 	/**
 	 * Ensure a parameter is set.
-	 * If a parameter is not set, log an error and throw an exception (if specified).
+	 * If a parameter is not set, log an error and throw an exception (if
+	 * specified).
 	 *
 	 * @param	string	the parameter name
 	 * @param	mixed	the parameter value
@@ -905,14 +909,18 @@ abstract class Kohana_MMI_API
 		{
 			$service = $this->_service;
 			MMI_API::log_error(__METHOD__, __LINE__, $name.' not set for '.$service);
-			throw new Kohana_Exception(':name not set for :service in :method.', array
-			(
-				':name'		=> $name,
-				':service'	=> $service,
-				':method'	=> __METHOD__,
-			));
+			if ($throw_exception)
+			{
+				throw new Kohana_Exception(':name not set for :service in :method.', array
+				(
+					':name'		=> $name,
+					':service'	=> $service,
+					':method'	=> __METHOD__,
+				));
+			}
 		}
 	}
+
 	/**
 	 * Get or set a class property.
 	 * This method is chainable when setting a value.
