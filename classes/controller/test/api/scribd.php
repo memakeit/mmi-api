@@ -25,7 +25,7 @@ class Controller_Test_API_Scribd extends Controller_Test_API
 			'user collections' => array('parms' => array('method' => 'docs.getCollections')),
 			'categories' => array('parms' => array('method' => 'docs.getCategories')),
 			'featured' => array('parms' => array('method' => 'docs.featured')),
-			'auto signin url' => array('parms' => array('method' => 'user.getAutoSigninUrl', 'next_url' => 'http://www.memakeit.com')),
+			'auto signin url' => array('parms' => array('method' => 'user.getAutoSigninUrl', 'next_url' => 'http://www.memakeit.com/')),
 		);
 		$response = $svc->mget($requests);
 		$this->_set_response($response, $svc->service());

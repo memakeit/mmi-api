@@ -16,20 +16,23 @@ class Controller_Test_API_Brightkite extends Controller_Test_API
 	 */
 	public function action_index()
 	{
+		$config = MMI_API::get_config(TRUE);
+		$username = Arr::path($config, 'brightkite.auth.username', 'memakeit');
+
 		$svc = MMI_API::factory(MMI_API::SERVICE_BRIGHTKITE);
 		if ( ! $svc->is_valid_token(NULL, TRUE))
 		{
 			die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
 		}
-//		$response = $svc->get('people/memakeit');
+//		$response = $svc->get("people/{$username}");
 
 		$requests = array
 		(
-			'profile' => array('url' => 'people/memakeit'),
-			'config' => array('url' => 'people/memakeit/config'),
-			'friends' => array('url' => 'people/memakeit/friends'),
-			'placemarks' => array('url' => 'people/memakeit/placemarks'),
-			'objects' => array('url' => 'people/memakeit/objects', 'parms' => array('filters' => 'checkins,notes,photos')),
+			'profile' => array('url' => "people/{$username}"),
+			'config' => array('url' => "people/{$username}/config"),
+			'friends' => array('url' => "people/{$username}/friends"),
+			'placemarks' => array('url' => "people/{$username}/placemarks"),
+			'objects' => array('url' => "people/{$username}/objects", 'parms' => array('filters' => 'checkins,notes,photos')),
 		);
 		$response = $svc->mget($requests);
 		$this->_set_response($response, $svc->service());

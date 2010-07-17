@@ -16,10 +16,13 @@ class Controller_Test_API_LastFM extends Controller_Test_API
 	 */
 	public function action_index()
 	{
+		$config = MMI_API::get_config(TRUE);
+		$username = Arr::path($config, 'lastfm.auth.username', 'memakeit');
+
 		$parms1 = array
 		(
 			'method' => 'user.getinfo',
-			'user' => 'memakeit',
+			'user' => $username,
 		);
 		$parms2 = array
 		(

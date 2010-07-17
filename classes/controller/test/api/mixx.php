@@ -16,12 +16,15 @@ class Controller_Test_API_Mixx extends Controller_Test_API
 	 */
 	public function action_index()
 	{
+		$config = MMI_API::get_config(TRUE);
+		$username = Arr::path($config, 'mixx.auth.username', 'memakeit');
+
 		$svc = MMI_API::factory(MMI_API::SERVICE_MIXX);
-//		$response = $svc->get('users/show', array('user_key' => 'memakeit'));
+//		$response = $svc->get('users/show', array('user_key' => $username));
 
 		$requests = array
 		(
-			'profile' => array('url' => 'users/show', 'parms' => array('user_key' => 'memakeit')),
+			'profile' => array('url' => 'users/show', 'parms' => array('user_key' => $username)),
 			'real-life-size-bus-transformer' => array('url' => 'thingies/show', 'parms' => array('url' => 'http://www.atcrux.com/2010/03/11/real-life-size-bus-transformer/', 'comments' => 1, 'tags' => 1)),
 		);
 		$response = $svc->mget($requests);

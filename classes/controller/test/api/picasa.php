@@ -16,17 +16,20 @@ class Controller_Test_API_Picasa extends Controller_Test_API
 	 */
 	public function action_index()
 	{
+		$config = MMI_API::get_config(TRUE);
+		$username = Arr::path($config, 'picasa.auth.username', 'memakeit');
+
 		$svc = MMI_API::factory(MMI_API::SERVICE_PICASA);
 		if ( ! $svc->is_valid_token(NULL, TRUE))
 		{
 			die(HTML::anchor($svc->get_auth_redirect(), $svc->service().' authorization required'));
 		}
-//		$response = $svc->get('user/memakeit', array('kind' => 'photo', 'access' => 'all'));
+//		$response = $svc->get("user/{$username}", array('kind' => 'photo', 'access' => 'all'));
 
 		$requests = array
 		(
-			'albums' => array('url' => 'user/memakeit', 'parms' => array('kind' => 'album', 'access' => 'all')),
-			'recent photos' => array('url' => 'user/memakeit', 'parms' => array('kind' => 'photo', 'access' => 'all')),
+			'albums' => array('url' => "user/{$username}", 'parms' => array('kind' => 'album', 'access' => 'all')),
+			'recent photos' => array('url' => "user/{$username}", 'parms' => array('kind' => 'photo', 'access' => 'all')),
 		);
 		$response = $svc->mget($requests);
 		$this->_set_response($response, $svc->service());

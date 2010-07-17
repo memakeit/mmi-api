@@ -16,6 +16,9 @@ class Controller_Test_API_FriendFeed extends Controller_Test_API
 	 */
 	public function action_index()
 	{
+		$config = MMI_API::get_config(TRUE);
+		$username = Arr::path($config, 'friendfeed.auth.username', 'memakeit');
+
 		$svc = MMI_API::factory(MMI_API::SERVICE_FRIENDFEED);
 		if ( ! $svc->is_valid_token(NULL, TRUE))
 		{
@@ -26,10 +29,10 @@ class Controller_Test_API_FriendFeed extends Controller_Test_API
 		$requests = array
 		(
 			'me feed' => array('url' => 'feed/me'),
-			'user feed' => array('url' => 'feed/memakeit'),
-			'friends feed' => array('url' => 'feed/memakeit/friends'),
-			'comments feed' => array('url' => 'feed/memakeit/comments'),
-			'likes feed' => array('url' => 'feed/memakeit/likes'),
+			'user feed' => array('url' => "feed/{$username}"),
+			'friends feed' => array('url' => "feed/{$username}/friends"),
+			'comments feed' => array('url' => "feed/{$username}/comments"),
+			'likes feed' => array('url' => "feed/{$username}/likes"),
 		);
 		$response = $svc->mget($requests);
 		$this->_set_response($response, $svc->service());

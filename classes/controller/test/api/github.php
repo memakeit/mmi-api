@@ -16,12 +16,15 @@ class Controller_Test_API_GitHub extends Controller_Test_API
 	 */
 	public function action_index()
 	{
+		$config = MMI_API::get_config(TRUE);
+		$username = Arr::path($config, 'github.auth.username', 'memakeit');
+
 		$svc = MMI_API::factory(MMI_API::SERVICE_GITHUB);
-//		$response = $svc->get('user/show/memakeit');
+//		$response = $svc->get("user/show/{$username}");
 
 		$requests = array
 		(
-			'memakeit' => array('url' => 'user/show/memakeit'),
+			$username => array('url' => "user/show/{$username}"),
 			'shadowhand' => array('url' => 'user/show/shadowhand'),
 		);
 		$response = $svc->mget($requests);
