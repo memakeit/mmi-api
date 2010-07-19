@@ -89,7 +89,19 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
 	 */
 	public function auth_callback_url($value = NULL)
 	{
-		return $this->_get_set('_auth_callback_url', $value, 'is_string');
+		if (is_string($value))
+		{
+			$this->_auth_callback_url = $value;
+			return $this;
+		}
+		elseif (Kohana::$environment === Kohana::PRODUCTION)
+		{
+			return URL::site(Route::get('api/verify')->uri(array('controller' => 'custom', 'service' => $this->_service)), TRUE);
+		}
+		else
+		{
+			return $this->_auth_callback_url;
+		}
 	}
 
 	/**

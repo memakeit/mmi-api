@@ -28,7 +28,6 @@ class Controller_API_Verify_OAuth extends Controller
 		{
 			switch (strtolower($service))
 			{
-				case MMI_API::SERVICE_EVERNOTE:
 				case MMI_API::SERVICE_FACEBOOK:
 					$success = MMI_API_Verify_OAuth::factory($service)->verify();
 					break;

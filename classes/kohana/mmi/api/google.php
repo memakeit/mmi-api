@@ -44,7 +44,7 @@ abstract class Kohana_MMI_API_Google extends MMI_API_OAuth
 		// Configure the OAuth callback URL
 		if ( ! isset($oauth_callback))
 		{
-			$oauth_callback = $this->_auth_callback_url;
+			$oauth_callback = $this->auth_callback_url();
 		}
 		if ( ! empty($oauth_callback))
 		{
