@@ -112,12 +112,12 @@ abstract class Kohana_MMI_API
 	public function __construct()
 	{
 		$this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
-		$config = self::get_config(TRUE);
-		$service_config = Arr::get($config, $this->_service, array());
+		$config = self::get_config();
+		$service_config = $config->get($this->_service, array());
 		$this->_auth_config = Arr::get($service_config, 'auth', array());
 		$this->_service_config = $service_config;
 
-		$api_globals = Arr::get($config, 'api', array());
+		$api_globals = $config->get('api', array());
 		$api_service = Arr::get($service_config, 'api', array());
 		$settings = array
 		(
@@ -975,7 +975,7 @@ abstract class Kohana_MMI_API
 	 */
 	public static function get_config($as_array = FALSE)
 	{
-		(self::$_config === NULL) AND self::$_config = Kohana::config('api');
+		(self::$_config === NULL) AND self::$_config = Kohana::config('mmi-api');
 		$config = self::$_config;
 		if ($as_array)
 		{

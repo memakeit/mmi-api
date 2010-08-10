@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-// API configuration
+// MMI sample API configuration
 return array
 (
 	'api' => array
