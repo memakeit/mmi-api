@@ -96,7 +96,7 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
 		}
 		elseif (Kohana::$environment === Kohana::PRODUCTION)
 		{
-			return URL::site(Route::get('api/verify')->uri(array('controller' => 'custom', 'service' => $this->_service)), TRUE);
+			return URL::site(Route::get('mmi/api/verify')->uri(array('controller' => 'custom', 'service' => $this->_service)), TRUE);
 		}
 		else
 		{
