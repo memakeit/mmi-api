@@ -1,18 +1,18 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 // API verification route
-Route::set('api/verify', 'api/verify/<controller>/<service>')
+Route::set('mmi/api/verify', 'mmi/api/verify/<controller>/<service>')
 ->defaults(array
 (
-	'directory' => 'api/verify',
+	'directory' => 'mmi/api/verify',
 ));
 
 // // Test route
 if (Kohana::$environment !== Kohana::PRODUCTION)
 {
-	Route::set('test/api', 'test/api/<controller>(/<action>)')
+	Route::set('mmi/api/test', 'mmi/api/test/<controller>(/<action>)')
 	->defaults(array
 	(
-		'directory' => 'test/api',
+		'directory' => 'mmi/api/test',
 	));
 }
