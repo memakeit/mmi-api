@@ -117,19 +117,18 @@ class Model_MMI_API_Tokens extends Jelly_Model
 	 *
 	 * @param	mixed	one or more id's
 	 * @param	boolean	return the data as an array?
-	 * @param	string	if specified, the key to be used when returning an associative array
 	 * @param	integer	the maximum number of results
 	 * @return	mixed
 	 */
-	public static function select_by_id($ids, $as_array = TRUE, $array_key = NULL, $limit = 1)
+	public static function select_by_id($id, $as_array = TRUE, $limit = 1)
 	{
 		$where_parms = array();
-		if (MMI_Util::is_set($ids))
+		if (MMI_Util::is_set($id))
 		{
-			$where_parms['id'] = $ids;
+			$where_parms['id'] = $id;
 		}
 		$query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
-		return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
+		return MMI_Jelly::select(self::$_table_name, $as_array, $query_parms);
 	}
 
 	/**
@@ -138,11 +137,10 @@ class Model_MMI_API_Tokens extends Jelly_Model
 	 * @param	string	the service name
 	 * @param	string	the consumer key
 	 * @param	boolean	return the data as an array?
-	 * @param	string	if specified, the key to be used when returning an associative array
 	 * @param	integer	the maximum number of results
 	 * @return	mixed
 	 */
-	public static function select_by_service_and_consumer_key($service, $consumer_key, $as_array = TRUE, $array_key = NULL, $limit = 1)
+	public static function select_by_service_and_consumer_key($service, $consumer_key, $as_array = TRUE, $limit = 1)
 	{
 		$where_parms = array
 		(
@@ -150,7 +148,7 @@ class Model_MMI_API_Tokens extends Jelly_Model
 			'consumer_key'	=> $consumer_key,
 		);
 		$query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
-		return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
+		return MMI_Jelly::select(self::$_table_name, $as_array, $query_parms);
 	}
 
 	/**
@@ -159,11 +157,10 @@ class Model_MMI_API_Tokens extends Jelly_Model
 	 * @param	string	the service name
 	 * @param	string	the user name
 	 * @param	boolean	return the data as an array?
-	 * @param	string	if specified, the key to be used when returning an associative array
 	 * @param	integer	the maximum number of results
 	 * @return	mixed
 	 */
-	public static function select_by_service_and_username($service, $username, $as_array = TRUE, $array_key = NULL, $limit = 1)
+	public static function select_by_service_and_username($service, $username, $as_array = TRUE, $limit = 1)
 	{
 		$where_parms = array
 		(
@@ -171,6 +168,6 @@ class Model_MMI_API_Tokens extends Jelly_Model
 			'username'	=> $username,
 		);
 		$query_parms = array('limit' => $limit, 'where_parms' => $where_parms);
-		return MMI_Jelly::select(self::$_table_name, $as_array, $array_key, $query_parms);
+		return MMI_Jelly::select(self::$_table_name, $as_array, $query_parms);
 	}
 } // End Model_MMI_API_Tokens
