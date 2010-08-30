@@ -39,7 +39,7 @@ class Kohana_MMI_API_Verify_OAuth_Facebook extends MMI_API_Verify_OAuth
 		// Ensure the access token is set
 		if (empty($access_token))
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, 'Access token parameter missing');
+			MMI_Log::log_error(__METHOD__, __LINE__, 'Access token parameter missing');
 			throw new Kohana_Exception('Access token parameter missing in :method.', array
 			(
 				':method' => __METHOD__,

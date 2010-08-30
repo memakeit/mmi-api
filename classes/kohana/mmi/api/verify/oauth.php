@@ -62,7 +62,7 @@ class Kohana_MMI_API_Verify_OAuth
 		}
 		if (empty($service))
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, 'Service not set');
+			MMI_Log::log_error(__METHOD__, __LINE__, 'Service not set');
 			throw new Kohana_Exception('Service not set in :method.', array
 			(
 				':method' => __METHOD__,
@@ -85,7 +85,7 @@ class Kohana_MMI_API_Verify_OAuth
 		}
 		if (empty($token_key) OR ($require_verification_code AND empty($verification_code)))
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, 'Verification parameter missing.  OAuth token:'.$token_key.'.  Verification code:'.$verification_code);
+			MMI_Log::log_error(__METHOD__, __LINE__, 'Verification parameter missing.  OAuth token:'.$token_key.'.  Verification code:'.$verification_code);
 			throw new Kohana_Exception('Verification parameter missing in :method.  OAuth token: :token_key.  Verification code: :verification_code.', array
 			(
 				':method'				=> __METHOD__,
@@ -172,7 +172,7 @@ class Kohana_MMI_API_Verify_OAuth
 
 		if ( ! class_exists($class))
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, $class.' class does not exist');
+			MMI_Log::log_error(__METHOD__, __LINE__, $class.' class does not exist');
 			throw new Kohana_Exception(':class class does not exist in :method.', array
 			(
 				':class'	=> $class,

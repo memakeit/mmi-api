@@ -58,7 +58,7 @@ abstract class Kohana_MMI_API_Verify_Custom
 		$class = 'MMI_API_Verify_Custom_'.ucfirst($driver);
 		if ( ! class_exists($class))
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, $class.' class does not exist');
+			MMI_Log::log_error(__METHOD__, __LINE__, $class.' class does not exist');
 			throw new Kohana_Exception(':class class does not exist in :method.', array
 			(
 				':class'	=> $class,

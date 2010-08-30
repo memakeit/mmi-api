@@ -166,7 +166,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 		else
 		{
 			$service = $this->_service;
-			MMI_API::log_error(__METHOD__, __LINE__, 'Invalid token for '.$service);
+			MMI_Log::log_error(__METHOD__, __LINE__, 'Invalid token for '.$service);
 			throw new Kohana_Exception('Invalid token for :service in :method.', array
 			(
 				':service'	=> $service,

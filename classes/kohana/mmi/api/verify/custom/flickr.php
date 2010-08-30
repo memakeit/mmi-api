@@ -26,7 +26,7 @@ class Kohana_MMI_API_Verify_Custom_Flickr extends MMI_API_Verify_Custom
 		$service = $this->_service;
 		if (empty($service))
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, 'Service not set');
+			MMI_Log::log_error(__METHOD__, __LINE__, 'Service not set');
 			throw new Kohana_Exception('Service not set in :method.', array
 			(
 				':method' => __METHOD__,
@@ -41,7 +41,7 @@ class Kohana_MMI_API_Verify_Custom_Flickr extends MMI_API_Verify_Custom
 		}
 		if (empty($frob))
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, 'Frob parameter missing');
+			MMI_Log::log_error(__METHOD__, __LINE__, 'Frob parameter missing');
 			throw new Kohana_Exception('Frob parameter missing in :method.', array
 			(
 				':method' => __METHOD__,

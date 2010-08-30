@@ -861,14 +861,14 @@ abstract class Kohana_MMI_API
 	{
 		if ( ! $response instanceof MMI_Curl_Response)
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, 'No cURL response object.');
+			MMI_Log::log_error(__METHOD__, __LINE__, 'No cURL response object.');
 			return FALSE;
 		}
 
 		$http_status_code = $response->http_status_code();
 		if (intval($http_status_code) !== 200)
 		{
-			MMI_API::log_error(__METHOD__, __LINE__, $msg.'.  HTTP status code:' .$http_status_code. '.  Response: '.$response->body());
+			MMI_Log::log_error(__METHOD__, __LINE__, $msg.'.  HTTP status code:' .$http_status_code. '.  Response: '.$response->body());
 			return FALSE;
 		}
 		return TRUE;
@@ -908,7 +908,7 @@ abstract class Kohana_MMI_API
 		if ( ! isset($value) OR (is_string($value) AND UTF8::trim($value) === '') OR ($value === array()))
 		{
 			$service = $this->_service;
-			MMI_API::log_error(__METHOD__, __LINE__, $name.' not set for '.$service);
+			MMI_Log::log_error(__METHOD__, __LINE__, $name.' not set for '.$service);
 			if ($throw_exception)
 			{
 				throw new Kohana_Exception(':name not set for :service in :method.', array
@@ -982,19 +982,6 @@ abstract class Kohana_MMI_API
 			$config = $config->as_array();
 		}
 		return $config;
-	}
-
-	/**
-	 * Log a formatted error message.
-	 *
-	 * @param	string	the method name
-	 * @param	string	the line number
-	 * @param	string	the error message
-	 * @return	void
-	 */
-	public static function log_error($method, $line, $msg)
-	{
-		Kohana::$log->add(Kohana::ERROR, '['.$method.' @ line '.$line.'] '.$msg)->write();
 	}
 
 	/**
