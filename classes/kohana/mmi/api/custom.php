@@ -113,7 +113,11 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
 	 */
 	public function authenticate_url($value = NULL)
 	{
-		return $this->_get_set('_authenticate_url', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_authenticate_url;
+		}
+		return $this->_set('_authenticate_url', $value, 'is_string');
 	}
 
 	/**
@@ -125,7 +129,11 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
 	 */
 	public function authorize_url($value = NULL)
 	{
-		return $this->_get_set('_authorize_url', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_authorize_url;
+		}
+		return $this->_set('_authorize_url', $value, 'is_string');
 	}
 
 	/**
@@ -137,7 +145,11 @@ abstract class Kohana_MMI_API_Custom extends MMI_API
 	 */
 	public function username($value = NULL)
 	{
-		return $this->_get_set('_username', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_username;
+		}
+		return $this->_set('_username', $value, 'is_string');
 	}
 
 	/**

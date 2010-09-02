@@ -150,7 +150,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	 */
 	public function access_token_http_method($value = NULL)
 	{
-		return $this->_get_set('_access_token_http_method', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_access_token_http_method;
+		}
+		return $this->_set('_access_token_http_method', $value, 'is_string');
 	}
 
 	/**
@@ -162,7 +166,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	 */
 	public function access_token_url($value = NULL)
 	{
-		return $this->_get_set('_access_token_url', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_access_token_url;
+		}
+		return $this->_set('_access_token_url', $value, 'is_string');
 	}
 
 	/**
@@ -248,7 +256,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	 */
 	public function realm($value = NULL)
 	{
-		return $this->_get_set('_realm', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_realm;
+		}
+		return $this->_set('_realm', $value, 'is_string');
 	}
 
 	/**
@@ -260,7 +272,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	 */
 	public function request_token_http_method($value = NULL)
 	{
-		return $this->_get_set('_request_token_http_method', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_request_token_http_method;
+		}
+		return $this->_set('_request_token_http_method', $value, 'is_string');
 	}
 
 	/**
@@ -272,7 +288,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	 */
 	public function request_token_url($value = NULL)
 	{
-	  return $this->_get_set('_request_token_url', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_request_token_url;
+		}
+		return $this->_set('_request_token_url', $value, 'is_string');
 	}
 
 	/**
@@ -285,7 +305,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	 */
 	public function send_auth_as_data($value = NULL)
 	{
-	  return $this->_get_set('_send_auth_as_data', $value, 'is_bool');
+	if (func_num_args() === 0)
+		{
+			return $this->_send_auth_as_data;
+		}
+		return $this->_set('_send_auth_as_data', $value, 'is_bool');
 	}
 
 	/**
@@ -297,7 +321,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	 */
 	public function username($value = NULL)
 	{
-		return $this->_get_set('_username', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_username;
+		}
+		return $this->_set('_username', $value, 'is_string');
 	}
 
 	/**
@@ -309,7 +337,11 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	 */
 	public function version($value = NULL)
 	{
-		return $this->_get_set('_version', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_version;
+		}
+		return $this->_set('_version', $value, 'is_string');
 	}
 
 	/**

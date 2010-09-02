@@ -151,7 +151,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function api_url($value = NULL)
 	{
-		return $this->_get_set('_api_url', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_api_url;
+		}
+		return $this->_set('_api_url', $value, 'is_string');
 	}
 
 	/**
@@ -163,7 +167,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function connect_timeout($value = NULL)
 	{
-		return $this->_get_set('_connect_timeout', $value, 'is_int');
+		if (func_num_args() === 0)
+		{
+			return $this->_connect_timeout;
+		}
+		return $this->_set('_connect_timeout', $value, 'is_int');
 	}
 
 	/**
@@ -175,7 +183,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function debug($value = NULL)
 	{
-		return $this->_get_set('_debug', $value, 'is_bool');
+		if (func_num_args() === 0)
+		{
+			return $this->_debug;
+		}
+		return $this->_set('_debug', $value, 'is_bool');
 	}
 
 	/**
@@ -187,7 +199,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function decode($value = NULL)
 	{
-		return $this->_get_set('_decode', $value, 'is_bool');
+		if (func_num_args() === 0)
+		{
+			return $this->_decode;
+		}
+		return $this->_set('_decode', $value, 'is_bool');
 	}
 
 	/**
@@ -199,7 +215,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function decode_as_array($value = NULL)
 	{
-		return $this->_get_set('_decode_as_array', $value, 'is_bool');
+		if (func_num_args() === 0)
+		{
+			return $this->_decode_as_array;
+		}
+		return $this->_set('_decode_as_array', $value, 'is_bool');
 	}
 
 	/**
@@ -211,7 +231,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function format($value = NULL)
 	{
-		return $this->_get_set('_format', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_format;
+		}
+		return $this->_set('_format', $value, 'is_string');
 	}
 
 	/**
@@ -221,7 +245,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function service()
 	{
-		return $this->_get_set('_service');
+		if (func_num_args() === 0)
+		{
+			return $this->_service;
+		}
+		return $this->_set('_service');
 	}
 
 	/**
@@ -233,7 +261,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function send_accept_header($value = NULL)
 	{
-		return $this->_get_set('_send_accept_header', $value, 'is_bool');
+		if (func_num_args() === 0)
+		{
+			return $this->_send_accept_header;
+		}
+		return $this->_set('_send_accept_header', $value, 'is_bool');
 	}
 
 	/**
@@ -245,7 +277,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function send_auth_header($value = NULL)
 	{
-		return $this->_get_set('_send_auth_header', $value, 'is_bool');
+		if (func_num_args() === 0)
+		{
+			return $this->_send_auth_header;
+		}
+		return $this->_set('_send_auth_header', $value, 'is_bool');
 	}
 
 	/**
@@ -257,7 +293,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function ssl_verifypeer($value = NULL)
 	{
-		return $this->_get_set('_ssl_verifypeer', $value, 'is_bool');
+		if (func_num_args() === 0)
+		{
+			return $this->_ssl_verifypeer;
+		}
+		return $this->_set('_ssl_verifypeer', $value, 'is_bool');
 	}
 
 	/**
@@ -269,7 +309,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function timeout($value = NULL)
 	{
-		return $this->_get_set('_timeout', $value, 'is_int');
+		if (func_num_args() === 0)
+		{
+			return $this->_timeout;
+		}
+		return $this->_set('_timeout', $value, 'is_int');
 	}
 
 	/**
@@ -281,7 +325,11 @@ abstract class Kohana_MMI_API
 	 */
 	public function useragent($value = NULL)
 	{
-		return $this->_get_set('_useragent', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_useragent;
+		}
+		return $this->_set('_useragent', $value, 'is_string');
 	}
 
 	/**
@@ -476,7 +524,7 @@ abstract class Kohana_MMI_API
 		// Format the response
 		if ($response instanceof MMI_Curl_Response AND $this->_decode)
 		{
-			$method  = '_decode_'.strtolower($this->_format);
+			$method = '_decode_'.strtolower($this->_format);
 			if (method_exists($this, $method))
 			{
 				$decoded = $this->$method($response->body());
@@ -922,27 +970,24 @@ abstract class Kohana_MMI_API
 	}
 
 	/**
-	 * Get or set a class property.
-	 * This method is chainable when setting a value.
+	 * Set a class property.  This method is chainable.
 	 *
 	 * @param	string	the name of the class property to set
 	 * @param	mixed	the value to set
 	 * @param	string	the name of the data verification method
-	 * @return	mixed
+	 * @return	MMI_API
 	 */
-	protected function _get_set($name, $value = NULL, $verify_method = NULL)
+	protected function _set($name, $value = NULL, $verify_method = NULL)
 	{
 		if ( ! empty($verify_method) AND $verify_method($value))
 		{
 			$this->$name = $value;
-			return $this;
 		}
 		elseif (isset($value))
 		{
 			$this->$name = $value;
-			return $this;
 		}
-		return $this->$name;
+		return $this;
 	}
 
 	/**

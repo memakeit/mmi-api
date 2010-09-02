@@ -67,7 +67,11 @@ class Kohana_MMI_API_Reddit extends MMI_API
 	 */
 	public function cookie($value = NULL)
 	{
-		return $this->_get_set('_cookie', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_cookie;
+		}
+		return $this->_set('_cookie', $value, 'is_string');
 	}
 
 	/**
@@ -79,7 +83,11 @@ class Kohana_MMI_API_Reddit extends MMI_API
 	 */
 	public function usermodhash($value = NULL)
 	{
-		return $this->_get_set('_usermodhash', $value, 'is_string');
+		if (func_num_args() === 0)
+		{
+			return $this->_usermodhash;
+		}
+		return $this->_set('_usermodhash', $value, 'is_string');
 	}
 
 	/**
