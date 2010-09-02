@@ -9,7 +9,7 @@
  */
 class Controller_MMI_API_Test_Flickr extends Controller_MMI_API_Test
 {
-   /**
+	/**
 	 * Test the Flickr API.
 	 *
 	 * @return	void

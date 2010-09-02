@@ -9,7 +9,7 @@
  */
 class Controller_MMI_API_Test_Vimeo extends Controller_MMI_API_Test
 {
-   /**
+	/**
 	 * Test the Vimeo API.
 	 *
 	 * @return	void

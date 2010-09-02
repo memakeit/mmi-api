@@ -39,7 +39,7 @@ return array
 				'remove'	=> array(),
 				'add'		=> array(),
 			),
-			'parms'  => array
+			'parms' => array
 			(
 				'remove'	=> array(),
 				'add'		=> array(),

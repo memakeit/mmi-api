@@ -17,7 +17,7 @@ class Controller_MMI_API_Verify_OAuth extends Controller
 	/**
 	 * Process the verification.
 	 *
-	 * @return  void
+	 * @return	void
 	 */
 	public function action_index()
 	{

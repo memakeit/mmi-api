@@ -576,7 +576,7 @@ abstract class Kohana_MMI_API
 		// Format the response
 		if ($this->_decode AND is_array($responses) AND count($responses) > 0)
 		{
-			$method  = '_decode_'.strtolower($this->_format);
+			$method = '_decode_'.strtolower($this->_format);
 			if (method_exists($this, $method))
 			{
 				foreach ($responses as $id => $response)

@@ -51,7 +51,7 @@ abstract class Kohana_MMI_API_Verify_Custom
 	 *
 	 * @throws	Kohana_Exception
 	 * @param	string	the name of the service
-	 * @return  MMI_API_Verify_Custom
+	 * @return	MMI_API_Verify_Custom
 	 */
 	public static function factory($driver)
 	{

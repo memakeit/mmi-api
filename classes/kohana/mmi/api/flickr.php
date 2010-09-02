@@ -287,7 +287,7 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 					}
 				}
 			}
-	   }
+		}
 		return $token;
 	}
 

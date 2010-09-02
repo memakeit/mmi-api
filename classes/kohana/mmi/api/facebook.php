@@ -47,7 +47,7 @@ class Kohana_MMI_API_Facebook extends MMI_API_OAuth
 	 */
 	public function get_access_token($oauth_verifier = NULL, $auth_config = array())
 	{
-	   return NULL;
+		return NULL;
 	}
 
 	/**
