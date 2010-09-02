@@ -555,7 +555,7 @@ abstract class Kohana_MMI_API
 
 			// Configure the URLs
 			$url = Arr::get($request, 'url');
-			$requests[$id]['url'] = $this->_configure_url($url);;
+			$requests[$id]['url'] = $this->_configure_url($url);
 
 			// Configure the request parameters
 			$parms = Arr::get($request, 'parms');
