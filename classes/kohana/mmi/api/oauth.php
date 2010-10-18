@@ -603,12 +603,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 				case MMI_HTTP::METHOD_GET:
 					$url = $request->to_url();
 					$parms = NULL;
-					break;
+				break;
 
 				default:
 					$url = $request->get_normalized_http_url();
 					$parms = $request->to_postdata();
-					break;
+				break;
 			}
 		}
 
@@ -685,12 +685,12 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 					case MMI_HTTP::METHOD_GET:
 						$url = $request->to_url();
 						$parms = NULL;
-						break;
+					break;
 
 					default:
 						$url = $request->get_normalized_http_url();
 						$parms = $request->to_postdata();
-						break;
+					break;
 				}
 			}
 
@@ -1071,19 +1071,19 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	{
 		$type = strtoupper($this->_signature_type);
 		$signature_method = NULL;
-		switch($type)
+		switch ($type)
 		{
 			case self::SIGN_HMAC_SHA1:
 				$signature_method = new OAuthSignatureMethod_HMAC_SHA1;
-				break;
+			break;
 
 			case self::SIGN_PLAINTEXT:
 				$signature_method = new OAuthSignatureMethod_PLAINTEXT;
-				break;
+			break;
 
 			case self::SIGN_RSA_SHA1:
 				// Not supported
-				break;
+			break;
 		}
 		return $signature_method;
 	}

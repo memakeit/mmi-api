@@ -805,19 +805,19 @@ abstract class Kohana_MMI_API
 	{
 		$accept_header;
 		$format = strtolower($this->_format);
-		switch($format)
+		switch ($format)
 		{
 			case MMI_API::FORMAT_JAVASCRIPT:
 				$accept_header = 'text/javascript';
-				break;
+			break;
 
 			case self::FORMAT_JSONP:
 				$accept_header = 'text/javascript';
-				break;
+			break;
 
 			default:
 				$accept_header = File::mime_by_ext($format);
-				break;
+			break;
 		}
 		return $accept_header;
 	}
@@ -916,7 +916,7 @@ abstract class Kohana_MMI_API
 		$http_status_code = $response->http_status_code();
 		if (intval($http_status_code) !== 200)
 		{
-			MMI_Log::log_error(__METHOD__, __LINE__, $msg.'. HTTP status code:' .$http_status_code. '. Response: '.$response->body());
+			MMI_Log::log_error(__METHOD__, __LINE__, $msg.'. HTTP status code:'.$http_status_code.'. Response: '.$response->body());
 			return FALSE;
 		}
 		return TRUE;
@@ -936,7 +936,7 @@ abstract class Kohana_MMI_API
 		if ( ! empty($url) AND ! empty($suffix))
 		{
 			$end = substr($url, strlen($url) - strlen($suffix));
-			$ends_with = ($case_sensitive) ? ($end === $suffix) : (strcasecmp($end, $suffix) === 0);
+			$ends_with = $case_sensitive ? ($end === $suffix) : (strcasecmp($end, $suffix) === 0);
 		}
 		return $ends_with;
 	}

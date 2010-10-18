@@ -30,11 +30,11 @@ class Controller_MMI_API_Verify_OAuth extends Controller
 			{
 				case MMI_API::SERVICE_FACEBOOK:
 					$success = MMI_API_Verify_OAuth::factory($service)->verify();
-					break;
+				break;
 
 				default:
 					$success = MMI_API_Verify_OAuth::factory()->verify($service);
-					break;
+				break;
 			}
 		}
 

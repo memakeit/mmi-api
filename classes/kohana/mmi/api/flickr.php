@@ -320,11 +320,11 @@ class Kohana_MMI_API_Flickr extends MMI_API_Custom
 					{
 						$parms[$name] = 1;
 					}
-					break;
+				break;
 
 				case MMI_API::FORMAT_XML:
 					$format = 'rest';
-					break;
+				break;
 			}
 		}
 
