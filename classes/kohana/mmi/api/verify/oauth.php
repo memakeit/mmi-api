@@ -85,8 +85,8 @@ class Kohana_MMI_API_Verify_OAuth
 		}
 		if (empty($token_key) OR ($require_verification_code AND empty($verification_code)))
 		{
-			MMI_Log::log_error(__METHOD__, __LINE__, 'Verification parameter missing.  OAuth token:'.$token_key.'.  Verification code:'.$verification_code);
-			throw new Kohana_Exception('Verification parameter missing in :method.  OAuth token: :token_key.  Verification code: :verification_code.', array
+			MMI_Log::log_error(__METHOD__, __LINE__, 'Verification parameter missing. OAuth token:'.$token_key.'. Verification code:'.$verification_code);
+			throw new Kohana_Exception('Verification parameter missing in :method. OAuth token: :token_key. Verification code: :verification_code.', array
 			(
 				':method'				=> __METHOD__,
 				':token_key'			=> $token_key,

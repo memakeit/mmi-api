@@ -98,7 +98,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	protected $_version = '1.0';
 
 	/**
-	 * Include the OAuth vendor files.  Load configuration settings.
+	 * Include the OAuth vendor files. Load configuration settings.
 	 * Create the signature, consumer, and token objects.
 	 *
 	 * @return	void

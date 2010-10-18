@@ -916,7 +916,7 @@ abstract class Kohana_MMI_API
 		$http_status_code = $response->http_status_code();
 		if (intval($http_status_code) !== 200)
 		{
-			MMI_Log::log_error(__METHOD__, __LINE__, $msg.'.  HTTP status code:' .$http_status_code. '.  Response: '.$response->body());
+			MMI_Log::log_error(__METHOD__, __LINE__, $msg.'. HTTP status code:' .$http_status_code. '. Response: '.$response->body());
 			return FALSE;
 		}
 		return TRUE;
@@ -970,7 +970,8 @@ abstract class Kohana_MMI_API
 	}
 
 	/**
-	 * Set a class property.  This method is chainable.
+	 * Set a class property.
+	 * This method is chainable.
 	 *
 	 * @param	string	the name of the class property to set
 	 * @param	mixed	the value to set

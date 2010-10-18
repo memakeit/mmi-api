@@ -92,7 +92,7 @@ class Kohana_MMI_API_Reddit extends MMI_API
 
 	/**
 	 * Log the user into Reddit using the username and password from the config
-	 * file.  Save the cookie and user modhash in the corresponding class
+	 * file. Save the cookie and user modhash in the corresponding class
 	 * properties.
 	 *
 	 * @param	boolean	save the cookie to the database?
