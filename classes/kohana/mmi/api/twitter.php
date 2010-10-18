@@ -64,6 +64,6 @@ class Kohana_MMI_API_Twitter extends MMI_API_OAuth
 				break;
 			}
 		}
-		return ($has_extension) ? $url.$path : "$url$path.{$this->_format}";
+		return $has_extension ? ($url.$path) : "$url$path.{$this->_format}";
 	}
 } // End Kohana_MMI_API_Twitter

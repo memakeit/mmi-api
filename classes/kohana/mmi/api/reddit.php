@@ -256,7 +256,7 @@ class Kohana_MMI_API_Reddit extends MMI_API
 				break;
 			}
 		}
-		return ($has_extension) ? $url.$path : "$url$path.{$this->_format}";
+		return $has_extension ? ($url.$path) : "$url$path.{$this->_format}";
 	}
 
 	/**
