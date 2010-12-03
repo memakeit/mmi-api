@@ -40,7 +40,7 @@ abstract class Kohana_MMI_API_Verify_Custom
 	 */
 	public function __construct()
 	{
-		$this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
+		$this->_debug = class_exists('MMI_Request') ? MMI_Request::debug() : FALSE;
 		$config = MMI_API::get_config();
 		$this->_service_config = $config->get($this->_service, array());
 		$this->_auth_config = Arr::get($this->_service_config, 'auth', array());

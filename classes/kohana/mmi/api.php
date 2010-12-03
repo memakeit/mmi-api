@@ -111,7 +111,7 @@ abstract class Kohana_MMI_API
 	 */
 	public function __construct()
 	{
-		$this->_debug = (isset(Request::instance()->debug)) ? (Request::instance()->debug) : (FALSE);
+		$this->_debug = class_exists('MMI_Request') ? MMI_Request::debug() : FALSE;
 		$config = self::get_config();
 		$service_config = $config->get($this->_service, array());
 		$this->_auth_config = Arr::get($service_config, 'auth', array());
