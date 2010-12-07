@@ -38,7 +38,7 @@ class Kohana_MMI_API_Verify_OAuth
 	 */
 	public function __construct()
 	{
-		require_once Kohana::find_file('vendor', 'oauth/oauth_required');
+		require_once Kohana::find_file('vendor', 'oauth/required');
 
 		$this->_debug = class_exists('MMI_Request') ? MMI_Request::debug() : FALSE;
 		$config = MMI_API::get_config();

@@ -106,7 +106,7 @@ abstract class Kohana_MMI_API_OAuth extends MMI_API
 	public function __construct()
 	{
 		parent::__construct();
-		require_once Kohana::find_file('vendor', 'oauth/oauth_required');
+		require_once Kohana::find_file('vendor', 'oauth/required');
 		$auth_config = $this->_auth_config;
 
 		// Configure the auth URLs
